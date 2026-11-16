@@ -4,9 +4,9 @@ from pathlib import Path
 import streamlit as st
 from src.features import build_features
 from src.predictor import predict, explain
-from src.explainer import explain_reasons, improvement_tips
+from src.explainer import explain_reasons, suggestion_text
 from src.finance import loan_summary, foir, format_inr
-from src.counterfactual import apply_change
+from src.counterfactual import apply_change, find_improvements
 from src.translations import t
 from src.ui import contribution_chart, footer, header, page_setup, result_card, section_title
 
@@ -15,7 +15,7 @@ def reset_sample(case_id):
     for name in ("income","loan","emi","util","tenure"):
         st.session_state.pop(f"sample_{name}_{case_id}",None)
 
-page_setup(); header("samples"); section_title(t("cases_title"))
+page_setup(); header("samples"); section_title(t("cases_title")); st.info(t("model_warning"))
 cases=json.loads((Path(__file__).resolve().parents[1]/"src"/"sample_cases.json").read_text(encoding="utf-8"))
 for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky"]):
     with tab:
@@ -28,11 +28,18 @@ for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky
                     with st.expander(t("view_explanation")):
                         details=case["values"]
                         features=build_features(details); result=predict(features); result_card(result)
-                        for reason in explain_reasons(features): st.markdown(("✅ " if reason["helpful"] else "❌ ")+reason["text"])
-                        contribution_chart(explain(features),height=260)
+                        contributions=explain(features)
+                        for reason in explain_reasons(features,contributions): st.markdown(("✅ " if reason["helpful"] else "⚠️ ")+reason["text"])
+                        contribution_chart(contributions,height=260)
                         if result["label"]!="STRONG":
                             section_title(t("improve"))
-                            for tip in improvement_tips(details): st.markdown("• "+tip)
+                            suggestions=find_improvements(details)
+                            if suggestions:
+                                for suggestion in suggestions:
+                                    st.markdown("• "+" + ".join(suggestion_text(change) for change in suggestion["changes"]))
+                            else:
+                                st.caption(t("no_counterfactual"))
+                            st.caption(t("recommendation_note"))
                         st.markdown(f"**{t('whatif')}**")
                         income=st.slider(t("income")+" (₹)",min_value=max(1,int(details["annual_income"]*.5)),max_value=max(2000000,int(details["annual_income"]*1.5)),value=int(details["annual_income"]),step=25000,key=f"sample_income_{case['id']}",format="₹%d")
                         st.caption(format_inr(income))

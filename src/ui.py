@@ -57,8 +57,7 @@ def money_input(label,key,value,step=1000):
 
 def contribution_chart(contributions,height=330):
     """Render the same color-coded explanation chart on results and examples."""
-    names={"Loan compared with yearly income":"feature_loan","Existing monthly EMIs":"feature_dti","Card limit used":"feature_card","Past defaults or court records":"feature_records","Bankruptcy records":"feature_bankruptcy","Time in current job":"feature_job","Credit history length":"feature_history","Home loans":"feature_home","Repayment period":"feature_term"}
-    labels=[t(names.get(item["feature"],item["feature"])) for item in contributions]
+    labels=[t("feature_"+item["feature"]) for item in contributions]
     colors=["#F87171" if item["contribution"]>0 else "#34D399" for item in contributions]
     figure=go.Figure(go.Bar(x=[item["contribution"] for item in contributions],y=labels,orientation="h",marker_color=colors))
     figure.update_layout(height=height,margin=dict(l=10,r=10,t=12,b=20),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",xaxis_title=t("contribution_axis"),yaxis=dict(autorange="reversed"))

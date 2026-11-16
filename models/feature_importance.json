@@ -1,0 +1,72 @@
+[
+  {
+    "feature": "term",
+    "mean_absolute_shap": 0.30624915117025375,
+    "rank": 1
+  },
+  {
+    "feature": "loan_to_income",
+    "mean_absolute_shap": 0.22596444176731892,
+    "rank": 2
+  },
+  {
+    "feature": "revol_util",
+    "mean_absolute_shap": 0.20755104068858782,
+    "rank": 3
+  },
+  {
+    "feature": "dti",
+    "mean_absolute_shap": 0.1940530230539298,
+    "rank": 4
+  },
+  {
+    "feature": "open_acc",
+    "mean_absolute_shap": 0.1256764739111095,
+    "rank": 5
+  },
+  {
+    "feature": "revol_bal_to_income",
+    "mean_absolute_shap": 0.12538629002450033,
+    "rank": 6
+  },
+  {
+    "feature": "home_ownership",
+    "mean_absolute_shap": 0.11991580642364329,
+    "rank": 7
+  },
+  {
+    "feature": "mort_acc",
+    "mean_absolute_shap": 0.10255157875921578,
+    "rank": 8
+  },
+  {
+    "feature": "total_acc",
+    "mean_absolute_shap": 0.08665973366249818,
+    "rank": 9
+  },
+  {
+    "feature": "purpose",
+    "mean_absolute_shap": 0.08096750513352072,
+    "rank": 10
+  },
+  {
+    "feature": "pub_rec",
+    "mean_absolute_shap": 0.054190717079301065,
+    "rank": 11
+  },
+  {
+    "feature": "emp_length",
+    "mean_absolute_shap": 0.05367313291366736,
+    "rank": 12
+  },
+  {
+    "feature": "credit_history_years",
+    "mean_absolute_shap": 0.04775887644235627,
+    "rank": 13
+  },
+  {
+    "feature": "pub_rec_bankruptcies",
+    "mean_absolute_shap": 0.0,
+    "rank": 14
+  }
+]

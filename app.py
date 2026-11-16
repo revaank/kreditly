@@ -1,10 +1,11 @@
-"""Kreditly's home page. The current model is an educational dummy."""
+"""Kreditly's home page for an educational historical-model demonstration."""
 import streamlit as st
 from src.translations import t
 from src.ui import footer, header, page_setup, section_title
 
 page_setup()
 header("home")
+st.warning(t("model_warning"))
 st.markdown('<div class="hero">', unsafe_allow_html=True)
 st.markdown(f'<div class="eyebrow">{t("eyebrow")}</div><h1>{t("headline")}</h1><p class="hero-copy">{t("subtext")}</p>', unsafe_allow_html=True)
 c1, c2 = st.columns([1, 1])

@@ -1,8 +1,8 @@
 """Three-step profile form, educational estimate and what-if controls."""
 from urllib.parse import quote
 import streamlit as st
-from src.counterfactual import apply_change
-from src.explainer import explain_reasons, improvement_tips
+from src.counterfactual import apply_change, find_improvements
+from src.explainer import explain_reasons, suggestion_text
 from src.features import build_features
 from src.finance import format_inr, loan_summary, foir
 from src.predictor import explain, predict
@@ -111,17 +111,25 @@ with right:
 
 if "estimate" in st.session_state:
     st.markdown("---"); estimate=st.session_state.estimate; result=estimate["result"]; values=estimate["values"]; features=estimate["features"]
+    st.info(t("model_warning"))
     if values.get("credit_unknown") or values.get("cibil_unknown"): st.info(t("estimated"))
     col1,col2=st.columns([1,1.15],gap="large")
     with col1: result_card(result)
     with col2:
         section_title(t("why"))
-        for reason in explain_reasons(features): st.markdown(("✅ " if reason["helpful"] else "❌ ")+reason["text"])
+        contributions=explain(features)
+        for reason in explain_reasons(features,contributions): st.markdown(("✅ " if reason["helpful"] else "⚠️ ")+reason["text"])
     section_title(t("contributions"))
-    contrib=explain(features); contribution_chart(contrib)
+    contribution_chart(contributions)
     if result["label"]!="STRONG":
         section_title(t("improve"))
-        for tip in improvement_tips(values): st.markdown("• "+tip)
+        suggestions=find_improvements(values)
+        if suggestions:
+            for suggestion in suggestions:
+                st.markdown("• "+" + ".join(suggestion_text(change) for change in suggestion["changes"]))
+        else:
+            st.caption(t("no_counterfactual"))
+        st.caption(t("recommendation_note"))
     section_title(t("whatif"))
     signature=tuple(values.get(key) for key in ("annual_income","loan_amount","tenure_months","existing_emi","revol_util"))
     if st.session_state.get("whatif_signature")!=signature:

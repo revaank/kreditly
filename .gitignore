@@ -3,9 +3,13 @@ data/
 .venv/
 venv/
 __pycache__/
+.ipynb_checkpoints/
+.jupyter-data/
+.ipython/
 *.py[cod]
 .env
 .streamlit/secrets.toml
 .uv-cache/
 .codex-uv.exe
 .codex-streamlit*.log
+.codex-preview*.log

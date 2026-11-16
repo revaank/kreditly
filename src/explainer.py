@@ -1,28 +1,62 @@
-"""Turn model factors into short, translated reasons and tips."""
-from .finance import format_inr
+"""Translate grouped SHAP results into readable English and Hindi facts."""
 from .translations import t
 
-def explain_reasons(features: dict):
-    """Return up to five meaningful facts, ordered by how unusual they are."""
-    loan=features["loan_to_income"]; dti=features["dti"]
-    util=features["revol_util"]; history=features["credit_history_years"]
-    job=features["emp_length"]
-    candidates=[
-      ("loan_to_income",loan>1.5,t("reason_loan",x=f"{loan:.1f}") if loan>1.5 else t("reason_low_loan"),abs(loan-1.0)),
-      ("dti",dti>20,t("reason_dti",x=f"{dti:.0f}") if dti>20 else t("reason_low_dti"),abs(dti-10)/10),
-      ("revol_util",util>50,t("reason_util",x=f"{util:.0f}") if util>50 else t("reason_low_util"),abs(util-30)/30),
-      ("pub_rec",features["pub_rec"]>0,t("reason_records") if features["pub_rec"] else t("reason_no_records"),features["pub_rec"]),
-      ("pub_rec_bankruptcies",features["pub_rec_bankruptcies"]>0,t("reason_bankruptcy"),features["pub_rec_bankruptcies"]),
-      ("credit_history_years",history<3,t("reason_short_history") if history<3 else t("reason_history") if history>=8 else t("reason_mid_history"),1 if history<3 else min(1,history/8)),
-      ("emp_length",job<2,t("reason_short_job") if job<2 else t("reason_job"),1 if job<2 else min(1,job/5)),
-      ("mort_acc",False,t("reason_mortgage"),features["mort_acc"]),
-      ("term",features["term"]==60,t("reason_term") if features["term"]==60 else t("reason_short_term"),.7 if features["term"]==60 else .2)]
-    candidates.sort(key=lambda item:item[3],reverse=True)
-    return [{"feature":key,"helpful":not harmful,"text":sentence} for key,harmful,sentence,_ in candidates[:5]]
 
-def improvement_tips(values: dict):
-    tips=[]
-    if values.get("existing_emi",0)>0: tips.append(t("tip_emi",x=format_inr(values["existing_emi"]*.15)))
-    if values.get("loan_amount",0)>0: tips.append(t("tip_loan",x=format_inr(values["loan_amount"]*.75)))
-    if values.get("card_bill",0)>0: tips.append(t("tip_card",x=format_inr(values["card_bill"]*.3)))
-    return tips[:3]
+def _format_feature_value(key, value):
+    if key == "loan_to_income":
+        ratio = float(value)
+        return f"{ratio:.2f}" if abs(ratio) < 0.1 else f"{ratio:.1f}"
+    if key == "revol_bal_to_income":
+        return f"{float(value) * 100:.1f}"
+    if key in {"dti", "revol_util"}:
+        return f"{float(value):.0f}"
+    if key == "purpose":
+        purpose_labels = {
+            "debt_consolidation": "p_debt", "credit_card": "p_card",
+            "home_improvement": "p_home", "major_purchase": "p_purchase",
+            "small_business": "p_business", "car": "p_vehicle",
+            "medical": "p_medical", "other": "p_other",
+        }
+        return t(purpose_labels.get(str(value), "p_other"))
+    if key == "home_ownership":
+        home_labels = {"RENT": "rented", "OWN": "own", "MORTGAGE": "own_loan", "OTHER": "home_other"}
+        return t(home_labels.get(str(value), "home"))
+    try:
+        return f"{float(value):g}"
+    except (TypeError, ValueError):
+        return t("dont_know")
+
+
+def explain_reasons(features: dict, contributions: list | None = None):
+    """Turn highest-magnitude grouped SHAP values into value-specific reasons."""
+    if not contributions:
+        return []
+    sentences = []
+    for item in sorted(contributions, key=lambda row: abs(row.get("contribution", 0)), reverse=True)[:5]:
+        feature = item["feature"]
+        if feature not in features:
+            continue
+        detail = t(f"factor_{feature}", x=_format_feature_value(feature, features[feature]))
+        moved_up = float(item.get("contribution", 0)) >= 0
+        sentences.append({
+            "feature": feature,
+            "helpful": not moved_up,
+            "contribution": float(item.get("contribution", 0)),
+            "text": t("model_higher" if moved_up else "model_lower", detail=detail),
+        })
+    return sentences
+
+
+def suggestion_text(suggestion):
+    """Render a counterfactual action using exact profile values."""
+    key = suggestion["field"]
+    value = suggestion["value"]
+    if key == "loan_amount":
+        return t("suggest_loan", x=f"{value:,.0f}")
+    if key == "existing_emi":
+        return t("suggest_emi", x=f"{value:,.0f}")
+    if key == "revol_util":
+        return t("suggest_util", x=f"{value:.0f}")
+    if key == "tenure_months":
+        return t("suggest_term", x=f"{value:.0f}")
+    return ""

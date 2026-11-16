@@ -1,73 +1,103 @@
-"""Plug-in point for a future trained model. Phase 1 uses a transparent dummy score."""
+"""Load the trained LendingClub pipeline and explain its risk estimates."""
 from pathlib import Path
-from functools import lru_cache
 import json
 
-FEATURES = ["loan_to_income", "revol_bal_to_income", "dti", "revol_util", "open_acc", "total_acc", "pub_rec", "mort_acc", "pub_rec_bankruptcies", "term", "purpose", "emp_length", "home_ownership", "credit_history_years"]
-USE_REAL_MODEL = False
+import joblib
+import numpy as np
+import pandas as pd
+import shap
+import streamlit as st
+
+from .features import FEATURES
+from .training import aggregate_shap, transformed_feature_groups
+
+
+USE_REAL_MODEL = True
 ROOT = Path(__file__).resolve().parents[1]
 
-def _threshold():
-    path = ROOT / "models" / "threshold.json"
-    if path.exists():
-        try: return min(.9, max(.1, float(json.loads(path.read_text(encoding="utf-8")).get("threshold", .5))))
-        except (ValueError, OSError, AttributeError): pass
-    return .5
 
-@lru_cache(maxsize=1)
+@st.cache_resource(show_spinner=False)
 def _load_model():
-    """Load the later model once, when the real-model flag is enabled."""
-    import joblib
-    model_path=ROOT/"models"/"model.pkl"
+    """Load one model object for the lifetime of the Streamlit server."""
+    model_path = ROOT / "models" / "model.pkl"
     if not model_path.exists():
-        raise FileNotFoundError("USE_REAL_MODEL is true, but models/model.pkl is not present.")
+        raise FileNotFoundError("The trained model is missing. Run notebooks/train_model.ipynb first.")
     return joblib.load(model_path)
 
+
+@st.cache_resource(show_spinner=False)
+def _load_shap_explainer():
+    """Build the model-specific SHAP tree explainer once per app process."""
+    return shap.TreeExplainer(_load_model().named_steps["model"])
+
+
+def _settings():
+    path = ROOT / "models" / "threshold.json"
+    if not path.exists():
+        raise FileNotFoundError("The validation-tuned models/threshold.json file is missing.")
+    values = json.loads(path.read_text(encoding="utf-8"))
+    threshold = float(values["threshold"])
+    band = float(values["borderline_band"])
+    if not 0 < threshold < 1 or not 0 <= band <= 0.5:
+        raise ValueError("The stored model threshold settings are invalid.")
+    return threshold, band
+
+
 def _model_frame(features):
-    import pandas as pd
-    return pd.DataFrame([{name:features.get(name) for name in FEATURES}],columns=FEATURES)
+    return pd.DataFrame([{name: features.get(name) for name in FEATURES}], columns=FEATURES)
 
-def _risk_class_index(model):
-    classes=[str(value).upper().replace(" ","_") for value in model.classes_]
-    for label in ("RISKY","DEFAULT","CHARGED_OFF"):
-        if label in classes: return classes.index(label)
-    if classes==["0","1"]: return 1
-    raise ValueError("The trained model must expose a RISKY/DEFAULT class or binary 0/1 classes.")
 
-def _dummy_risk(features: dict) -> float:
-    score = .22
-    score += min(.24, max(0, features.get("dti", 0) - 15) * .004)
-    score += min(.2, max(0, features.get("loan_to_income", 0) - .5) * .09)
-    score += min(.12, max(0, features.get("revol_util", 0) - 30) * .002)
-    score += min(.12, features.get("pub_rec", 0) * .035)
-    score += min(.16, features.get("pub_rec_bankruptcies", 0) * .08)
-    score += .07 if features.get("term") == 60 else 0
-    score -= min(.09, features.get("emp_length", 0) * .008)
-    score -= min(.06, features.get("mort_acc", 0) * .015)
-    score -= min(.1, features.get("credit_history_years", 0) * .008)
-    return min(.95, max(.03, score))
+def _frame_for_profiles(features_list):
+    return pd.DataFrame([{name: features.get(name) for name in FEATURES} for features in features_list], columns=FEATURES)
+
+
+def _labels(probabilities):
+    threshold, band = _settings()
+    return np.where(
+        probabilities < threshold - band, "STRONG",
+        np.where(probabilities > threshold + band, "RISKY", "BORDERLINE"),
+    )
+
+
+def predict_many(features_list):
+    """Predict a batch in one model call (also used by the what-if search)."""
+    if not features_list:
+        return []
+    model = _load_model()
+    class_index = list(model.classes_).index(1)
+    probabilities = model.predict_proba(_frame_for_profiles(features_list))[:, class_index]
+    labels = _labels(probabilities)
+    return [{"label": str(label), "risk": float(probability)} for label, probability in zip(labels, probabilities)]
+
 
 def predict(features: dict) -> dict:
-    if USE_REAL_MODEL:
-        model=_load_model(); probabilities=model.predict_proba(_model_frame(features))[0]
-        risk=float(probabilities[_risk_class_index(model)]); threshold=_threshold()
-        label="BORDERLINE" if abs(risk-threshold)<=.1 else ("STRONG" if risk<threshold else "RISKY")
-        return {"label":label,"risk":risk}
-    risk = _dummy_risk(features); threshold = _threshold()
-    label = "BORDERLINE" if abs(risk-threshold) <= .1 else ("STRONG" if risk < threshold else "RISKY")
-    return {"label": label, "risk": risk}
+    """Return Charged Off probability and STRONG/BORDERLINE/RISKY label."""
+    return predict_many([features])[0]
+
+
+def explain_many(features_list):
+    """Return grouped SHAP contributions for each original feature in a batch."""
+    if not features_list:
+        return []
+    model = _load_model()
+    preprocessor = model.named_steps["preprocessor"]
+    encoded = preprocessor.transform(_frame_for_profiles(features_list))
+    if hasattr(encoded, "toarray"):
+        encoded = encoded.toarray()
+    raw_values = _load_shap_explainer()(encoded)
+    grouped_names, mapping = transformed_feature_groups(preprocessor)
+    _ = grouped_names  # the mapping is used to collapse one-hot columns
+    grouped_values = aggregate_shap(raw_values.values, mapping)
+    result = []
+    for row, values in zip(features_list, grouped_values):
+        order = np.argsort(np.abs(values))[::-1][:8]
+        result.append([
+            {"feature": FEATURES[index], "value": row.get(FEATURES[index]), "contribution": float(values[index])}
+            for index in order
+        ])
+    return result
+
 
 def explain(features: dict) -> list:
-    if USE_REAL_MODEL:
-        import shap
-        model=_load_model(); explanation=shap.Explainer(model)(_model_frame(features))
-        values=explanation.values[0]
-        if getattr(values,"ndim",1)>1: values=values[:,_risk_class_index(model)]
-        named=sorted(zip(FEATURES,values),key=lambda item:abs(float(item[1])),reverse=True)[:8]
-        return [{"feature":name,"value":round(float(value),3),"contribution":round(float(value),3)} for name,value in named]
-    contributions = [("Loan compared with yearly income", max(0, features.get("loan_to_income",0)-.5)*.09),
-      ("Existing monthly EMIs", max(0,features.get("dti",0)-15)*.004), ("Card limit used",max(0,features.get("revol_util",0)-30)*.002),
-      ("Past defaults or court records",features.get("pub_rec",0)*.035),("Bankruptcy records",features.get("pub_rec_bankruptcies",0)*.08),
-      ("Time in current job",-features.get("emp_length",0)*.008),("Credit history length",-features.get("credit_history_years",0)*.008),
-      ("Home loans",-features.get("mort_acc",0)*.015),("Repayment period",.07 if features.get("term")==60 else 0)]
-    return [{"feature": n, "value": round(v,3), "contribution": round(v,3)} for n,v in sorted(contributions,key=lambda x:abs(x[1]),reverse=True)[:8]]
+    """Return the largest per-original-feature SHAP values for one profile."""
+    return explain_many([features])[0]
