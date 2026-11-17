@@ -117,7 +117,7 @@ st.markdown("""
 .step-card p{font-size:14px;line-height:1.55;color:#4A554F;margin:0}
 .stPageLink a,.stButton>button{min-height:50px!important;border-radius:14px!important;font-weight:700!important}
 .stPageLink a[kind="primary"],.stButton>button[kind="primary"]{background:#0F1B15!important;border-color:#0F1B15!important;color:#fff!important;font-size:16px!important}
-@media(max-width:720px){.block-container{padding:1rem .9rem 2.5rem}.home-title{font-size:36px!important}.hero-copy{font-size:16px}.trust-row{flex-direction:column;gap:8px;align-items:center}.lender-strip{justify-content:center;gap:10px}.cta-wrap{max-width:100%}}
+@media(max-width:720px){.block-container{padding:1rem .9rem 2.5rem}.home-title{font-size:36px!important}.hero-copy{font-size:16px}.trust-row{flex-direction:column;gap:8px;align-items:center}.lender-strip{justify-content:center;gap:10px}.cta-wrap{max-width:100%}div[data-testid="stHorizontalBlock"]{flex-direction:column!important;gap:14px!important}div[data-testid="column"]{width:100%!important;flex:1 1 100%!important}}
 </style>
 """, unsafe_allow_html=True)
 

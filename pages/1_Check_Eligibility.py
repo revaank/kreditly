@@ -5,7 +5,26 @@ from urllib.parse import quote
 import streamlit as st
 
 from src.bank_checker import check_all, count_meets, load_bank_rules
-from src.bank_ui import aggregate_next_steps, render_bank_results, render_lender_cards
+try:
+    from src.bank_ui import aggregate_next_steps, render_bank_results, render_lender_cards
+except ImportError:
+    from src.bank_ui import aggregate_next_steps, render_bank_results
+    STATUS_RANK = {"meets": 0, "close": 1, "not_yet": 2}
+    def render_lender_cards(results: list[dict]):
+        for lender in sorted(results, key=lambda item: STATUS_RANK.get(item.get("status"), 3)):
+            with st.container(border=True):
+                col_name, col_status = st.columns([3, 2], vertical_alignment="center")
+                with col_name:
+                    st.markdown(f"### {lender['name']}")
+                    badge_key = "bank_type_nbfc" if lender.get("type") == "NBFC" else "bank_type_bank"
+                    st.caption(f"{t(badge_key)} · {lender.get('product', '')}")
+                with col_status:
+                    status = lender.get("status", "meets")
+                    badge_text = t("qualify_badge_meets") if status == "meets" else (t("qualify_badge_close") if status == "close" else t("qualify_badge_not_yet"))
+                    st.markdown(f'<span class="bank-status {status}">{badge_text}</span>', unsafe_allow_html=True)
+                fixes = lender.get("fixes", [])
+                key_reason = fixes[0] if fixes else t("lender_all_met")
+                st.markdown(f'<p style="font-size:14px;color:#34433A;margin:8px 0 10px;"><b>{t("key_reason")}:</b> {key_reason}</p>', unsafe_allow_html=True)
 from src.counterfactual import apply_change, find_improvements
 from src.explainer import explain_reasons, suggestion_text
 from src.features import build_features

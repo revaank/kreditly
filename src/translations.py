@@ -36,7 +36,7 @@ HI["vs_original"]="पहले अनुमान से"
 EN.update({
     "headline":"Explore a loan-readiness estimate",
     "subtext":"See how a profile relates to older U.S. LendingClub loan outcomes, understand the model factors, and try hypothetical changes. This model is not validated for Indian borrowers.",
-    "start_check":"Explore an estimate",
+    "start_check":"Check my loan readiness",
     "new_version":"Try the new Kreditly website",
     "v2_pill":"Free · 2 minutes · No sign-up",
     "v2_title":"Know where you stand before a bank says no.",
