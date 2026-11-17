@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: kreditly-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: KREDITLY_FRONTEND_ORIGIN
+        value: https://kreditly.vercel.app

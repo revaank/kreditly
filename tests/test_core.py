@@ -48,6 +48,7 @@ class TestCore(unittest.TestCase):
     result = predict(build_features(PROFILE))
     self.assertGreaterEqual(result["risk"], 0)
     self.assertLessEqual(result["risk"], 1)
+    self.assertLess(result["risk"], 0.5, "The specified strong example stays below the accepted 50% risk target.")
     self.assertIn(result["readiness_band"], {"good", "fair", "needs_work"})
 
 

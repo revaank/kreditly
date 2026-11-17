@@ -93,3 +93,7 @@ Other Phase 1 changes: the EMI summary now appears from step 3 onward; zero what
 The loopback-only Streamlit smoke check returned HTTP 200. Browser checks confirmed the home, Hindi eligibility form, Hindi sample page, English eligibility result, bank results, and the source-review tags rendered without a runtime traceback after fixing a nested-expander error in the sample view.
 
 Six core checks pass using `python -m unittest discover -s tests -v`. `pytest` is pinned in `requirements-training.txt`, but could not be installed in this environment because outbound access to PyPI is unavailable. The tests use `unittest.TestCase`, which pytest can collect when installed.
+
+### User-approved Phase 1 acceptance interpretation
+
+The submitted prompt simultaneously requested validation-quantile readiness bands and required this example to be in the `good` band. The measured 42.9% risk is below the explicit 50% score target, while its approximately 96th-percentile position correctly yields `needs_work` under the saved validation-tertile thresholds. The user chose to preserve evidence-based bands. The sample acceptance is therefore interpreted as: probability below 50%, and show the band returned by the saved validation thresholds without overriding it. The example remains `needs_work`; the band is not relabeled to force a pass.

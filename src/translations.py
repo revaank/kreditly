@@ -1,5 +1,18 @@
-"""English and Hindi copy used by pages and reusable components."""
-import streamlit as st
+"""English and Hindi copy used by pages, API responses, and reusable components."""
+from contextvars import ContextVar
+
+
+_request_language = ContextVar("kreditly_language", default=None)
+
+
+def set_language(language: str):
+    """Set request-local copy language; the returned token can restore it safely."""
+    normalized = "हिं" if str(language).lower() in {"hi", "हिं", "hindi"} else "EN"
+    return _request_language.set(normalized)
+
+
+def reset_language(token):
+    _request_language.reset(token)
 
 EN={
 "nav_home":"Home","nav_check":"Check","nav_samples":"Samples","nav_insights":"Insights","language":"Language","eyebrow":"A clearer first step","headline":"Know your loan chances before you apply","subtext":"Explore how a lender might view your profile, understand the reasons, and see practical ways to improve.","start_check":"Check my loan readiness","sample_link":"See sample cases","feature1":"Instant check","feature1_body":"Get a quick educational estimate from the details you share.","feature2":"Clear reasons","feature2_body":"See which parts of your profile may help or hurt.","feature3":"How to improve","feature3_body":"Explore practical changes and see their effect on the estimate.","how_title":"How it works","step1":"Tell us about yourself","step1_body":"Share a few details about your income and credit history.","step2":"Explore your estimate","step2_body":"Review the dummy result and its plain-language reasons.","step3":"Try a what-if","step3_body":"Adjust a few numbers to explore possible changes.","privacy_note":"No sign-up needed. Nothing you enter is stored.","check_title":"Check your loan readiness","step_about":"About you","step_finances":"Your finances","step_loan":"The loan","back":"Back","continue":"Continue","run_check":"Check my readiness","summary":"Your loan summary","monthly_emi":"Monthly EMI","total_interest":"Total interest","total_repayment":"Total repayment","salary_emi":"Salary going to EMIs","affordability":"Affordability","afford_ok":"This looks manageable as a starting point.","afford_mid":"A large share of your income would go to EMIs.","afford_high":"This may leave little room for other expenses.","age":"Your age","employment":"Work type","salaried":"Salaried","self_employed":"Self-employed","job_years":"Years in your current job","home":"Where do you live?","rented":"Rented","own":"Own","own_loan":"Own with a home loan","credit_year":"Year of your first credit card or loan","income":"Yearly income","existing_emi":"Existing monthly EMIs","card_bill":"Credit card bill amount","card_usage":"How much of your card limit do you usually use?","very_little":"Very little (~10%)","third":"Around a third (~30%)","half":"About half (~50%)","almost_all":"Almost all (~90%)","no_card":"No credit card","open_accounts":"Open loans and cards","total_accounts":"Loans and cards ever","mort_accounts":"Home loans","public_records":"Past defaults or court records","bankruptcies":"Bankruptcies","cibil":"CIBIL range","cibil_help":"You can check your score for free through an RBI-registered credit bureau or your bank. This estimate does not use your CIBIL score.","excellent":"Excellent · 750+","good":"Good · 700–749","average":"Average · 650–699","low":"Low · below 650","dont_know":"Don't know","loan_amount":"Loan amount","tenure":"Repayment period","purpose":"What is the loan for?","rate":"Expected yearly interest rate (%)","years":"years","months":"months","p_debt":"Debt consolidation","p_card":"Credit card payoff","p_home":"Home improvement","p_purchase":"Big purchase","p_business":"Small business","p_vehicle":"Vehicle","p_medical":"Medical","p_other":"Other","validation":"Please check these details","income_positive":"Yearly income must be greater than zero.","loan_positive":"Loan amount must be greater than zero.","accounts_check":"Open accounts cannot be greater than total accounts.","year_check":"Please enter a valid first credit year.","estimated":"Estimated · one or more details used a safe default","checking":"Checking your profile…","strong":"Strong profile","risky":"Lenders may see this as risky","borderline":"A borderline profile","dummy_notice":"Rule-based demonstration only. This is not a lender decision or a trained model.","why":"Why this estimate?","improve":"How to improve","whatif":"What if you changed a few things?","reset":"Reset what-if","bank":"Bank rule checker","coming":"Coming soon","download":"Download report","whatsapp":"Share on WhatsApp","report":"Kreditly educational readiness estimate","report_dummy":"Dummy model · not a lender decision","risk":"Estimated risk","contributions":"What influenced this estimate","cases_title":"Example profiles","strong_tab":"Strong profiles","risky_tab":"Risky profiles","view_explanation":"View explanation","insights_title":"Model insights","todo":"TODO: replace after training","dataset":"Dataset overview","cleaning":"Cleaning steps","features":"Currency-free features","comparison":"Model comparison","confusion":"Confusion matrix","importance":"Feature importance","limitations":"Limitations and fairness","footer":"Built by Naina · INT395 Supervised Learning · Educational tool, not financial advice","reason_loan":"Your requested loan is {x}× your yearly income.","reason_dti":"About {x}% of monthly income already goes to existing EMIs.","reason_util":"You use about {x}% of your available card limit.","reason_records":"Past defaults or court records can make lenders cautious.","reason_bankruptcy":"Bankruptcy records can make lenders cautious.","reason_history":"A longer credit history can help show repayment habits.","reason_job":"Time in your current job may support income stability.","reason_mortgage":"A home loan history can add context to your credit record.","reason_term":"A longer repayment period can increase uncertainty.","reason_accounts":"Your number of active accounts is considered in this estimate.","tip_emi":"Reducing existing monthly EMIs by ₹{x} could free up room in your budget.","tip_loan":"Trying a smaller loan of ₹{x} may reduce the monthly commitment.","tip_card":"Paying down about ₹{x} of card balance may lower card usage.","wa_summary":"Kreditly estimate: {label}, estimated risk {risk}%. Educational tool only; not a lender decision.","case_strong1":"Steady income, modest loan","case_strong2":"Long credit history","case_strong3":"Low monthly commitments","case_strong4":"Small loan relative to income","case_risky1":"High existing EMIs","case_risky2":"Large loan request","case_risky3":"High card usage","case_risky4":"Shorter credit history"}
@@ -314,7 +327,14 @@ HI.update({
 })
 
 def t(key: str, **values) -> str:
-    dictionary = HI if st.session_state.get("language") == "हिं" else EN
+    language = _request_language.get()
+    if language is None:
+        try:
+            import streamlit as st
+            language = st.session_state.get("language", "EN")
+        except Exception:
+            language = "EN"
+    dictionary = HI if language == "हिं" else EN
     result = dictionary.get(key, EN.get(key, key))
     return result.format(**values) if values else result
 

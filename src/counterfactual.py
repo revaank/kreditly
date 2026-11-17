@@ -1,8 +1,6 @@
 """Run fast what-if changes and search for small changes reaching STRONG."""
 from copy import deepcopy
 
-import streamlit as st
-
 from .features import build_features
 from .predictor import predict, predict_many
 
@@ -22,7 +20,6 @@ def _unique(values):
     return list(dict.fromkeys(values))
 
 
-@st.cache_data(show_spinner=False)
 def find_improvements(values: dict, max_suggestions=3):
     """Rank helpful single-lever changes by calibrated risk reduction."""
     baseline = predict(build_features(values))
