@@ -137,3 +137,32 @@ def render_emi_planner(principal: float, rate: float, selected_months: int):
                 f'</div>',
                 unsafe_allow_html=True,
             )
+
+def build_download_report(result: dict, summary: dict, ratio: float, bank_results: list[dict] | None = None) -> str:
+    """Build the plain text report containing readiness band, lender results, and disclaimer."""
+    from .bank_checker import count_meets, load_bank_rules
+    band_name = t(f"readiness_{result.get('readiness_band', 'fair')}")
+    label_key = {"STRONG": "strong", "BORDERLINE": "borderline", "RISKY": "risky"}.get(
+        result.get("label", "BORDERLINE"), "borderline"
+    )
+    report_lines = [
+        t("report"),
+        t("report_dummy"),
+        t("readiness_result", band=band_name),
+        f'{t("risk_details")}: {t("calibrated_risk")} {result.get("risk", 0.0):.0%} ({t(label_key)})',
+        f'{t("monthly_emi")}: {format_inr(summary.get("emi", 0.0))}',
+        f'{t("salary_emi")}: {ratio:.1f}%',
+    ]
+    if bank_results is not None:
+        report_lines.append(t("bank_summary", count=count_meets(bank_results), total=len(bank_results)))
+        report_lines.extend(f'{item["name"]}: {t("bank_status_" + item["status"])}' for item in bank_results)
+    try:
+        bank_metadata = load_bank_rules()
+        report_lines.extend([
+            t("bank_last_checked", date=bank_metadata.get("last_checked", "")),
+            t("bank_disclaimer"),
+        ])
+    except Exception:
+        report_lines.append(t("bank_disclaimer"))
+    report_lines.append(t("report_no_personal"))
+    return "\n".join(report_lines)

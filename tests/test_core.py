@@ -18,7 +18,7 @@ from src.features import build_features
 from src.finance import emi, foir, loan_summary
 from src.predictor import predict, readiness_band
 from src.translations import reset_language, set_language
-from src.ui import CSS, format_whatif_delta
+from src.ui import CSS, build_download_report, format_whatif_delta
 
 
 PROFILE = {
@@ -166,6 +166,52 @@ class TestCore(unittest.TestCase):
     multi_fixes = aggregate_next_steps(multi_results)
     self.assertGreater(len(multi_fixes), 1)
     self.assertEqual(len(multi_fixes), len(set(multi_fixes)))
+
+
+ def test_download_report_includes_band_lenders_and_disclaimer(self):
+    from src.finance import foir
+    result = predict(build_features(PROFILE))
+    summary = loan_summary(PROFILE["loan_amount"], PROFILE["rate"], PROFILE["tenure_months"])
+    ratio = foir(PROFILE["annual_income"] / 12, PROFILE["existing_emi"], summary["emi"])
+    bank_results = check_all(PROFILE)
+
+    # 1. English report check
+    report = build_download_report(result, summary, ratio, bank_results)
+    self.assertIn("Readiness band: Needs work", report)
+    self.assertIn("State Bank of India: Meets published criteria", report)
+    self.assertIn("Tata Capital: Close", report)
+    self.assertIn("Last checked:", report)
+    self.assertIn("Published minimum criteria only. Meeting them does not guarantee approval", report)
+
+    # 2. Hindi report check
+    token = set_language("हिं")
+    try:
+        hi_report = build_download_report(result, summary, ratio, bank_results)
+        self.assertIn("तैयारी स्तर: सुधार की ज़रूरत", hi_report)
+        self.assertIn("State Bank of India: प्रकाशित मानदंड पूरे", hi_report)
+        self.assertIn("Tata Capital: करीब", hi_report)
+        self.assertIn("अंतिम जाँच:", hi_report)
+        self.assertIn("केवल प्रकाशित न्यूनतम मानदंड", hi_report)
+    finally:
+        reset_language(token)
+
+
+ def test_whatif_loan_amount_slider_updates_risk_and_bank_eligibility(self):
+    from src.counterfactual import apply_change
+    orig_meets = count_meets(check_all(PROFILE))
+    self.assertEqual(orig_meets, 5)
+
+    # Decreasing loan amount lowers or maintains risk and eligibility
+    _, low_res = apply_change(PROFILE, loan=100_000)
+    low_meets = count_meets(check_all(dict(PROFILE, loan_amount=100_000)))
+    self.assertLessEqual(low_res["risk"], 0.324)  # Remains Good or Fair
+    self.assertEqual(low_meets, 5)
+
+    # Increasing loan amount significantly increases risk and reduces lender eligibility
+    _, high_res = apply_change(PROFILE, loan=4_000_000)
+    high_meets = count_meets(check_all(dict(PROFILE, loan_amount=4_000_000)))
+    self.assertEqual(high_res["readiness_band"], "needs_work")
+    self.assertLess(high_meets, orig_meets)
 
 
 if __name__ == "__main__":
