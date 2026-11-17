@@ -17,7 +17,7 @@ from src.features import build_features
 from src.finance import emi, foir
 from src.predictor import predict, readiness_band
 from src.translations import reset_language, set_language
-from src.ui import format_whatif_delta
+from src.ui import CSS, format_whatif_delta
 
 
 PROFILE = {
@@ -127,6 +127,13 @@ class TestCore(unittest.TestCase):
         self.assertEqual(format_whatif_delta(0.001), "कोई बदलाव नहीं")
     finally:
         reset_language(token)
+
+
+ def test_slider_css_and_repayment_slider_rules(self):
+    self.assertIn('.stSlider [data-testid="stSliderThumbValue"]', CSS)
+    self.assertIn('.stSlider:has([aria-label*="Repayment"])', CSS)
+    self.assertIn('.stSlider:has([aria-label*="अवधि"])', CSS)
+    self.assertIn('.stSlider:has([aria-valuetext*="month"])', CSS)
 
 
 if __name__ == "__main__":
