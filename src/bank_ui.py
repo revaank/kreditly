@@ -61,6 +61,17 @@ def _value_text(rule, result):
     return t("bank_rule_comparison", user=actual, requirement=required)
 
 
+def aggregate_next_steps(results: list[dict]) -> list[str]:
+    """Aggregate all close and failed criteria across lenders into a single de-duplicated checklist."""
+    all_fixes = []
+    for lender in sorted(results, key=lambda item: STATUS_RANK.get(item.get("status"), 3)):
+        if lender.get("status") in ("close", "not_yet"):
+            for fix in lender.get("fixes", []):
+                if fix and fix not in all_fixes:
+                    all_fixes.append(fix)
+    return all_fixes
+
+
 def render_bank_results(user: dict, compact: bool = False):
     """Render six sorted lender cards or a compact live what-if count."""
     try:
@@ -81,6 +92,13 @@ def render_bank_results(user: dict, compact: bool = False):
     st.caption(t("bank_last_checked", date=rules.get("last_checked", "")))
     st.caption(t("bank_reliability_legend"))
     st.write(t("bank_summary", count=met, total=total))
+
+    overall_fixes = aggregate_next_steps(results)
+    if overall_fixes:
+        with st.container(border=True):
+            st.markdown(f"**{t('bank_fixes')}**")
+            for fix in overall_fixes:
+                st.markdown(f"- {fix}")
 
     for lender in sorted(results, key=lambda item: STATUS_RANK[item["status"]]):
         with st.container(border=True):
@@ -132,7 +150,7 @@ def render_bank_results(user: dict, compact: bool = False):
                 for fix in lender["fixes"]:
                     st.markdown(f"- {fix}")
             if lender.get("official_page"):
-                st.markdown(f"[{t('bank_view_source')}]({lender['official_page']})")
+                st.markdown(f"[{t('lender_information_page')}]({lender['official_page']})")
 
     st.warning(t("bank_footer"), icon="⚠️")
     return results

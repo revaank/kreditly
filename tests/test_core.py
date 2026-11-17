@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
 os.environ.setdefault("MPLCONFIGDIR", os.path.join(tempfile.gettempdir(), "matplotlib"))
 
 from src.bank_checker import check_all, count_meets
+from src.bank_ui import aggregate_next_steps
 from src.counterfactual import find_improvements
 from src.features import build_features
 from src.finance import emi, foir, loan_summary
@@ -148,6 +149,23 @@ class TestCore(unittest.TestCase):
 
     self.assertTrue(all(emis[i] > emis[i+1] for i in range(len(emis)-1)))
     self.assertTrue(all(interests[i] < interests[i+1] for i in range(len(interests)-1)))
+
+
+ def test_aggregate_next_steps_deduplication(self):
+    results = check_all(PROFILE)
+    fixes = aggregate_next_steps(results)
+    self.assertEqual(len(fixes), 1)
+    self.assertIn("CIBIL", fixes[0])
+
+    # Multi-fail profile produces multiple distinct next steps without duplicates
+    p = dict(PROFILE)
+    p["annual_income"] = 240_000
+    p["existing_emi"] = 8_000
+    p["loan_amount"] = 500_000
+    multi_results = check_all(p)
+    multi_fixes = aggregate_next_steps(multi_results)
+    self.assertGreater(len(multi_fixes), 1)
+    self.assertEqual(len(multi_fixes), len(set(multi_fixes)))
 
 
 if __name__ == "__main__":
