@@ -51,9 +51,9 @@ Set `NEXT_PUBLIC_API_URL=http://localhost:8000` in `web/.env.local`, and run the
 
 ## Deploy
 
-The deployment files are prepared for Vercel (frontend) and Render (API). Push the repository to GitHub, create a Vercel project with **Root Directory** set to `web`, and set `NEXT_PUBLIC_API_URL` to the public Render API URL. Create the Render web service from `render.yaml`; set `KREDITLY_FRONTEND_ORIGIN` to the Vercel origin. Both services deploy from the same repository. Check the API's `/health` URL after deployment.
+The deployment files are prepared for Vercel (frontend) and Render (API). The code is pushed to GitHub, but the cloud services have not been created or connected. Create a Vercel project with **Root Directory** set to `web`; create the Render web service from `render.yaml`. Set `NEXT_PUBLIC_API_URL` in Vercel to the public Render API URL and `KREDITLY_FRONTEND_ORIGIN` in Render to the exact Vercel origin. Both services deploy from this repository. Check the API's `/health` URL after deployment.
 
-Set `KREDITLY_WEB_URL` on the Streamlit deployment to the public web app URL; the existing Streamlit home page uses it for the “Try the new Kreditly website” link. The source defaults to `https://kreditly.vercel.app` until the final deployment URL is known.
+Set `KREDITLY_WEB_URL` on the Streamlit deployment to the public web app URL; the existing Streamlit home page uses it for the “Try the new Kreditly website” link. The link stays hidden until a real URL is configured.
 
 ## Model and data limitations
 
