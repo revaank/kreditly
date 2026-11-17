@@ -20,3 +20,5 @@ web/.next/
 web/out/
 web/.vercel/
 web/tsconfig.tsbuildinfo
+scratch/
+CHANGES_*

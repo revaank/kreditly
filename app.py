@@ -72,18 +72,13 @@ def home_text(key: str) -> str:
 
 @st.cache_data(show_spinner=False)
 def _sample_preview_data():
-    cases_file = Path(__file__).resolve().parent / "src" / "sample_cases.json"
-    try:
-        cases = json.loads(cases_file.read_text(encoding="utf-8"))
-        profile = cases[0]["values"]
-    except Exception:
-        profile = {
-            "age": 30, "employment": "Salaried", "job_years": 10, "home": "own_loan",
-            "credit_year": 2005, "annual_income": 1900000, "existing_emi": 21090,
-            "card_bill": 1281020, "revol_util": 2, "open_acc": 11, "total_acc": 45,
-            "mort_acc": 8, "pub_rec": 0, "bankruptcies": 0, "cibil": "Don't know",
-            "loan_amount": 48000, "tenure_months": 36, "purpose": "major_purchase", "rate": 11.0,
-        }
+    profile = {
+        "age": 32, "employment": "Salaried", "job_years": 6, "home": "own_loan",
+        "credit_year": 2010, "annual_income": 1200000, "existing_emi": 5000,
+        "card_bill": 10000, "revol_util": 5, "open_acc": 5, "total_acc": 15,
+        "mort_acc": 1, "pub_rec": 0, "bankruptcies": 0, "cibil": "Good · 700–749",
+        "loan_amount": 300000, "tenure_months": 36, "purpose": "debt_consolidation", "rate": 11.0,
+    }
     features = build_features(profile)
     estimate = predict(features)
     bank_results = check_all(profile)

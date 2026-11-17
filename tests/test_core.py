@@ -18,7 +18,7 @@ from src.features import build_features
 from src.finance import emi, foir, loan_summary
 from src.predictor import predict, readiness_band
 from src.translations import reset_language, set_language
-from src.ui import CSS, build_download_report, format_whatif_delta
+from src.ui import CSS, build_download_report, format_risk_pct, format_whatif_delta
 
 
 PROFILE = {
@@ -212,6 +212,50 @@ class TestCore(unittest.TestCase):
     high_meets = count_meets(check_all(dict(PROFILE, loan_amount=4_000_000)))
     self.assertEqual(high_res["readiness_band"], "needs_work")
     self.assertLess(high_meets, orig_meets)
+
+
+ def test_format_risk_pct_never_shows_zero(self):
+    token = set_language("EN")
+    try:
+        self.assertEqual(format_risk_pct(0.0), "under 1%")
+        self.assertEqual(format_risk_pct(0.004), "under 1%")
+        self.assertEqual(format_risk_pct(0.0099), "under 1%")
+        self.assertEqual(format_risk_pct(0.01), "1%")
+        self.assertEqual(format_risk_pct(0.236), "24%")
+        self.assertEqual(format_risk_pct(0.4288), "43%")
+    finally:
+        reset_language(token)
+
+    token = set_language("हिं")
+    try:
+        self.assertEqual(format_risk_pct(0.0), "1% से कम")
+        self.assertEqual(format_risk_pct(0.005), "1% से कम")
+        self.assertEqual(format_risk_pct(0.4288), "43%")
+    finally:
+        reset_language(token)
+
+
+ def test_home_sample_preview_card_shows_good_shape_and_at_least_five_lenders(self):
+    from streamlit.testing.v1 import AppTest
+    at = AppTest.from_file("app.py", default_timeout=25)
+    at.run()
+    # Find sample result markdown
+    sample_mds = [m.value for m in at.markdown if '<section class="sample-result"' in m.value]
+    self.assertTrue(len(sample_mds) > 0)
+    card_html = sample_mds[0]
+    self.assertIn("Good shape", card_html)
+    self.assertNotIn("Good ·", card_html)
+    # Check that it meets 5 / 6 or 6 / 6 lenders
+    self.assertTrue("5 / 6" in card_html or "6 / 6" in card_html)
+
+
+ def test_whatif_zero_card_usage_threshold_band_fair(self):
+    from src.counterfactual import apply_change
+    _, new_res = apply_change(PROFILE, revol_util=0)
+    # Risk should be ~23.6%, which is between 12.4% and 32.4%, hence "fair"
+    self.assertGreaterEqual(new_res["risk"], 0.124)
+    self.assertLessEqual(new_res["risk"], 0.324)
+    self.assertEqual(new_res["readiness_band"], "fair")
 
 
 if __name__ == "__main__":

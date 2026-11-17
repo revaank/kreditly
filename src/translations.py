@@ -384,21 +384,25 @@ def t(key: str, **values) -> str:
 
 EN.update({
     "readiness_band":"Readiness band", "readiness_good":"Good shape", "readiness_fair":"Fair",
-    "readiness_needs_work":"Needs work", "risk_details":"Risk estimate details",
+    "readiness_needs_work":"Needs work", "readiness_strong":"Good shape", "readiness_borderline":"Fair", "readiness_risky":"Needs work",
+    "risk_details":"Risk estimate details",
     "calibrated_risk":"Calibrated historical risk estimate", "original_risk":"Original estimate",
     "no_change":"No change", "bank_source_review":"Source under review",
     "points_lower":"{points} points lower", "point_lower":"{points} point lower",
     "points_higher":"{points} points higher", "point_higher":"{points} point higher",
     "selected_term":"Selected",
+    "risk_under_one":"under 1%",
 })
 HI.update({
     "readiness_band":"तैयारी स्तर", "readiness_good":"अच्छी स्थिति", "readiness_fair":"मध्यम स्थिति",
-    "readiness_needs_work":"सुधार की ज़रूरत", "risk_details":"जोखिम अनुमान का विवरण",
+    "readiness_needs_work":"सुधार की ज़रूरत", "readiness_strong":"अच्छी स्थिति", "readiness_borderline":"मध्यम स्थिति", "readiness_risky":"सुधार की ज़रूरत",
+    "risk_details":"जोखिम अनुमान का विवरण",
     "calibrated_risk":"ऐतिहासिक जोखिम का कैलिब्रेटेड अनुमान", "original_risk":"मूल अनुमान",
     "no_change":"कोई बदलाव नहीं", "bank_source_review":"स्रोत की समीक्षा जारी है",
     "points_lower":"{points} अंक कम", "point_lower":"{points} अंक कम",
     "points_higher":"{points} अंक अधिक", "point_higher":"{points} अंक अधिक",
     "selected_term":"चुनी हुई अवधि",
+    "risk_under_one":"1% से कम",
 })
 
 EN.update({

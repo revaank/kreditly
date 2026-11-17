@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Branding, shared page chrome and reusable display components."""
 import streamlit as st
 import plotly.graph_objects as go
@@ -69,17 +71,29 @@ def contribution_chart(contributions,height=330):
     figure.update_layout(height=height,margin=dict(l=10,r=10,t=12,b=20),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",xaxis_title=t("contribution_axis"),yaxis=dict(autorange="reversed"))
     st.plotly_chart(figure,use_container_width=True)
 
+def format_risk_pct(risk: float) -> str:
+    """Format risk probability into a percentage string, never displaying 0%."""
+    try:
+        val = float(risk)
+    except (TypeError, ValueError):
+        val = 0.0
+    if val < 0.01:
+        return t("risk_under_one")
+    return f"{round(val * 100)}%"
+
 def result_card(result, show_risk_details=True):
     band=result.get("readiness_band","fair")
     tone={"good":"strong","fair":"borderline","needs_work":"risky"}.get(band,"borderline")
-    risk=round(result["risk"]*100)
+    risk_val = float(result.get("risk", 0.0))
+    risk_display = format_risk_pct(risk_val)
+    meter_pct = max(6, min(100, round(risk_val * 100))) if risk_val > 0 else 6
     title=t(f"readiness_{band}")
-    st.markdown(f'<div class="result-card {tone}"><div class="small-label">{t("readiness_band")}</div><div class="risk-number" style="font-size:34px">{title}</div><div class="muted">{t("dummy_notice")}</div><div style="height:14px"></div><div class="risk-track"><div class="risk-fill {tone}" style="width:{risk}%"></div></div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="result-card {tone}"><div class="small-label">{t("readiness_band")}</div><div class="risk-number" style="font-size:34px">{title}</div><div class="muted">{t("dummy_notice")}</div><div style="height:14px"></div><div class="risk-track"><div class="risk-fill {tone}" style="width:{meter_pct}%"></div></div></div>',unsafe_allow_html=True)
     if show_risk_details:
         with st.expander(t("risk_details")):
-            st.metric(t("calibrated_risk"), f"{risk}%")
+            st.metric(t("calibrated_risk"), risk_display)
     else:
-        st.caption(f'{t("risk_details")}: {t("calibrated_risk")} {risk}%')
+        st.caption(f'{t("risk_details")}: {t("calibrated_risk")} {risk_display}')
 
 def format_whatif_delta(delta: float) -> str:
     """Format the change in risk points into localized text."""
@@ -109,7 +123,7 @@ def render_whatif_result(result, original, show_risk_details=True):
         f'<div class="whatif-result"><div class="small-label">{t("simulator_result")}</div>'
         f'<strong>{band}</strong><div>{delta_html}</div></div>', unsafe_allow_html=True,
     )
-    detail = f'{t("calibrated_risk")}: {result["risk"]:.1%} · {t("original_risk")}: {original["risk"]:.1%}'
+    detail = f'{t("calibrated_risk")}: {format_risk_pct(result["risk"])} · {t("original_risk")}: {format_risk_pct(original["risk"])}'
     if show_risk_details:
         with st.expander(t("risk_details")):
             st.caption(detail)
@@ -149,7 +163,7 @@ def build_download_report(result: dict, summary: dict, ratio: float, bank_result
         t("report"),
         t("report_dummy"),
         t("readiness_result", band=band_name),
-        f'{t("risk_details")}: {t("calibrated_risk")} {result.get("risk", 0.0):.0%} ({t(label_key)})',
+        f'{t("risk_details")}: {t("calibrated_risk")} {format_risk_pct(result.get("risk", 0.0))} ({t(label_key)})',
         f'{t("monthly_emi")}: {format_inr(summary.get("emi", 0.0))}',
         f'{t("salary_emi")}: {ratio:.1f}%',
     ]
