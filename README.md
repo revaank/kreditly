@@ -2,6 +2,8 @@
 
 Kreditly is an educational loan readiness demo. It combines an estimate from an unchanged XGBoost model trained on historical U.S. LendingClub data with a separate checklist of published minimum criteria from six Indian lenders. It is not a lender, credit bureau, approval decision, or financial advice.
 
+The Streamlit app is published at [kreditly.streamlit.app](https://kreditly.streamlit.app). The redesigned landing page is being served from this same Streamlit app; the optional Next.js frontend in `web/` is a separate build target.
+
 ## What the app shows
 
 - **Model estimate:** calibrated probability, readiness band, SHAP factors, and possible next steps. The model uses historical U.S. loans and has not been validated for Indian borrowers or current lending. SHAP describes model associations, not causes.
@@ -53,7 +55,7 @@ Set `NEXT_PUBLIC_API_URL=http://localhost:8000` in `web/.env.local`, and run the
 
 The deployment files are prepared for Vercel (frontend) and Render (API). The code is pushed to GitHub, but the cloud services have not been created or connected. Create a Vercel project with **Root Directory** set to `web`; create the Render web service from `render.yaml`. Set `NEXT_PUBLIC_API_URL` in Vercel to the public Render API URL and `KREDITLY_FRONTEND_ORIGIN` in Render to the exact Vercel origin. Both services deploy from this repository. Check the API's `/health` URL after deployment.
 
-Set `KREDITLY_WEB_URL` on the Streamlit deployment to the public web app URL; the existing Streamlit home page uses it for the “Try the new Kreditly website” link. The link stays hidden until a real URL is configured.
+The existing Streamlit deployment remains available at `https://kreditly.streamlit.app`. Changes pushed to the connected GitHub branch are deployed by Streamlit Community Cloud.
 
 ## Model and data limitations
 
