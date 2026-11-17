@@ -383,20 +383,20 @@ def t(key: str, **values) -> str:
     return result.format(**values) if values else result
 
 EN.update({
-    "readiness_band":"Readiness band", "readiness_good":"Good", "readiness_fair":"Fair",
+    "readiness_band":"Readiness band", "readiness_good":"Good shape", "readiness_fair":"Fair",
     "readiness_needs_work":"Needs work", "risk_details":"Risk estimate details",
     "calibrated_risk":"Calibrated historical risk estimate", "original_risk":"Original estimate",
     "no_change":"No change", "bank_source_review":"Source under review",
 })
 HI.update({
-    "readiness_band":"तैयारी स्तर", "readiness_good":"अच्छी", "readiness_fair":"मध्यम",
+    "readiness_band":"तैयारी स्तर", "readiness_good":"अच्छी स्थिति", "readiness_fair":"मध्यम स्थिति",
     "readiness_needs_work":"सुधार की ज़रूरत", "risk_details":"जोखिम अनुमान का विवरण",
     "calibrated_risk":"ऐतिहासिक जोखिम का कैलिब्रेटेड अनुमान", "original_risk":"मूल अनुमान",
     "no_change":"कोई बदलाव नहीं", "bank_source_review":"स्रोत की समीक्षा जारी है",
 })
 
 EN.update({
-    "readiness_good":"Good", "bank_age_at_maturity":"at loan maturity",
+    "readiness_good":"Good shape", "bank_age_at_maturity":"at loan maturity",
     "selected_model_by":"Selected model: {model} · chosen by validation ROC-AUC",
     "cutoff_caption":"The calibrated score cutoff {threshold:.3f} was selected on validation data to maximize F1 for Charged Off. Estimates within ±{band:.2f} are labelled borderline.",
     "metric_f1":"Test risky-class F1", "metric_recall":"Test recall", "metric_precision":"Test precision", "metric_auc":"Test ROC-AUC",
@@ -446,7 +446,7 @@ EN.update({
     "reason_ex_other":"Outside the requested profile inputs.", "bank_source_field":"Lender criterion",
 })
 HI.update({
-    "readiness_good":"अच्छी", "bank_age_at_maturity":"ऋण की परिपक्वता पर",
+    "readiness_good":"अच्छी स्थिति", "bank_age_at_maturity":"ऋण की परिपक्वता पर",
     "selected_model_by":"चुना गया मॉडल: {model} · सत्यापन ROC-AUC के आधार पर",
     "cutoff_caption":"कैलिब्रेटेड स्कोर सीमा {threshold:.3f} को सत्यापन डेटा पर Charged Off के लिए F1 अधिकतम करने हेतु चुना गया। ±{band:.2f} के भीतर के अनुमान मध्यम कहे जाते हैं।",
     "metric_f1":"जोखिम-वर्ग F1 (परीक्षण)", "metric_recall":"रिकॉल (परीक्षण)", "metric_precision":"प्रिसिजन (परीक्षण)", "metric_auc":"ROC-AUC (परीक्षण)",
@@ -513,7 +513,7 @@ HI.update({
 })
 
 EN.update({
-    "readiness_good":"Good", "readiness_fair":"Fair", "readiness_needs_work":"Needs work",
+    "readiness_good":"Good shape", "readiness_fair":"Fair", "readiness_needs_work":"Needs work",
     "explain_loan_to_income_higher":"Your loan is {x}× yearly income; the model linked this with more past charge-offs.",
     "explain_loan_to_income_lower":"Your loan is {x}× yearly income, a smaller share than in higher-risk records.",
     "explain_revol_bal_to_income_higher":"Your card balance is {x}% of yearly income, which the model linked with more past charge-offs.",
@@ -547,7 +547,7 @@ EN.update({
     "cutoff_caption":"The calibrated score cutoff {threshold:.3f} was selected on validation data to maximize F1 for {class_name}. Estimates within ±{band:.2f} are labelled borderline.",
 })
 HI.update({
-    "readiness_good":"अच्छी तैयारी", "readiness_fair":"मध्यम तैयारी", "readiness_needs_work":"सुधार की ज़रूरत",
+    "readiness_good":"अच्छी स्थिति", "readiness_fair":"मध्यम स्थिति", "readiness_needs_work":"सुधार की ज़रूरत",
     "explain_loan_to_income_higher":"आपका ऋण सालाना आय का {x} गुना है; मॉडल ने इसे अधिक पुराने डिफॉल्ट से जोड़ा।",
     "explain_loan_to_income_lower":"आपका ऋण सालाना आय का {x} गुना है, जो अधिक जोखिम वाले रिकॉर्ड से कम अनुपात है।",
     "explain_revol_bal_to_income_higher":"आपका कार्ड बैलेंस सालाना आय का {x}% है; मॉडल ने इसे अधिक पुराने डिफॉल्ट से जोड़ा।",

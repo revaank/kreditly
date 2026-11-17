@@ -52,11 +52,15 @@ class TestCore(unittest.TestCase):
     self.assertIn(result["readiness_band"], {"good", "fair", "needs_work"})
 
 
- def test_readiness_band_uses_saved_validation_quantiles(self):
-    config = json.loads((Path(__file__).parents[1] / "models" / "readiness.json").read_text(encoding="utf-8"))
-    self.assertEqual(readiness_band(config["good_max"]), "good")
-    self.assertEqual(readiness_band((config["good_max"] + config["fair_max"]) / 2), "fair")
-    self.assertEqual(readiness_band(config["fair_max"] + 1e-5), "needs_work")
+ def test_readiness_band_thresholds(self):
+    self.assertEqual(readiness_band(0.10), "good")
+    self.assertEqual(readiness_band(0.236), "fair")
+    self.assertEqual(readiness_band(0.43), "needs_work")
+    # Exact threshold cutoffs (<0.124 good, 0.124-0.324 fair, >0.324 needs work)
+    self.assertEqual(readiness_band(0.123), "good")
+    self.assertEqual(readiness_band(0.124), "fair")
+    self.assertEqual(readiness_band(0.324), "fair")
+    self.assertEqual(readiness_band(0.325), "needs_work")
 
 
  def test_suggestions_use_distinct_helpful_levers(self):

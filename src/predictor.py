@@ -40,38 +40,38 @@ def _load_calibrator():
     return joblib.load(path)
 
 
-def _settings():
+@lru_cache(maxsize=1)
+def _threshold_settings():
     path = ROOT / "models" / "threshold.json"
     if not path.exists():
         raise FileNotFoundError("The validation-tuned models/threshold.json file is missing.")
     values = json.loads(path.read_text(encoding="utf-8"))
-    threshold = float(values["threshold"])
-    band = float(values["borderline_band"])
+    threshold = float(values.get("threshold", 0.224))
+    band = float(values.get("borderline_band", 0.10))
+    good_max = float(values.get("good_max", round(threshold - band, 3)))
+    fair_max = float(values.get("fair_max", round(threshold + band, 3)))
     if not 0 < threshold < 1 or not 0 <= band <= 0.5:
         raise ValueError("The stored model threshold settings are invalid.")
+    return threshold, band, good_max, fair_max
+
+
+def _settings():
+    threshold, band, _, _ = _threshold_settings()
     return threshold, band
 
 
-@lru_cache(maxsize=1)
 def _readiness_settings():
-    path = ROOT / "models" / "readiness.json"
-    if not path.exists():
-        raise FileNotFoundError("The validation-quantile models/readiness.json file is missing.")
-    values = json.loads(path.read_text(encoding="utf-8"))
-    good_max = float(values["good_max"])
-    fair_max = float(values["fair_max"])
-    if not 0 <= good_max < fair_max <= 1:
-        raise ValueError("The stored readiness band settings are invalid.")
+    _, _, good_max, fair_max = _threshold_settings()
     return good_max, fair_max
 
 
 def readiness_band(probability: float) -> str:
-    """Map a calibrated risk estimate to a validation-quantile readiness band."""
+    """Map a calibrated risk estimate to a readiness band: <0.124 Good, 0.124-0.324 Fair, >0.324 Needs work."""
     probability = float(probability)
     if not np.isfinite(probability) or not 0 <= probability <= 1:
         raise ValueError("Risk probability must be between zero and one.")
     good_max, fair_max = _readiness_settings()
-    if probability <= good_max:
+    if probability < good_max:
         return "good"
     if probability <= fair_max:
         return "fair"
@@ -87,10 +87,10 @@ def _frame_for_profiles(features_list):
 
 
 def _labels(probabilities):
-    threshold, band = _settings()
+    _, _, good_max, fair_max = _threshold_settings()
     return np.where(
-        probabilities < threshold - band, "STRONG",
-        np.where(probabilities > threshold + band, "RISKY", "BORDERLINE"),
+        probabilities < good_max, "STRONG",
+        np.where(probabilities > fair_max, "RISKY", "BORDERLINE"),
     )
 
 

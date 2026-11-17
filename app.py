@@ -1,5 +1,15 @@
 """Kreditly's home page for an educational historical-model demonstration."""
+import json
+from pathlib import Path
+
 import streamlit as st
+
+from src.bank_checker import check_all, count_meets
+from src.counterfactual import find_improvements
+from src.explainer import suggestion_text
+from src.features import build_features
+from src.finance import format_inr, loan_summary
+from src.predictor import predict
 from src.translations import t
 from src.ui import footer, header, page_setup, section_title
 
@@ -16,6 +26,7 @@ HOME_COPY = {
         "lenders": "Lender criteria matched",
         "fix": "A practical next step",
         "sample_fix": "Consider a smaller loan amount to reduce the monthly EMI.",
+        "sample_good_note": "Low credit card limit usage and steady employment support this profile.",
         "lender_caption": "Published criteria from six lenders",
         "features_title": "A clearer first step",
         "feature1": "Published lender criteria",
@@ -39,6 +50,7 @@ HOME_COPY = {
         "lenders": "ऋणदाता मानदंड पूरे",
         "fix": "एक व्यावहारिक अगला कदम",
         "sample_fix": "मासिक EMI घटाने के लिए कम ऋण राशि पर विचार करें।",
+        "sample_good_note": "कम कार्ड उपयोग और नियमित रोज़गार इस प्रोफ़ाइल को मज़बूत बनाते हैं।",
         "lender_caption": "छह ऋणदाताओं के प्रकाशित मानदंड",
         "features_title": "एक बेहतर शुरुआत",
         "feature1": "प्रकाशित ऋणदाता मानदंड",
@@ -58,6 +70,35 @@ def home_text(key: str) -> str:
     return HOME_COPY.get(language, HOME_COPY["EN"])[key]
 
 
+@st.cache_data(show_spinner=False)
+def _sample_preview_data():
+    cases_file = Path(__file__).resolve().parent / "src" / "sample_cases.json"
+    try:
+        cases = json.loads(cases_file.read_text(encoding="utf-8"))
+        profile = cases[0]["values"]
+    except Exception:
+        profile = {
+            "age": 30, "employment": "Salaried", "job_years": 10, "home": "own_loan",
+            "credit_year": 2005, "annual_income": 1900000, "existing_emi": 21090,
+            "card_bill": 1281020, "revol_util": 2, "open_acc": 11, "total_acc": 45,
+            "mort_acc": 8, "pub_rec": 0, "bankruptcies": 0, "cibil": "Don't know",
+            "loan_amount": 48000, "tenure_months": 36, "purpose": "major_purchase", "rate": 11.0,
+        }
+    features = build_features(profile)
+    estimate = predict(features)
+    bank_results = check_all(profile)
+    summary = loan_summary(profile["loan_amount"], profile["rate"], profile["tenure_months"])
+    improvements = find_improvements(profile, max_suggestions=1)
+    return {
+        "band": estimate.get("readiness_band", "good"),
+        "risk": float(estimate.get("risk", 0.0)),
+        "meets": count_meets(bank_results),
+        "total_lenders": len(bank_results),
+        "emi": summary["emi"],
+        "improvements": improvements,
+    }
+
+
 page_setup()
 header("home")
 st.markdown("""
@@ -68,7 +109,7 @@ st.markdown("""
 .hero-copy{font:400 17px/1.65 Inter,Arial,sans-serif;color:#4A554F;max-width:670px}.hero-pill{display:inline-flex;background:#fff;border:1px solid #E2E5DC;border-radius:999px;padding:8px 13px;margin:12px 0 18px;color:#4A554F;font-size:13px;font-weight:600}
 .trust-row{display:flex;flex-wrap:wrap;gap:8px 18px;margin:18px 0 25px;color:#4A554F;font-size:12px}.sample-result{background:#0F1B15;color:#fff;border:1px solid #293A30;border-radius:26px;padding:26px;box-shadow:0 18px 42px rgba(15,27,21,.12)}
 .sample-top{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#D5DED8;font-size:12px}.sample-badge{background:#C6F24E;color:#0F1B15;border-radius:999px;padding:7px 11px;font-weight:700;font-size:11px}.sample-title{font:700 29px 'Space Grotesk',sans-serif;margin:25px 0 13px}
-.sample-meter{height:9px;border-radius:99px;background:#34433A;overflow:hidden}.sample-meter span{display:block;height:100%;width:43%;background:#C6F24E;border-radius:99px}.sample-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.sample-stats>div{border:1px solid #35443A;border-radius:15px;padding:14px}.sample-stats small,.sample-fix small{display:block;color:#B9C5BD;font-size:11px;margin-bottom:7px}.sample-stats strong{font:700 22px 'Space Grotesk',sans-serif;color:#fff}
+.sample-meter{height:9px;border-radius:99px;background:#34433A;overflow:hidden}.sample-meter span{display:block;height:100%;background:#C6F24E;border-radius:99px}.sample-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.sample-stats>div{border:1px solid #35443A;border-radius:15px;padding:14px}.sample-stats small,.sample-fix small{display:block;color:#B9C5BD;font-size:11px;margin-bottom:7px}.sample-stats strong{font:700 22px 'Space Grotesk',sans-serif;color:#fff}
 .sample-fix{background:#C6F24E;color:#0F1B15;padding:15px;border-radius:15px}.sample-fix small{color:#34431A;font-weight:700}.sample-fix p{margin:0;line-height:1.45;font-size:13px}.lender-strip{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-block:1px solid #E2E5DC;padding:17px 2px;margin:12px 0 48px;color:#4A554F}.lender-strip span{font-size:12px}.lender-strip strong{font-size:14px;color:#0F1B15}
 .feature-panel{background:#0F1B15;color:#fff;border-radius:25px;padding:27px;margin:42px 0 25px}.feature-panel h2{font:700 25px 'Space Grotesk',sans-serif;color:#fff;margin:0 0 23px}.feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.feature-grid article{border:1px solid #34433A;border-radius:17px;padding:17px;min-height:162px}.feature-grid article>span{color:#C6F24E;font-size:12px;font-weight:700}.feature-grid h3{color:#fff;font:600 16px 'Space Grotesk',sans-serif;margin:14px 0 8px}.feature-grid p{color:#C3CEC6;font-size:12px;line-height:1.5;margin:0}
 .stPageLink a,.stButton>button{min-height:46px!important;border-radius:13px!important}.stPageLink a[kind="primary"],.stButton>button[kind="primary"]{background:#0F1B15!important;border-color:#0F1B15!important;color:#fff!important}
@@ -96,14 +137,23 @@ with hero:
     )
 
 with preview:
+    sample_data = _sample_preview_data()
+    band_label = t(f"readiness_{sample_data['band']}")
+    risk_pct = round(sample_data["risk"] * 100)
+    meter_width = max(6, min(100, risk_pct)) if risk_pct > 0 else 6
+    if sample_data["improvements"]:
+        fix_content = " + ".join(suggestion_text(change) for change in sample_data["improvements"][0]["changes"])
+    else:
+        fix_content = home_text("sample_good_note")
+
     st.markdown(
         f'<section class="sample-result"><div class="sample-top"><span>{home_text("sample")}</span>'
-        f'<span class="sample-badge">{t("readiness_needs_work")}</span></div>'
-        f'<div class="sample-title">{t("readiness_needs_work")}</div>'
-        f'<div class="sample-meter"><span></span></div>'
-        f'<div class="sample-stats"><div><small>{home_text("lenders")}</small><strong>5 / 6</strong></div>'
-        f'<div><small>{t("monthly_emi")}</small><strong>₹9,822</strong></div></div>'
-        f'<div class="sample-fix"><small>{home_text("fix")}</small><p>{home_text("sample_fix")}</p></div></section>',
+        f'<span class="sample-badge">{band_label}</span></div>'
+        f'<div class="sample-title">{band_label}</div>'
+        f'<div class="sample-meter"><span style="width:{meter_width}%"></span></div>'
+        f'<div class="sample-stats"><div><small>{home_text("lenders")}</small><strong>{sample_data["meets"]} / {sample_data["total_lenders"]}</strong></div>'
+        f'<div><small>{t("monthly_emi")}</small><strong>{format_inr(sample_data["emi"])}</strong></div></div>'
+        f'<div class="sample-fix"><small>{home_text("fix")}</small><p>{fix_content}</p></div></section>',
         unsafe_allow_html=True,
     )
 

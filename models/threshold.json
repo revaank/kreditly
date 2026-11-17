@@ -1,4 +1,6 @@
 {
-  "threshold": 0.2238806039094925,
-  "borderline_band": 0.1
+  "threshold": 0.224,
+  "borderline_band": 0.1,
+  "good_max": 0.124,
+  "fair_max": 0.324
 }
