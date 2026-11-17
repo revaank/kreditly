@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Five-screen guided wizard and progressive educational results."""
+# Five-screen guided wizard and progressive educational results.
 from urllib.parse import quote
 import streamlit as st
 
@@ -51,7 +51,7 @@ page_setup()
 header("check")
 
 for k, def_v in [
-    ("whatif_income", 800000),
+    ("whatif_monthly_income", 65000),
     ("whatif_loan", 300000),
     ("whatif_emi", 5000),
     ("whatif_util", 30),
@@ -62,7 +62,7 @@ for k, def_v in [
 
 def reset_whatif():
     p = st.session_state.get("profile", DEFAULT_PROFILE)
-    st.session_state["whatif_income"] = int(p.get("annual_income", 800000))
+    st.session_state["whatif_monthly_income"] = int(p.get("monthly_income", 65000))
     st.session_state["whatif_loan"] = int(p.get("loan_amount", 300000))
     st.session_state["whatif_emi"] = int(p.get("existing_emi", 5000))
     st.session_state["whatif_util"] = int(p.get("revol_util", 30))
@@ -77,8 +77,8 @@ DEFAULT_PROFILE = {
     "home": "rented",
     "credit_year": 2015,
     "credit_unknown": False,
-    "monthly_income": 66667,  # ₹8,00,000 / 12
-    "annual_income": 800000,
+    "monthly_income": 65000,  # chip value
+    "annual_income": 780000,  # 65000 * 12
     "existing_emi": 5000,
     "card_bill": 12000,
     "revol_util": 30,
@@ -137,10 +137,6 @@ if st.session_state.view_mode == "wizard":
 
             # Amount chips + custom input
             amount_chips = ["₹1,00,000", "₹2,00,000", "₹3,00,000", "₹5,00,000", "₹10,00,000", "Custom"]
-            cur_amt_str = f"₹{v['loan_amount']:,}"
-            default_chip = cur_amt_str if cur_amt_str in amount_chips else "Custom"
-            selected_chip = chip_selector(t("loan_amount") + " (Chips)", amount_chips, default_chip, key="chip_loan_amt")
-
             chip_map = {
                 "₹1,00,000": 100000,
                 "₹2,00,000": 200000,
@@ -148,10 +144,14 @@ if st.session_state.view_mode == "wizard":
                 "₹5,00,000": 500000,
                 "₹10,00,000": 1000000,
             }
+            rev_chip_map = {v_val: k for k, v_val in chip_map.items()}
+            cur_amt_chip = rev_chip_map.get(int(v["loan_amount"]), "Custom")
+            selected_chip = chip_selector(t("loan_amount"), amount_chips, cur_amt_chip, key="chip_loan_amt")
+
             if selected_chip in chip_map:
                 v["loan_amount"] = chip_map[selected_chip]
 
-            v["loan_amount"] = st.number_input(
+            num_loan = st.number_input(
                 t("loan_amount") + " (₹)",
                 min_value=10000,
                 max_value=5000000,
@@ -159,6 +159,9 @@ if st.session_state.view_mode == "wizard":
                 step=25000,
                 key="num_loan_amt",
             )
+            if num_loan != v["loan_amount"]:
+                v["loan_amount"] = num_loan
+                st.session_state["chip_loan_amt"] = rev_chip_map.get(num_loan, "Custom")
 
             # Repayment period chips
             tenure_chips = ["12 months (1 yr)", "24 months (2 yrs)", "36 months (3 yrs)", "48 months (4 yrs)", "60 months (5 yrs)"]
@@ -194,13 +197,13 @@ if st.session_state.view_mode == "wizard":
 
             salary_chips = ["₹25,000", "₹50,000", "₹65,000", "₹75,000", "₹1,00,000", "Custom"]
             salary_map = {"₹25,000": 25000, "₹50,000": 50000, "₹65,000": 65000, "₹75,000": 75000, "₹1,00,000": 100000}
-            cur_sal_str = f"₹{v['monthly_income']:,}"
-            def_sal_chip = cur_sal_str if cur_sal_str in salary_chips else "Custom"
-            selected_sal_chip = chip_selector(t("monthly_salary") + " (Chips)", salary_chips, def_sal_chip, key="chip_salary")
+            rev_salary_map = {v_val: k for k, v_val in salary_map.items()}
+            cur_sal_chip = rev_salary_map.get(int(v["monthly_income"]), "Custom")
+            selected_sal_chip = chip_selector(t("monthly_salary"), salary_chips, cur_sal_chip, key="chip_salary")
             if selected_sal_chip in salary_map:
                 v["monthly_income"] = salary_map[selected_sal_chip]
 
-            v["monthly_income"] = st.number_input(
+            num_sal = st.number_input(
                 t("monthly_salary") + " (₹)",
                 min_value=5000,
                 max_value=2000000,
@@ -208,6 +211,9 @@ if st.session_state.view_mode == "wizard":
                 step=5000,
                 key="num_salary",
             )
+            if num_sal != v["monthly_income"]:
+                v["monthly_income"] = num_sal
+                st.session_state["chip_salary"] = rev_salary_map.get(num_sal, "Custom")
             v["annual_income"] = int(round(v["monthly_income"] * 12))
             st.caption(f"Yearly income equivalent: {format_inr(v['annual_income'])}")
 
@@ -248,13 +254,13 @@ if st.session_state.view_mode == "wizard":
             # Existing EMIs
             emi_chips = ["₹0", "₹2,000", "₹5,000", "₹10,000", "₹20,000", "Custom"]
             emi_map = {"₹0": 0, "₹2,000": 2000, "₹5,000": 5000, "₹10,000": 10000, "₹20,000": 20000}
-            cur_emi_str = f"₹{v['existing_emi']:,}"
-            def_emi_chip = cur_emi_str if cur_emi_str in emi_chips else "Custom"
-            selected_emi_chip = chip_selector(t("existing_emi") + " (Chips)", emi_chips, def_emi_chip, key="chip_existing_emi")
+            rev_emi_map = {v_val: k for k, v_val in emi_map.items()}
+            cur_emi_chip = rev_emi_map.get(int(v["existing_emi"]), "Custom")
+            selected_emi_chip = chip_selector(t("existing_emi"), emi_chips, cur_emi_chip, key="chip_existing_emi")
             if selected_emi_chip in emi_map:
                 v["existing_emi"] = emi_map[selected_emi_chip]
 
-            v["existing_emi"] = st.number_input(
+            num_emi = st.number_input(
                 t("existing_emi") + " (₹)",
                 min_value=0,
                 max_value=500000,
@@ -262,6 +268,9 @@ if st.session_state.view_mode == "wizard":
                 step=1000,
                 key="num_existing_emi",
             )
+            if num_emi != v["existing_emi"]:
+                v["existing_emi"] = num_emi
+                st.session_state["chip_existing_emi"] = rev_emi_map.get(num_emi, "Custom")
 
             # Card usage
             card_chips = [t("no_card"), t("very_little"), t("third"), t("half"), t("almost_all")]
@@ -273,13 +282,13 @@ if st.session_state.view_mode == "wizard":
             # Card bill
             bill_chips = ["₹0", "₹5,000", "₹12,000", "₹25,000", "₹50,000+", "Custom"]
             bill_map = {"₹0": 0, "₹5,000": 5000, "₹12,000": 12000, "₹25,000": 25000, "₹50,000+": 50000}
-            cur_bill_str = f"₹{v['card_bill']:,}"
-            def_bill_chip = cur_bill_str if cur_bill_str in bill_chips else "Custom"
-            selected_bill_chip = chip_selector(t("card_bill") + " (Chips)", bill_chips, def_bill_chip, key="chip_card_bill")
+            rev_bill_map = {v_val: k for k, v_val in bill_map.items()}
+            cur_bill_chip = rev_bill_map.get(int(v["card_bill"]), "Custom")
+            selected_bill_chip = chip_selector(t("card_bill"), bill_chips, cur_bill_chip, key="chip_card_bill")
             if selected_bill_chip in bill_map:
                 v["card_bill"] = bill_map[selected_bill_chip]
 
-            v["card_bill"] = st.number_input(
+            num_bill = st.number_input(
                 t("card_bill") + " (₹)",
                 min_value=0,
                 max_value=1000000,
@@ -287,6 +296,9 @@ if st.session_state.view_mode == "wizard":
                 step=2000,
                 key="num_card_bill",
             )
+            if num_bill != v["card_bill"]:
+                v["card_bill"] = num_bill
+                st.session_state["chip_card_bill"] = rev_bill_map.get(num_bill, "Custom")
 
             render_running_emi(v["loan_amount"], v["rate"], v["tenure_months"])
 
@@ -355,11 +367,14 @@ if st.session_state.view_mode == "wizard":
             age_chips = ["22", "26", "30", "35", "42", "50", "Custom"]
             cur_age_str = str(int(v["age"]))
             def_age_chip = cur_age_str if cur_age_str in age_chips else "Custom"
-            selected_age_chip = chip_selector(t("age") + " (Chips)", age_chips, def_age_chip, key="chip_age")
+            selected_age_chip = chip_selector(t("age"), age_chips, def_age_chip, key="chip_age")
             if selected_age_chip != "Custom" and selected_age_chip.isdigit():
                 v["age"] = int(selected_age_chip)
 
-            v["age"] = st.number_input(t("age"), min_value=18, max_value=100, value=int(v["age"]), key="num_age")
+            num_age = st.number_input(t("age"), min_value=18, max_value=100, value=int(v["age"]), key="num_age")
+            if num_age != v["age"]:
+                v["age"] = num_age
+                st.session_state["chip_age"] = str(int(num_age)) if str(int(num_age)) in age_chips else "Custom"
 
             home_chips = [t("rented"), t("own"), t("own_loan")]
             home_key_map = {t("rented"): "rented", t("own"): "own", t("own_loan"): "own_loan"}
@@ -446,7 +461,7 @@ else:
 
         st.markdown(
             f'<div class="result-card {band_class}" style="margin-top:12px;margin-bottom:16px;">'
-            f'<div class="small-label">{t("eyebrow")}</div>'
+            f'<div class="small-label">{t("eyebrow_results").upper()}</div>'
             f'<h2 style="font-size:32px;margin:8px 0 12px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{band_label}</h2>'
             f'<p style="font-size:16px;line-height:1.6;color:#35443A;margin-bottom:6px;">'
             f'Your estimated monthly EMI would be <b>{format_inr(summary["emi"])}</b>, which takes about <b>{ratio:.1f}%</b> of your monthly take-home income.'
@@ -474,7 +489,7 @@ else:
                 f'<div class="panel" style="text-align:center;padding:16px 12px;">'
                 f'<div class="small-label">{t("v2_lenders_met")}</div>'
                 f'<strong style="font-size:22px;color:#0F1B15;font-family:\'Space Grotesk\',sans-serif;">{count_meets(bank_results)} / {len(bank_results)}</strong>'
-                f'<div style="font-size:12px;color:#4A554F;">criteria met</div>'
+                f'<div style="font-size:12px;color:#4A554F;">{t("lenders_matched")}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
@@ -530,15 +545,65 @@ else:
         st.markdown(f"### {t('improve')}")
         st.caption("Here are practical adjustments to improve affordability and lender matching.")
 
-        # Top 3 numbered fix cards
+        # Action formatting helper
+        def _format_action_title(change: dict, current_vals: dict) -> str:
+            key = change["field"]
+            val = change["value"]
+            lang = st.session_state.get("language", "EN")
+            is_hi = lang == "हिं"
+            if key == "revol_util":
+                pct = int(round(val))
+                if is_hi:
+                    return f"कार्ड उपयोग {pct}% से कम लाएं" if pct <= 10 else f"कार्ड उपयोग घटाकर {pct}% करें"
+                return f"Bring your card usage under {pct}%" if pct <= 10 else f"Bring your card usage down to {pct}%"
+            elif key == "loan_amount":
+                cur_amt = current_vals.get("loan_amount", 300000)
+                if is_hi:
+                    return f"{format_inr(cur_amt)} के बजाय {format_inr(val)} का ऋण लें"
+                return f"Borrow {format_inr(val)} instead of {format_inr(cur_amt)}"
+            elif key == "existing_emi":
+                if is_hi:
+                    return f"मौजूदा किस्तों को घटाकर लगभग {format_inr(val)} करें"
+                return f"Reduce existing EMIs to about {format_inr(val)}"
+            elif key == "tenure_months":
+                t_m = int(round(val))
+                if is_hi:
+                    return f"ऋण अवधि बढ़ाकर {t_m} महीने करें"
+                return f"Extend loan repayment term to {t_m} months"
+            return suggestion_text(change)
+
+        # Top numbered action cards
         try:
             suggestions = find_improvements(values, max_suggestions=3)
         except Exception:
             suggestions = []
 
-        if suggestions:
-            for idx, sug in enumerate(suggestions, start=1):
-                changes_text = " + ".join(suggestion_text(c) for c in sug["changes"])
+        action_items = []
+        for sug in suggestions:
+            changes_text = " + ".join(_format_action_title(c, values) for c in sug["changes"])
+            pts = round(sug["risk_reduction"] * 100)
+            reduction_text = f"अनुमानित जोखिम में कमी: ~{pts} अंक" if st.session_state.get("language") == "हिं" else f"Estimated risk reduction: ~{pts} points"
+            action_items.append({
+                "text": changes_text,
+                "note": reduction_text,
+                "is_top": True,
+            })
+
+        # Merge lender qualification fixes (no duplicates)
+        overall_fixes = aggregate_next_steps(bank_results)
+        seen_texts = {item["text"].lower() for item in action_items}
+        for fix in overall_fixes:
+            if fix and fix.lower() not in seen_texts:
+                seen_texts.add(fix.lower())
+                lender_note = "ऋणदाता पात्रता आवश्यकता" if st.session_state.get("language") == "हिं" else "Lender qualification criterion"
+                action_items.append({
+                    "text": fix,
+                    "note": lender_note,
+                    "is_top": False,
+                })
+
+        if action_items:
+            for idx, item in enumerate(action_items, start=1):
                 is_first = (idx == 1)
                 bg_style = "background:#F1F9DF;border:2px solid #0F1B15;" if is_first else "background:#fff;border:1px solid #E2E5DC;"
                 tag_badge = '<span style="background:#0F1B15;color:#C6F24E;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">Top action</span>' if is_first else ''
@@ -548,21 +613,13 @@ else:
                     f'<span style="font-weight:800;color:#52751E;font-size:12px;letter-spacing:0.08em;">ACTION {idx:02d}</span>'
                     f'{tag_badge}'
                     f'</div>'
-                    f'<p style="font-size:15px;font-weight:600;color:#0F1B15;margin:4px 0 6px;">{changes_text}</p>'
-                    f'<div style="font-size:12px;color:#4A554F;">Estimated risk reduction: ~{round(sug["risk_reduction"] * 100)} points</div>'
+                    f'<p style="font-size:15px;font-weight:600;color:#0F1B15;margin:4px 0 6px;">{item["text"]}</p>'
+                    f'<div style="font-size:12px;color:#4A554F;">{item["note"]}</div>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
         else:
             st.info("Your profile already meets standard readiness criteria.")
-
-        # Single de-duplicated Possible next steps checklist
-        overall_fixes = aggregate_next_steps(bank_results)
-        if overall_fixes:
-            with st.container(border=True):
-                st.markdown(f"**{t('bank_fixes')}**")
-                for fix in overall_fixes:
-                    st.markdown(f"- {fix}")
 
         if st.button(t("next_to_plan"), type="primary", use_container_width=True, key="btn_next_plan"):
             st.session_state.results_section = "plan"
@@ -573,7 +630,7 @@ else:
         render_emi_planner(values["loan_amount"], values["rate"], values["tenure_months"])
 
         section_title(t("whatif"))
-        signature = tuple(values.get(k) for k in ("annual_income", "loan_amount", "tenure_months", "existing_emi", "revol_util"))
+        signature = tuple(values.get(k) for k in ("monthly_income", "annual_income", "loan_amount", "tenure_months", "existing_emi", "revol_util"))
         if st.session_state.get("whatif_signature") != signature:
             reset_whatif()
             st.session_state.whatif_signature = signature
@@ -581,16 +638,18 @@ else:
         with st.container(border=True):
             col1, col2 = st.columns(2)
             with col1:
-                income = st.slider(
-                    t("income") + " (₹)",
-                    min_value=max(1, int(values["annual_income"] * 0.5)),
-                    max_value=max(2000000, int(values["annual_income"] * 1.5)),
-                    value=int(values["annual_income"]),
-                    step=25000,
-                    key="whatif_income",
+                cur_m_inc = int(values.get("monthly_income", 65000))
+                monthly_salary = st.slider(
+                    t("monthly_salary") + " (₹)",
+                    min_value=15000,
+                    max_value=250000,
+                    value=cur_m_inc,
+                    step=2500,
+                    key="whatif_monthly_income",
                     format="₹%d",
                 )
-                st.caption(format_inr(income))
+                annual_income_equiv = monthly_salary * 12
+                st.caption(f"{format_inr(monthly_salary)} / month ({format_inr(annual_income_equiv)} / year)")
             with col2:
                 loan = st.slider(
                     t("loan_amount") + " (₹)",
@@ -632,21 +691,29 @@ else:
                 model_tenure = 60 if tenure >= 48 else 36
                 new_values, new_result = apply_change(
                     values,
-                    income=income,
+                    income=annual_income_equiv,
                     loan=loan,
                     months=model_tenure,
                     existing_emi=emi_old,
                     revol_util=util,
                 )
-                # Keep user-selected tenure in values for bank check
+                # Keep user-selected tenure and monthly income in values for bank check
                 new_values["tenure_months"] = tenure
+                new_values["monthly_income"] = monthly_salary
             except Exception:
                 new_values = dict(values)
-                new_values.update({"annual_income": income, "loan_amount": loan, "tenure_months": tenure, "existing_emi": emi_old, "revol_util": util})
+                new_values.update({
+                    "monthly_income": monthly_salary,
+                    "annual_income": annual_income_equiv,
+                    "loan_amount": loan,
+                    "tenure_months": tenure,
+                    "existing_emi": emi_old,
+                    "revol_util": util,
+                })
                 new_result = None
 
             new_emi = loan_summary(loan, values["rate"], tenure)["emi"]
-            new_foir = foir(income / 12, emi_old, new_emi)
+            new_foir = foir(monthly_salary, emi_old, new_emi)
 
             if new_result:
                 render_whatif_result(new_result, result)
@@ -686,11 +753,29 @@ else:
         col_edit, col_restart = st.columns(2)
         with col_edit:
             if st.button(t("edit_details"), use_container_width=True, key="btn_edit_answers"):
+                for k in [
+                    "chip_loan_amt", "num_loan_amt", "chip_tenure", "select_purpose", "num_rate",
+                    "chip_salary", "num_salary", "chip_emp", "chip_job",
+                    "chip_existing_emi", "num_existing_emi", "chip_card_util", "chip_card_bill", "num_card_bill",
+                    "chip_cibil", "num_credit_year", "chk_credit_unknown", "num_open_acc", "num_total_acc",
+                    "num_mort_acc", "num_pub_rec", "num_bankruptcies",
+                    "chip_age", "num_age", "chip_home"
+                ]:
+                    st.session_state.pop(k, None)
                 st.session_state.view_mode = "wizard"
                 st.session_state.wizard_step = 1
                 st.rerun()
         with col_restart:
             if st.button(t("start_over"), use_container_width=True, key="btn_start_over"):
+                for k in [
+                    "chip_loan_amt", "num_loan_amt", "chip_tenure", "select_purpose", "num_rate",
+                    "chip_salary", "num_salary", "chip_emp", "chip_job",
+                    "chip_existing_emi", "num_existing_emi", "chip_card_util", "chip_card_bill", "num_card_bill",
+                    "chip_cibil", "num_credit_year", "chk_credit_unknown", "num_open_acc", "num_total_acc",
+                    "num_mort_acc", "num_pub_rec", "num_bankruptcies",
+                    "chip_age", "num_age", "chip_home"
+                ]:
+                    st.session_state.pop(k, None)
                 st.session_state.profile = dict(DEFAULT_PROFILE)
                 st.session_state.pop("estimate", None)
                 st.session_state.view_mode = "wizard"

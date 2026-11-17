@@ -423,9 +423,13 @@ EN.update({
     "see_what_influenced":"See what influenced this",
     "key_reason":"Key criterion",
     "lender_all_met":"All published eligibility criteria met.",
+    "eyebrow_results":"Your loan readiness",
+    "lenders_matched":"lenders matched",
     "card_util_chips":["No card", "Under 10%", "~30%", "~60%", "Nearly full"],
 })
 HI.update({
+    "eyebrow_results":"आपकी ऋण तैयारी",
+    "lenders_matched":"ऋणदाता मिले",
     "readiness_band":"तैयारी स्तर", "readiness_good":"अच्छी स्थिति", "readiness_fair":"मध्यम स्थिति",
     "readiness_needs_work":"सुधार की ज़रूरत", "readiness_strong":"अच्छी स्थिति", "readiness_borderline":"मध्यम स्थिति", "readiness_risky":"सुधार की ज़रूरत",
     "risk_details":"जोखिम अनुमान का विवरण",

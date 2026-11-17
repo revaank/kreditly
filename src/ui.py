@@ -38,10 +38,10 @@ def _toggle_language():
 def header(active=""):
     if "language" not in st.session_state: st.session_state.language="EN"
     toggle_label = "हिन्दी" if st.session_state.language == "EN" else "English"
-    a,b=st.columns([4.2,4.8])
+    a,b=st.columns([3.6,6.4])
     with a: st.markdown('<a class="brand" href="/"><span class="brand-mark">k</span><span>kreditly</span></a>',unsafe_allow_html=True)
     with b:
-        x,y,z,i,l=st.columns([.85,1.0,1.0,1.4,.85])
+        x,y,z,i,l=st.columns([1.0,1.2,1.3,1.7,1.2])
         def _safe_link(page, label):
             try:
                 st.page_link(page, label=label)
@@ -52,7 +52,7 @@ def header(active=""):
         with z: _safe_link("pages/2_Sample_Cases.py", t("nav_samples"))
         with i: _safe_link("pages/3_Model_Insights.py", t("nav_insights"))
         with l:
-            if st.button(toggle_label,key="toggle_language",help=t("language"),use_container_width=True,on_click=_toggle_language):
+            if st.button(toggle_label,key="toggle_language",use_container_width=True,on_click=_toggle_language):
                 st.rerun()
     st.markdown('<div class="topline"></div>',unsafe_allow_html=True)
 

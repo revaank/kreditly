@@ -86,6 +86,8 @@ class TestFlow(unittest.TestCase):
         at.button(key="btn_next_plan").click().run()
         self.assertFalse(at.exception)
         self.assertEqual(at.session_state["results_section"], "plan")
+        self.assertIn("whatif_monthly_income", at.session_state)
+        self.assertEqual(at.session_state["whatif_monthly_income"], 65000)
 
         # Plan section: Next to save
         at.button(key="btn_next_save").click().run()
@@ -96,7 +98,9 @@ class TestFlow(unittest.TestCase):
         at.button(key="btn_edit_answers").click().run()
         self.assertFalse(at.exception)
         self.assertEqual(at.session_state["view_mode"], "wizard")
+        self.assertEqual(at.session_state["wizard_step"], 1)
         self.assertEqual(at.session_state["profile"]["loan_amount"], 300000)
+        self.assertEqual(at.session_state["profile"]["monthly_income"], 65000)
 
 if __name__ == "__main__":
     unittest.main()
