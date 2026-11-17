@@ -1,4 +1,5 @@
 """Kreditly's home page for an educational historical-model demonstration."""
+import os
 import streamlit as st
 from src.translations import t
 from src.ui import footer, header, page_setup, section_title
@@ -11,6 +12,7 @@ st.markdown(f'<div class="eyebrow">{t("eyebrow")}</div><h1>{t("headline")}</h1><
 c1, c2 = st.columns([1, 1])
 with c1: st.page_link("pages/1_Check_Eligibility.py", label=t("start_check"), icon="✅", use_container_width=True)
 with c2: st.page_link("pages/2_Sample_Cases.py", label=t("sample_link"), use_container_width=True)
+st.link_button(t("new_version"), os.getenv("KREDITLY_WEB_URL", "https://kreditly.vercel.app"), use_container_width=True)
 st.markdown('</div>', unsafe_allow_html=True)
 st.write("")
 for col, title, body, icon in zip(st.columns(3), [t("feature1"), t("feature2"), t("feature3")], [t("feature1_body"), t("feature2_body"), t("feature3_body")], ["⚡", "◉", "↗"]):

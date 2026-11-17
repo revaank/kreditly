@@ -1,56 +1,85 @@
 # Kreditly — Explainable Loan Readiness Tool
 
-Kreditly is an educational loan-readiness demo, not a lender, credit bureau, approval decision, or financial advice. It combines two separate views: an ML estimate of historical loan outcomes and a checklist of lender criteria included in `src/bank_rules.json`.
+Kreditly is an educational loan readiness demo. It combines an estimate from an unchanged XGBoost model trained on historical U.S. LendingClub data with a separate checklist of published minimum criteria from six Indian lenders. It is not a lender, credit bureau, approval decision, or financial advice.
 
-## What the results mean
+## What the app shows
 
-- **Model estimate:** The unchanged Phase 2 XGBoost model learned from historical U.S. LendingClub loans. It is not validated for Indian borrowers or current lending. SHAP explanations describe model associations, not causes.
-- **Bank rule checker:** Compares the profile with the supplied published minimum criteria for six lenders. `Official` and `Typical` tags preserve the data file's reliability labels. A “meets” result is only a match against the criteria present in that file; it does not mean eligible or guarantee approval. Null criteria are skipped. Criteria can change, so verify each lender's source before applying.
-- **What-if:** The simulator updates the model estimate and the number of lenders whose published criteria the changed profile meets. It does not change the trained model or its features.
+- **Model estimate:** calibrated probability, readiness band, SHAP factors, and possible next steps. The model uses historical U.S. loans and has not been validated for Indian borrowers or current lending. SHAP describes model associations, not causes.
+- **Published lender criteria:** rule-by-rule comparisons using only `src/bank_rules.json`. Null rules are skipped. Official and typical sources are labeled; flagged sources are marked for review. A match does not mean approval, and rules may change.
+- **What-if simulator:** recalculates the estimate and count of lenders matching the published criteria when supported values change. It does not change the trained model or its features.
+- **Hindi and English:** available in the Streamlit app and the Next.js web app.
+- **Downloadable report:** print or save the results page as PDF.
 
-The app displays the rule-file disclaimer and `last_checked` date. Rule source URLs and reliability labels are also listed on Model Insights and beside the relevant checks.
+The bank checker shows the disclaimer and `last_checked` value from the rules file. Only borrow from RBI-registered lenders; be cautious of instant-loan apps that ask for unusual permissions or upfront fees.
 
-## Run the app locally
+## Run locally
 
-The trained model, threshold, metrics, sample cases, and bank rules are committed. The raw CSV is not needed to run the app.
+Use Python 3.11. The model files, calibration artifacts, metrics, sample cases, and bank rules are committed; the raw dataset is not required to run the app.
 
-Use Python 3.11 from the project directory:
+### Existing Streamlit app
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-For deployment, use Python 3.11, install from `requirements.txt`, and set `app.py` as the Streamlit entry point. No API keys or secrets are required.
+### API
 
-## Retrain the model (optional)
+In another terminal, activate the same environment and run:
 
-Place the supplied `lending_club_loan_two.csv` at `data/lending_club_loan_two.csv`. The `data/` directory is Git-ignored; never commit the raw dataset. The file has 396,030 loan rows and 27 columns, with issue years 2007–2016. It contains 318,357 Fully Paid and 77,673 Charged Off outcomes; unresolved/current loans are absent. Its supplied archive had no source URL, license, or data dictionary. The recorded CSV SHA-256 is `7e63af47a810b1f5d8304108d606a4788c671efc992d23c05751611a7d4c1fda`. Verify the original provenance and license before redistribution.
+```powershell
+pip install -r requirements-api.txt
+uvicorn api.main:app --reload
+```
 
-Install notebook-only dependencies and open the training notebook:
+The API provides `GET /health`, `POST /predict`, `POST /lenders`, `POST /whatif`, and `GET /emi-table`. Interactive API documentation is at `http://localhost:8000/docs`. The API loads the saved model/calibrator and uses the existing finance, explanation, and bank-rule logic.
+
+### New web app
+
+Use Node.js 20.9 or newer:
+
+```powershell
+cd web
+Copy-Item .env.example .env.local
+corepack pnpm install
+corepack pnpm dev
+```
+
+Set `NEXT_PUBLIC_API_URL=http://localhost:8000` in `web/.env.local`, and run the API in another terminal. Open `http://localhost:3000`.
+
+## Deploy
+
+The deployment files are prepared for Vercel (frontend) and Render (API). Push the repository to GitHub, create a Vercel project with **Root Directory** set to `web`, and set `NEXT_PUBLIC_API_URL` to the public Render API URL. Create the Render web service from `render.yaml`; set `KREDITLY_FRONTEND_ORIGIN` to the Vercel origin. Both services deploy from the same repository. Check the API's `/health` URL after deployment.
+
+Set `KREDITLY_WEB_URL` on the Streamlit deployment to the public web app URL; the existing Streamlit home page uses it for the “Try the new Kreditly website” link. The source defaults to `https://kreditly.vercel.app` until the final deployment URL is known.
+
+## Model and data limitations
+
+The model was trained on 396,030 historical U.S. loan records from 2007–2016 (318,357 Fully Paid; 77,673 Charged Off). It omits unresolved/current loans. The trained model and its features are unchanged. Probabilities are isotonic-calibrated on the validation partition; readiness bands use validation quantiles. The validation calibration score is an in-sample diagnostic, so the held-out test score is the stronger generalization check. These results do not establish performance for Indian borrowers or current lending.
+
+The supplied dataset archive had no source URL, license, or data dictionary. Its raw CSV belongs at `data/lending_club_loan_two.csv`; the `data/` directory is Git-ignored and must not be committed. The recorded CSV SHA-256 is `7e63af47a810b1f5d8304108d606a4788c671efc992d23c05751611a7d4c1fda`. Confirm provenance and license before redistribution.
+
+## Optional model retraining
 
 ```powershell
 pip install -r requirements-training.txt
 python -m notebook notebooks/train_model.ipynb
 ```
 
-The notebook documents the training workflow and writes model artifacts to `models/` and example profiles to `src/sample_cases.json`. Historical features and results should not be treated as current Indian credit guidance.
-
-## Project layout
+## Project map
 
 ```text
-app.py                       Home page
-pages/                       Eligibility, samples, and model insights
-src/bank_rules.json          Supplied published lender criteria and source URLs
-src/bank_checker.py          Rule evaluation and transparent next-step maths
-src/finance.py               EMI, FOIR, and rupee calculations
-src/features.py              Shared model feature creation (unchanged in Phase 3)
-src/predictor.py             Cached model and grouped SHAP explanations
-src/training.py              Reusable model-training helpers
-notebooks/train_model.ipynb  Documented training workflow
-models/                      Committed model and evaluation artifacts
-data/                         Local-only raw dataset (Git-ignored)
+app.py, pages/              Existing Streamlit application
+api/                        FastAPI endpoints
+web/                        Next.js bilingual web app
+src/bank_rules.json         Supplied lender criteria and source URLs
+src/bank_checker.py         Rule evaluation and transparent fixes
+src/finance.py              EMI, FOIR, and rupee calculations
+src/features.py             Shared model features
+src/predictor.py            Model inference and explanations
+models/                     Committed model and evaluation artifacts
+tests/                      Core and API checks
+data/                       Local-only dataset; Git-ignored
 ```
