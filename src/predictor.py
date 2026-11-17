@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Load the trained LendingClub pipeline and explain its risk estimates."""
 from pathlib import Path
 import json

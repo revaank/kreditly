@@ -152,7 +152,7 @@ def render_emi_planner(principal: float, rate: float, selected_months: int):
                 unsafe_allow_html=True,
             )
 
-def build_download_report(result: dict, summary: dict, ratio: float, bank_results: list[dict] | None = None) -> str:
+def build_download_report(result: dict, summary: dict, ratio: float, bank_results=None) -> str:
     """Build the plain text report containing readiness band, lender results, and disclaimer."""
     from .bank_checker import count_meets, load_bank_rules
     band_name = t(f"readiness_{result.get('readiness_band', 'fair')}")

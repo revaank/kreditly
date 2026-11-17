@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Translate grouped SHAP results into readable English and Hindi facts."""
 from .translations import t
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Compare a borrower profile with the supplied, published lender criteria."""
 import json
 import math

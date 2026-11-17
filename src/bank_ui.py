@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Accessible Streamlit rendering for published lender eligibility checks."""
 import streamlit as st
 

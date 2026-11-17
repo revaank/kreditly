@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Run fast what-if changes and search for small changes reaching STRONG."""
 from copy import deepcopy
 
