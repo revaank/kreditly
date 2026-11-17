@@ -1,0 +1,429 @@
+{
+  "last_checked": "2026-11-17",
+  "loan_type": "Unsecured personal loan",
+  "disclaimer": "Published minimum criteria only. Meeting them does not guarantee approval; lenders also use internal checks (full credit report, employer category, city, banking history). Rules change often - verify on the lender's website before applying.",
+  "reliability_legend": {
+    "official": "Taken from the lender's own website",
+    "typical": "Taken from loan comparison sites or general guidance; may differ by scheme or change without notice"
+  },
+  "lenders": [
+    {
+      "id": "sbi",
+      "name": "State Bank of India",
+      "short_name": "SBI",
+      "type": "Bank",
+      "product": "Xpress Credit Personal Loan",
+      "employment_types_allowed": {
+        "value": ["Salaried"],
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "typical",
+        "source": "https://www.creditmantri.com/sbi-personal-loan-eligibility"
+      },
+      "max_age": {
+        "value": 58,
+        "at_loan_maturity": true,
+        "reliability": "typical",
+        "source": "https://www.creditmantri.com/sbi-personal-loan-eligibility",
+        "note": "Some sources say up to 60 for certain schemes."
+      },
+      "min_monthly_income": {
+        "value": 15000,
+        "existing_customer_value": null,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
+        "note": "Varies by scheme; some SBI schemes ask for Rs 20,000-25,000 or more."
+      },
+      "min_current_job_years": {
+        "value": 1,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published."
+      },
+      "max_foir": {
+        "value": 50,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
+        "note": "EMI/NMI ratio; some sources quote up to 65% for certain SBI schemes."
+      },
+      "min_loan": {
+        "value": 25000,
+        "reliability": "typical",
+        "source": "https://www.creditmantri.com/sbi-personal-loan-eligibility"
+      },
+      "max_loan": {
+        "value": 2000000,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+      },
+      "max_tenure_months": {
+        "value": 72,
+        "reliability": "typical",
+        "source": "https://investorgain.com/personal-loan/sbi/6/"
+      },
+      "interest_rate_from": {
+        "value": 10.0,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+      },
+      "official_page": "https://sbi.co.in"
+    },
+    {
+      "id": "hdfc",
+      "name": "HDFC Bank",
+      "short_name": "HDFC",
+      "type": "Bank",
+      "product": "Personal Loan for Salaried",
+      "employment_types_allowed": {
+        "value": ["Salaried", "Self-employed"],
+        "reliability": "official",
+        "source": "https://v.hdfc.bank.in/htdocs/amp/personal-loan/eligibility_criteria.html",
+        "note": "Self-employed income criteria are not published; only salaried rules are checked."
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried"
+      },
+      "max_age": {
+        "value": 60,
+        "at_loan_maturity": false,
+        "reliability": "official",
+        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried"
+      },
+      "min_monthly_income": {
+        "value": 50000,
+        "existing_customer_value": 25000,
+        "reliability": "official",
+        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-government-employees",
+        "note": "Rs 25,000 net/month if your salary account is with HDFC Bank; Rs 50,000 if it is with another bank."
+      },
+      "min_current_job_years": {
+        "value": 1,
+        "reliability": "official",
+        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried",
+        "note": "Also needs at least 2 years of total work experience."
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published for this product."
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published."
+      },
+      "min_loan": {
+        "value": null,
+        "reliability": null,
+        "source": null
+      },
+      "max_loan": {
+        "value": 4000000,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/hdfc-personal-loan-eligibility-calculator.html"
+      },
+      "max_tenure_months": {
+        "value": 60,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/hdfc-personal-loan-eligibility-calculator.html"
+      },
+      "interest_rate_from": {
+        "value": null,
+        "reliability": null,
+        "source": null
+      },
+      "official_page": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried"
+    },
+    {
+      "id": "icici",
+      "name": "ICICI Bank",
+      "short_name": "ICICI",
+      "type": "Bank",
+      "product": "Personal Loan",
+      "employment_types_allowed": {
+        "value": ["Salaried", "Self-employed"],
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility",
+        "note": "Self-employed applicants: minimum age 23; income criteria based on business profits, not checked here."
+      },
+      "min_age": {
+        "value": 20,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/relationship-based-loan"
+      },
+      "max_age": {
+        "value": 58,
+        "at_loan_maturity": true,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility/eligibility-faqs"
+      },
+      "min_monthly_income": {
+        "value": 30000,
+        "existing_customer_value": null,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/20-lakhs-personal-loan",
+        "note": "Some instant-loan offers start at Rs 20,000/month; depends on employer and profile."
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Asks for about 2 years of total work experience (typical); not checked here."
+      },
+      "min_cibil": {
+        "value": 700,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/instant-loan/instant-loan-faqs",
+        "note": "Stated as preferred, not a hard cutoff."
+      },
+      "max_foir": {
+        "value": 50,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility/eligibility-faqs",
+        "note": "Debt-to-income below 45-50% preferred."
+      },
+      "min_loan": {
+        "value": null,
+        "reliability": null,
+        "source": null
+      },
+      "max_loan": {
+        "value": 5000000,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/70000-personal-loan"
+      },
+      "max_tenure_months": {
+        "value": 60,
+        "reliability": "typical",
+        "source": "https://www.bankbazaar.com/icici-personal-loan-eligibility-calculator.html"
+      },
+      "interest_rate_from": {
+        "value": null,
+        "reliability": null,
+        "source": null
+      },
+      "official_page": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility"
+    },
+    {
+      "id": "axis",
+      "name": "Axis Bank",
+      "short_name": "Axis",
+      "type": "Bank",
+      "product": "Personal Loan",
+      "employment_types_allowed": {
+        "value": ["Salaried"],
+        "reliability": "official",
+        "source": "https://www.axisbank.com/personal-loan/index.html"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://www.axisbank.com/personal-loan/index.html"
+      },
+      "max_age": {
+        "value": 60,
+        "at_loan_maturity": true,
+        "reliability": "official",
+        "source": "https://www.axisbank.com/personal-loan/index.html"
+      },
+      "min_monthly_income": {
+        "value": 25000,
+        "existing_customer_value": 15000,
+        "reliability": "official",
+        "source": "https://www.axisbank.com/personal-loan/index.html",
+        "note": "Rs 15,000 net/month for Axis Bank customers; Rs 25,000 for others."
+      },
+      "min_current_job_years": {
+        "value": 1,
+        "reliability": "official",
+        "source": "https://axisbank.com/retail/calculators/personal-loan-eligibility-calculator",
+        "note": "Stated as expected work experience."
+      },
+      "min_cibil": {
+        "value": 700,
+        "reliability": "official",
+        "source": "https://axisbank.com/retail/loans/personal-loan/personal-loan-for-salaried",
+        "note": "Stated as preferred."
+      },
+      "max_foir": {
+        "value": 40,
+        "reliability": "typical",
+        "source": "https://www.axis.bank.in/calculators/personal-loan-eligibility-calculator",
+        "note": "Axis guidance says debt-to-income should ideally be under 40%; general guidance, not a fixed rule."
+      },
+      "min_loan": {
+        "value": 50000,
+        "reliability": "typical",
+        "source": "https://cobrand.bankbazaar.com/axis-bank-personal-loan-eligibility-calculator.html"
+      },
+      "max_loan": {
+        "value": 4000000,
+        "reliability": "typical",
+        "source": "https://cobrand.bankbazaar.com/axis-bank-personal-loan-eligibility-calculator.html"
+      },
+      "max_tenure_months": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.axisbank.com/retail/loans/personal-loan"
+      },
+      "interest_rate_from": {
+        "value": null,
+        "reliability": null,
+        "source": null
+      },
+      "official_page": "https://www.axisbank.com/personal-loan/index.html"
+    },
+    {
+      "id": "bajaj",
+      "name": "Bajaj Finance",
+      "short_name": "Bajaj",
+      "type": "NBFC",
+      "product": "Personal Loan",
+      "employment_types_allowed": {
+        "value": ["Salaried", "Self-employed"],
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/kannada/personal-loan-eligibility-and-documents"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator"
+      },
+      "max_age": {
+        "value": 80,
+        "at_loan_maturity": true,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator"
+      },
+      "min_monthly_income": {
+        "value": 25001,
+        "existing_customer_value": null,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator",
+        "note": "Starts at Rs 25,001/month depending on your city."
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null
+      },
+      "min_cibil": {
+        "value": 685,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator",
+        "note": "Some Bajaj pages say 650; the stricter 685 is used here."
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published."
+      },
+      "min_loan": {
+        "value": 40000,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/personal-loan-for-salaried-employees"
+      },
+      "max_loan": {
+        "value": 5500000,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/tamil/personal-loan-eligibility-and-documents"
+      },
+      "max_tenure_months": {
+        "value": 108,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/personal-loan-for-salaried-employees"
+      },
+      "interest_rate_from": {
+        "value": 10.0,
+        "reliability": "official",
+        "source": "https://www.bajajfinserv.in/personal-loan-for-salaried-employees",
+        "note": "Range 10%-30.5% p.a."
+      },
+      "official_page": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator"
+    },
+    {
+      "id": "tata",
+      "name": "Tata Capital",
+      "short_name": "Tata Capital",
+      "type": "NBFC",
+      "product": "Personal Loan",
+      "employment_types_allowed": {
+        "value": ["Salaried", "Self-employed"],
+        "reliability": "official",
+        "source": "https://www.tatacapital.com/hindi/personal-loan/eligibility-calculator.html",
+        "note": "Only salaried rules are published in detail; self-employed income not checked."
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://www.tatacapital.com/content/tata-capital-web/en/personal-loan/eligibility-calculator.html"
+      },
+      "max_age": {
+        "value": 58,
+        "at_loan_maturity": false,
+        "reliability": "official",
+        "source": "https://www.tatacapital.com/content/tata-capital-web/en/personal-loan/eligibility-calculator.html"
+      },
+      "min_monthly_income": {
+        "value": 20000,
+        "existing_customer_value": null,
+        "reliability": "official",
+        "source": "https://www.tatacapital.com/content/tata-capital-web/en/personal-loan/eligibility-calculator.html",
+        "note": "Some Tata Capital pages say Rs 15,000; the stricter Rs 20,000 is used here."
+      },
+      "min_current_job_years": {
+        "value": 1,
+        "reliability": "official",
+        "source": "https://tatacapital.com/personal-loan.html",
+        "note": "Also 2 years of total work experience."
+      },
+      "min_cibil": {
+        "value": 725,
+        "reliability": "official",
+        "source": "https://tatacapital.com/personal-loan.html",
+        "note": "Stated as preferred."
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published."
+      },
+      "min_loan": {
+        "value": 40000,
+        "reliability": "official",
+        "source": "https://www.tatacapital.com/personal-loan/application-process.html"
+      },
+      "max_loan": {
+        "value": 3500000,
+        "reliability": "official",
+        "source": "https://www.tatacapital.com/personal-loan/application-process.html"
+      },
+      "max_tenure_months": {
+        "value": 72,
+        "reliability": "official",
+        "source": "https://tatacapital.com/content/tata-capital/en/personal-loan.html"
+      },
+      "interest_rate_from": {
+        "value": 10.99,
+        "reliability": "official",
+        "source": "https://www.tatacapital.com/covid.html",
+        "note": "May be outdated; check the current rate."
+      },
+      "official_page": "https://www.tatacapital.com/personal-loan.html"
+    }
+  ]
+}

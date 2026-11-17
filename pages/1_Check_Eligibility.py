@@ -2,6 +2,8 @@
 from urllib.parse import quote
 import streamlit as st
 from src.counterfactual import apply_change, find_improvements
+from src.bank_checker import count_meets, load_bank_rules
+from src.bank_ui import render_bank_results
 from src.explainer import explain_reasons, suggestion_text
 from src.features import build_features
 from src.finance import format_inr, loan_summary, foir
@@ -96,8 +98,13 @@ with left:
                 if not v.get("_loan_valid",True): st.session_state.validation_error="money_input_hint"; st.rerun()
                 if v["loan_amount"]<=0: st.session_state.validation_error="loan_positive"; st.rerun()
                 with st.spinner(t("checking")):
-                    features=build_features(v)
-                    st.session_state.estimate={"features":features,"result":predict(features),"values":dict(v)}
+                    try:
+                        features=build_features(v)
+                        prediction=predict(features)
+                    except Exception:
+                        st.session_state.validation_error="model_error"
+                        st.rerun()
+                    st.session_state.estimate={"features":features,"result":prediction,"values":dict(v)}
                 st.rerun()
 
 with right:
@@ -117,18 +124,25 @@ if "estimate" in st.session_state:
     with col1: result_card(result)
     with col2:
         section_title(t("why"))
-        contributions=explain(features)
-        for reason in explain_reasons(features,contributions): st.markdown(("✅ " if reason["helpful"] else "⚠️ ")+reason["text"])
+        try:
+            contributions=explain(features)
+            for reason in explain_reasons(features,contributions): st.markdown(("✅ " if reason["helpful"] else "⚠️ ")+reason["text"])
+        except Exception:
+            contributions=[]
+            st.warning(t("explanation_error"))
     section_title(t("contributions"))
     contribution_chart(contributions)
     if result["label"]!="STRONG":
         section_title(t("improve"))
-        suggestions=find_improvements(values)
-        if suggestions:
-            for suggestion in suggestions:
-                st.markdown("• "+" + ".join(suggestion_text(change) for change in suggestion["changes"]))
-        else:
-            st.caption(t("no_counterfactual"))
+        try:
+            suggestions=find_improvements(values)
+            if suggestions:
+                for suggestion in suggestions:
+                    st.markdown("• "+" + ".join(suggestion_text(change) for change in suggestion["changes"]))
+            else:
+                st.caption(t("no_counterfactual"))
+        except Exception:
+            st.caption(t("model_error"))
         st.caption(t("recommendation_note"))
     section_title(t("whatif"))
     signature=tuple(values.get(key) for key in ("annual_income","loan_amount","tenure_months","existing_emi","revol_util"))
@@ -150,14 +164,36 @@ if "estimate" in st.session_state:
             util=st.slider(t("card_usage"),0,100,int(values["revol_util"]),step=5,key="whatif_util")
             st.caption(f"{util}%")
         tenure=st.select_slider(t("slider_tenure"),options=[36,60],value=int(values["tenure_months"]),format_func=lambda n:f"{n} {t('months')}",key="whatif_tenure")
-        new_values,new_result=apply_change(values,income=income,loan=loan,months=tenure,existing_emi=emi_old,revol_util=util)
+        try:
+            new_values,new_result=apply_change(values,income=income,loan=loan,months=tenure,existing_emi=emi_old,revol_util=util)
+        except Exception:
+            new_values=dict(values)
+            new_values.update({"annual_income":income,"loan_amount":loan,"tenure_months":tenure,"existing_emi":emi_old,"revol_util":util})
+            new_result=None
+            st.warning(t("model_error"))
         new_emi=loan_summary(loan,values["rate"],tenure)["emi"]; new_foir=foir(income/12,emi_old,new_emi)
-        st.metric(t("simulator_result"),f'{new_result["risk"]:.0%} · {new_result["label"]}',delta=f'{new_result["risk"]-result["risk"]:+.0%} {t("vs_original")}',delta_color="inverse")
-        st.caption(f'{t("monthly_emi")}: {format_inr(new_emi)} · {t("salary_emi")}: {new_foir:.1f}% · {new_result["label"]}')
+        if new_result:
+            status_label=t({"STRONG":"strong","BORDERLINE":"borderline","RISKY":"risky"}[new_result["label"]])
+            st.metric(t("simulator_result"),f'{new_result["risk"]:.0%} · {status_label}',delta=f'{new_result["risk"]-result["risk"]:+.0%} {t("vs_original")}',delta_color="inverse")
+            st.caption(f'{t("monthly_emi")}: {format_inr(new_emi)} · {t("salary_emi")}: {new_foir:.1f}% · {status_label}')
         st.button(t("reset"),on_click=reset_whatif)
-    st.markdown(f'<div class="panel"><b>{t("bank_card")}</b></div>',unsafe_allow_html=True)
-    report=f'{t("report")}\n{t("report_dummy")}\n{t("risk")}: {result["risk"]:.0%} ({result["label"]})\n{t("monthly_emi")}: {format_inr(summary["emi"])}\n{t("salary_emi")}: {ratio:.1f}%\n{t("report_no_personal")}'
+        render_bank_results(new_values,compact=True)
+    bank_results=render_bank_results(values)
+    label_key={"STRONG":"strong","BORDERLINE":"borderline","RISKY":"risky"}[result["label"]]
+    report_lines=[
+        t("report"),t("report_dummy"),
+        f'{t("risk")}: {result["risk"]:.0%} ({t(label_key)})',
+        f'{t("monthly_emi")}: {format_inr(summary["emi"])}',
+        f'{t("salary_emi")}: {ratio:.1f}%',
+    ]
+    if bank_results is not None:
+        report_lines.append(t("bank_summary",count=count_meets(bank_results),total=len(bank_results)))
+        report_lines.extend(f'{item["name"]}: {t("bank_status_"+item["status"])}' for item in bank_results)
+        bank_metadata=load_bank_rules()
+        report_lines.extend([t("bank_last_checked",date=bank_metadata.get("last_checked","")),t("bank_disclaimer")])
+    report_lines.append(t("report_no_personal"))
+    report="\n".join(report_lines)
     actions=st.columns(2)
     with actions[0]: st.download_button(t("download"),report,file_name="kreditly-estimate.txt",mime="text/plain",use_container_width=True)
-    with actions[1]: st.link_button(t("whatsapp"),"https://wa.me/?text="+quote(t("wa_summary",label=result["label"],risk=round(result["risk"]*100))),use_container_width=True)
+    with actions[1]: st.link_button(t("whatsapp"),"https://wa.me/?text="+quote(t("wa_summary",label=t(label_key),risk=round(result["risk"]*100))),use_container_width=True)
 footer()

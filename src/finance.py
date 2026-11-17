@@ -1,4 +1,6 @@
 """Transparent rupee calculations used for the live loan summary."""
+import math
+
 def emi(principal: float, annual_rate: float, months: int) -> float:
     if months <= 0: return 0.0
     monthly_rate = annual_rate / 1200
@@ -11,6 +13,21 @@ def affordability(monthly_income: float, existing_emi: float, new_emi: float) ->
 
 def foir(monthly_income: float, existing_emi: float, new_emi: float) -> float:
     return affordability(monthly_income, existing_emi, new_emi)
+
+def max_principal_for_emi(monthly_payment: float, annual_rate: float, months: int) -> float:
+    """Invert the same reducing-balance EMI formula for a payment ceiling."""
+    if monthly_payment <= 0 or months <= 0:
+        return 0.0
+    monthly_rate = annual_rate / 1200
+    if monthly_rate == 0:
+        return monthly_payment * months
+    return monthly_payment * (1 - (1 + monthly_rate) ** -months) / monthly_rate
+
+def principal_within_foir(monthly_income: float, existing_emi: float, max_foir_percent: float,
+                          annual_rate: float, months: int) -> int:
+    """Largest whole-rupee loan that fits the selected lender FOIR at this term."""
+    permitted_emi = max(0.0, monthly_income * max_foir_percent / 100 - existing_emi)
+    return math.floor(max_principal_for_emi(permitted_emi, annual_rate, months))
 
 def format_inr(value: float) -> str:
     """Format rupees with Indian digit grouping, e.g. ₹12,00,000."""

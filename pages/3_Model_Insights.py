@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from src.bank_checker import load_bank_rules
 from src.translations import t
 from src.ui import footer, header, page_setup, section_title
 
@@ -22,8 +23,15 @@ importance_path = root / "models" / "feature_importance.json"
 if not metrics_path.exists() or not importance_path.exists():
     st.error(t("model_not_available"))
 else:
-    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
-    importance = json.loads(importance_path.read_text(encoding="utf-8"))
+    try:
+        metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+        importance = json.loads(importance_path.read_text(encoding="utf-8"))
+        if not isinstance(metrics, dict) or not isinstance(importance, list):
+            raise ValueError("Invalid metrics artifact structure")
+    except Exception:
+        st.error(t("insights_error"))
+        footer()
+        st.stop()
     dataset = metrics["dataset"]
     best = metrics["best_test_tuned_threshold"]
     threshold = metrics["validation_tuned_threshold"]
@@ -155,5 +163,33 @@ else:
             "- Credit-history access and financial access can reflect unequal systems.\n"
             "- This educational tool cannot guarantee an outcome or replace a lender's review."
         )
+
+with st.expander("Data sources · bank eligibility criteria"):
+    try:
+        bank_rules = load_bank_rules()
+        st.caption("Source URLs and reliability labels are reproduced from the supplied bank_rules.json.")
+        labels = {
+            "employment_types_allowed": "Employment type", "min_age": "Minimum age",
+            "max_age": "Maximum age", "min_monthly_income": "Minimum monthly income",
+            "min_current_job_years": "Current job experience", "min_cibil": "Minimum CIBIL",
+            "max_foir": "Maximum FOIR", "min_loan": "Minimum loan",
+            "max_loan": "Maximum loan", "max_tenure_months": "Maximum tenure",
+            "interest_rate_from": "Starting interest rate",
+        }
+        for lender in bank_rules["lenders"]:
+            st.markdown(f"**{lender['name']}**")
+            seen = set()
+            for key, rule in lender.items():
+                if not isinstance(rule, dict) or not rule.get("source") or rule["source"] in seen:
+                    continue
+                seen.add(rule["source"])
+                reliability = rule.get("reliability") or "source page"
+                label = labels.get(key, key.replace("_", " ").title())
+                st.markdown(f"- [{label} · {reliability}]({rule['source']})")
+            official_page = lender.get("official_page")
+            if official_page and official_page not in seen:
+                st.markdown(f"- [Lender information page]({official_page})")
+    except Exception:
+        st.info("Bank rule source URLs are temporarily unavailable.")
 
 footer()
