@@ -1,4 +1,4 @@
-"""Show actual model results and clear limits of the historical training data."""
+"""Show model results with readable feature labels and reproducibility details."""
 import json
 from pathlib import Path
 
@@ -7,174 +7,164 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.bank_checker import load_bank_rules
-from src.translations import t
+from src.translations import EN, t
 from src.ui import footer, header, page_setup, section_title
-
 
 page_setup()
 header("insights")
 section_title(t("insights_title"))
 st.warning(t("model_warning"))
 
-root = Path(__file__).resolve().parents[1]
-metrics_path = root / "models" / "metrics.json"
-importance_path = root / "models" / "feature_importance.json"
+ROOT = Path(__file__).resolve().parents[1]
+METRICS_PATH = ROOT / "models" / "metrics.json"
+IMPORTANCE_PATH = ROOT / "models" / "feature_importance.json"
+def column_label(name):
+    key = "feature_" + name
+    if key not in EN:
+        key = "column_" + name
+    return t(key) if key in EN else name.replace("_", " ").title()
 
-if not metrics_path.exists() or not importance_path.exists():
+if not METRICS_PATH.exists() or not IMPORTANCE_PATH.exists():
     st.error(t("model_not_available"))
 else:
     try:
-        metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
-        importance = json.loads(importance_path.read_text(encoding="utf-8"))
+        metrics = json.loads(METRICS_PATH.read_text(encoding="utf-8"))
+        importance = json.loads(IMPORTANCE_PATH.read_text(encoding="utf-8"))
         if not isinstance(metrics, dict) or not isinstance(importance, list):
             raise ValueError("Invalid metrics artifact structure")
+        dataset = metrics["dataset"]
+        best = metrics["best_test_tuned_threshold"]
     except Exception:
         st.error(t("insights_error"))
         footer()
         st.stop()
-    dataset = metrics["dataset"]
-    best = metrics["best_test_tuned_threshold"]
-    threshold = metrics["validation_tuned_threshold"]
-    band = metrics["borderline_band"]
 
-    st.markdown(f"**Selected model:** {metrics['best_model']} · chosen by validation ROC-AUC")
+    st.markdown(f"**{t('selected_model_by', model=metrics['best_model'])}**")
     kpi = st.columns(4)
-    kpi[0].metric("Test risky-class F1", f"{best['f1']:.3f}")
-    kpi[1].metric("Test recall", f"{best['recall']:.3f}")
-    kpi[2].metric("Test precision", f"{best['precision']:.3f}")
-    kpi[3].metric("Test ROC-AUC", f"{best['roc_auc']:.3f}")
-    st.caption(
-        f"The score cutoff {threshold:.3f} was selected on validation data to maximize F1 for Charged Off. "
-        f"The website labels estimates within ±{band:.2f} of that cutoff as BORDERLINE."
-    )
+    for col, key, value in zip(
+        kpi,
+        ("metric_f1", "metric_recall", "metric_precision", "metric_auc"),
+        (best["f1"], best["recall"], best["precision"], best["roc_auc"]),
+    ):
+        col.metric(t(key), f"{value:.3f}")
+    st.caption(t("cutoff_caption", threshold=metrics["validation_tuned_threshold"], band=metrics["borderline_band"], class_name=t("outcome_charged_off")))
+    calibration = metrics["calibration"]
+    st.caption(t("calibration_summary", **{
+        "validation_before": calibration["validation_brier_before"],
+        "validation_after": calibration["validation_brier_after"],
+        "test_before": calibration["test_brier_before"],
+        "test_after": calibration["test_brier_after"],
+    }))
 
-    with st.expander("Dataset and validation context", expanded=True):
-        st.write(
-            f"**Source file:** {dataset['source_archive']}  \n"
-            f"**Rows and columns:** {dataset['rows']:,} × {dataset['columns']}  ·  "
-            f"**Loan issue years:** {dataset['issue_year_range'][0]}–{dataset['issue_year_range'][1]}  ·  "
-            f"**Observation unit:** {dataset['observation_unit']}"
-        )
-        st.write(f"**License:** {dataset['license']}")
-        st.write(f"**Target counts:** {dataset['target_counts']}")
-        st.write(f"**Nonzero missing-value counts:** {dataset['missing_values']}")
-        st.write(f"**Duplicate full rows:** {dataset['duplicate_full_rows']:,}")
-        st.caption(f"Dataset checksum (SHA-256): {dataset['csv_sha256']}")
+    with st.expander(t("dataset_validation_context"), expanded=True):
+        st.write(t("dataset_size", rows=dataset["rows"], columns=dataset["columns"]))
+        st.write(t("issue_years", start=dataset["issue_year_range"][0], end=dataset["issue_year_range"][1]))
+        st.write(f"**{t('observation_unit')}:** {t('observation_loan_record')}")
+        st.write(f"**{t('license')}:** {t('license_unverified')}")
+        target_counts = dataset["target_counts"]
+        target_rows = [
+            {t("target_outcome"): t("outcome_paid"), t("target_rows"): target_counts.get("Fully Paid", 0)},
+            {t("target_outcome"): t("outcome_charged_off"), t("target_rows"): target_counts.get("Charged Off", 0)},
+        ]
+        st.dataframe(pd.DataFrame(target_rows), hide_index=True, use_container_width=True)
 
-    with st.expander("Model comparison", expanded=True):
+    with st.expander(t("reproducibility")):
+        st.write(f"**{t('source_file')}:** {dataset['source_archive']}")
+        st.caption(f"{t('checksum')}: {dataset['csv_sha256']}")
+        missing = dataset.get("missing_values", {})
+        missing_rows = [{t("column"): column_label(name), t("target_rows"): count} for name, count in missing.items()]
+        if missing_rows:
+            st.dataframe(pd.DataFrame(missing_rows), hide_index=True, use_container_width=True)
+        st.caption(t("duplicate_rows", count=dataset.get("duplicate_full_rows", 0)))
+
+    with st.expander(t("model_comparison"), expanded=True):
         rows = []
         for item in metrics["comparison"]:
             values = item["test_at_0_50"]
             rows.append({
-                "Model": item["model"],
-                "Validation ROC-AUC (selection)": item["validation_roc_auc"],
-                "Test accuracy (0.50)": values["accuracy"],
-                "Test precision (risky, 0.50)": values["precision"],
-                "Test recall (risky, 0.50)": values["recall"],
-                "Test F1 (risky, 0.50)": values["f1"],
-                "Test ROC-AUC": values["roc_auc"],
+                t("metric_model"): item["model"],
+                t("metric_validation_auc"): item["validation_roc_auc"],
+                t("metric_accuracy"): values["accuracy"],
+                t("metric_test_precision"): values["precision"],
+                t("metric_test_recall"): values["recall"],
+                t("metric_test_f1"): values["f1"],
+                t("metric_auc"): values["roc_auc"],
             })
         st.dataframe(pd.DataFrame(rows).style.format(precision=3), hide_index=True, use_container_width=True)
-        st.caption(
-            "The comparison table uses the standard 0.50 cutoff for each model. "
-            "The selected model's KPI and confusion matrix use its separate validation-tuned cutoff."
-        )
-        st.markdown(
-            "Accuracy can hide missed defaults when outcomes are imbalanced. Precision, recall, and F1 "
-            "describe charged-off detection; ROC-AUC compares ranking across probability cutoffs."
-        )
+        st.caption(t("comparison_caption"))
+        st.markdown(t("comparison_explanation"))
 
-    with st.expander("Test ROC curves", expanded=True):
+    with st.expander(t("test_roc_curves"), expanded=True):
         roc = go.Figure()
         for model_name, points in metrics["roc_curves"].items():
-            roc.add_trace(go.Scatter(
-                x=points["fpr"], y=points["tpr"], mode="lines",
-                name=f"{model_name} (AUC {points['auc']:.3f})",
-            ))
-        roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode="lines", name="Chance", line={"dash": "dash"}))
-        roc.update_layout(
-            xaxis_title="False positive rate", yaxis_title="True positive rate",
-            yaxis_range=[0, 1], xaxis_range=[0, 1], height=420, margin={"t": 20},
-            legend={"orientation": "h", "y": -0.2},
-        )
+            roc.add_trace(go.Scatter(x=points["fpr"], y=points["tpr"], mode="lines", name=f"{model_name} (AUC {points['auc']:.3f})"))
+        roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode="lines", name=t("roc_chance"), line={"dash": "dash"}))
+        roc.update_layout(xaxis_title=t("roc_fpr"), yaxis_title=t("roc_tpr"), yaxis_range=[0, 1], xaxis_range=[0, 1], height=420, margin={"t": 20}, legend={"orientation": "h", "y": -0.2})
         st.plotly_chart(roc, use_container_width=True)
 
-    with st.expander("Selected model test confusion matrix", expanded=True):
+    with st.expander(t("confusion_matrix"), expanded=True):
         matrix = metrics["confusion_matrix"]
-        labels = metrics["confusion_matrix_labels"]
+        labels = [t("outcome_paid"), t("outcome_charged_off")]
         heatmap = go.Figure(go.Heatmap(
-            z=matrix, x=[f"Predicted {label}" for label in labels],
-            y=[f"Actual {label}" for label in labels], colorscale="Blues",
-            text=[[f"{value:,}" for value in row] for row in matrix],
+            z=matrix,
+            x=[t("predicted_label", label=label) for label in labels],
+            y=[t("actual_label", label=label) for label in labels],
+            colorscale="Blues", text=[[f"{value:,}" for value in row] for row in matrix],
             texttemplate="%{text}", showscale=True,
         ))
         heatmap.update_layout(height=360, margin={"t": 20})
         st.plotly_chart(heatmap, use_container_width=True)
-        st.caption("Rows are actual labels; columns are predicted labels. Positive/risky class is Charged Off.")
+        st.caption(t("confusion_caption"))
 
-    with st.expander("Aggregated SHAP feature importance", expanded=True):
+    with st.expander(t("aggregated_shap"), expanded=True):
         ordered = sorted(importance, key=lambda item: item["mean_absolute_shap"])
         chart = go.Figure(go.Bar(
-            x=[item["mean_absolute_shap"] for item in ordered],
-            y=[item["feature"] for item in ordered], orientation="h", marker_color="#5b78e5",
+            x=[round(item["mean_absolute_shap"], 3) for item in ordered],
+            y=[column_label(item["feature"]) for item in ordered],
+            orientation="h", marker_color="#5b78e5", hovertemplate="%{y}: %{x:.3f}<extra></extra>",
         ))
-        chart.update_layout(
-            xaxis_title="Mean absolute grouped SHAP value", height=470,
-            margin={"t": 20}, yaxis={"automargin": True},
-        )
+        chart.update_layout(xaxis_title=t("shap_axis"), height=470, margin={"t": 20}, yaxis={"automargin": True})
         st.plotly_chart(chart, use_container_width=True)
-        st.caption(
-            "One-hot contributions are summed back to their original feature names. "
-            "Importance shows model association strength; it does not show causation or inherently mean higher risk."
-        )
+        st.caption(t("shap_caption"))
 
-    with st.expander("Leakage exclusions"):
-        reasons = {
-            "int_rate": "Lender pricing is assigned after risk review.",
-            "grade": "Lender risk grade reflects the underwriting decision.",
-            "sub_grade": "Detailed lender risk grade reflects the underwriting decision.",
-            "installment": "Payment amount is determined from loan pricing and terms.",
-            "emp_title": "Free text with high cardinality and potential identity/proxy information.",
-            "title": "Free text with high cardinality and potential identity information.",
-            "address": "Location text can identify people or act as a social proxy.",
-            "initial_list_status": "Platform/servicing detail outside the requested profile.",
-            "verification_status": "Platform-specific verification status, excluded from the requested features.",
-            "application_type": "Platform product/process field outside the requested features.",
-        }
-        st.dataframe(pd.DataFrame(
-            [{"Column": key, "Reason": reasons[key]} for key in metrics["excluded_columns"]]
-        ), hide_index=True, use_container_width=True)
+    with st.expander(t("leakage_exclusions")):
+        excluded = metrics.get("excluded_columns", [])
+        st.dataframe(pd.DataFrame([
+            {t("column"): column_label(key), t("reason"): t("reason_ex_" + key) if "reason_ex_" + key in EN else t("reason_ex_other")}
+            for key in excluded
+        ]), hide_index=True, use_container_width=True)
 
-    with st.expander("Currency-free features"):
-        st.write("**Numeric:** " + ", ".join(metrics["numeric_features"]))
-        st.write("**Categorical:** " + ", ".join(metrics["categorical_features"]))
-        st.markdown(
-            "Loan amount and annual income become loan-to-income; revolving balance and income become "
-            "revolving-balance-to-income. Raw dollar or rupee amounts are never model columns. Term is in months. "
-            "The app's available EMI information is an approximation of the dataset's reported DTI."
-        )
+    with st.expander(t("currency_free_features")):
+        st.write(f"**{t('numeric_features')}:** " + ", ".join(column_label(name) for name in metrics["numeric_features"]))
+        st.write(f"**{t('categorical_features')}:** " + ", ".join(column_label(name) for name in metrics["categorical_features"]))
+        st.markdown(t("currency_free_note"))
 
-    with st.expander("Limitations and fairness", expanded=True):
-        for limitation in dataset["limitations"]:
-            st.markdown(f"- {limitation}")
-        st.markdown(
-            "- The training data contain only resolved Fully Paid/Charged Off outcomes, which can create selection bias.\n"
-            "- Random splitting is reproducible but does not test later-time performance.\n"
-            "- Credit-history access and financial access can reflect unequal systems.\n"
-            "- This educational tool cannot guarantee an outcome or replace a lender's review."
-        )
+    with st.expander(t("limitations_fairness"), expanded=True):
+        for limitation in dict.fromkeys(dataset.get("limitations", [])):
+            if "Source URL" in limitation:
+                text = t("limitation_source")
+            elif "Only Fully Paid" in limitation:
+                text = t("limitation_selection")
+            elif "Historical U.S." in limitation:
+                text = t("limitation_historical")
+            elif "Random stratified" in limitation:
+                text = t("limitation_random_split")
+            else:
+                text = limitation
+            st.markdown(f"- {text}")
+        st.markdown("- " + t("limitation_access") + "\n- " + t("limitation_not_decision"))
 
-with st.expander("Data sources · bank eligibility criteria"):
+with st.expander(t("bank_sources")):
     try:
         bank_rules = load_bank_rules()
-        st.caption("Source URLs and reliability labels are reproduced from the supplied bank_rules.json.")
-        labels = {
-            "employment_types_allowed": "Employment type", "min_age": "Minimum age",
-            "max_age": "Maximum age", "min_monthly_income": "Minimum monthly income",
-            "min_current_job_years": "Current job experience", "min_cibil": "Minimum CIBIL",
-            "max_foir": "Maximum FOIR", "min_loan": "Minimum loan",
-            "max_loan": "Maximum loan", "max_tenure_months": "Maximum tenure",
-            "interest_rate_from": "Starting interest rate",
+        st.caption(t("bank_sources_caption"))
+        criterion_labels = {
+            "employment_types_allowed": "bank_rule_employment_types_allowed", "min_age": "bank_rule_min_age",
+            "max_age": "bank_rule_max_age", "min_monthly_income": "bank_rule_min_monthly_income",
+            "min_current_job_years": "bank_rule_min_current_job_years", "min_cibil": "bank_rule_min_cibil",
+            "max_foir": "bank_rule_max_foir", "min_loan": "bank_rule_min_loan",
+            "max_loan": "bank_rule_max_loan", "max_tenure_months": "bank_rule_max_tenure_months",
+            "interest_rate_from": "bank_rule_interest_rate_from",
         }
         for lender in bank_rules["lenders"]:
             st.markdown(f"**{lender['name']}**")
@@ -183,13 +173,16 @@ with st.expander("Data sources · bank eligibility criteria"):
                 if not isinstance(rule, dict) or not rule.get("source") or rule["source"] in seen:
                     continue
                 seen.add(rule["source"])
-                reliability = rule.get("reliability") or "source page"
-                label = labels.get(key, key.replace("_", " ").title())
+                reliability = t("bank_official" if rule.get("reliability") == "official" else "bank_typical")
+                label_key = criterion_labels.get(key)
+                label = t(label_key) if label_key and label_key in EN else t("bank_source_field")
                 st.markdown(f"- [{label} · {reliability}]({rule['source']})")
+                if rule.get("needs_review"):
+                    st.caption(t("source_review"))
             official_page = lender.get("official_page")
             if official_page and official_page not in seen:
-                st.markdown(f"- [Lender information page]({official_page})")
+                st.markdown(f"- [{t('lender_information_page')}]({official_page})")
     except Exception:
-        st.info("Bank rule source URLs are temporarily unavailable.")
+        st.info(t("bank_sources_unavailable"))
 
 footer()

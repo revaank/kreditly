@@ -31,7 +31,7 @@ def _value_text(rule, result):
     elif key == "min_age":
         actual, required = f"{value:g} {t('bank_years')}", f"≥ {requirement} {t('bank_years')}"
     elif key == "max_age":
-        actual = f"{value:.1f} {t('bank_years')}"
+        actual = f"{value:.0f} {t('bank_years')}"
         required = f"≤ {requirement['value']} {t('bank_years')}"
         if requirement["at_maturity"]:
             required += f" {t('bank_age_at_maturity')}"
@@ -105,6 +105,8 @@ def render_bank_results(user: dict, compact: bool = False):
                     st.caption(note)
                 if rate_rule.get("source"):
                     st.markdown(f"[{t('bank_view_source')}]({rate_rule['source']})")
+                    if rate_rule.get("needs_review"):
+                        st.caption(t("bank_source_review"))
 
             for row in lender["rules"]:
                 cols = st.columns([3, 6, 1], vertical_alignment="center")
@@ -122,6 +124,8 @@ def render_bank_results(user: dict, compact: bool = False):
                     st.caption(f"{t('bank_note_label')}: {note}")
                 if row.get("source"):
                     st.markdown(f"[{t('bank_view_source')}]({row['source']})")
+                    if row.get("needs_review"):
+                        st.caption(t("bank_source_review"))
 
             if lender["fixes"]:
                 st.markdown(f"**{t('bank_fixes')}**")

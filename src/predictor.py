@@ -1,12 +1,12 @@
 """Load the trained LendingClub pipeline and explain its risk estimates."""
 from pathlib import Path
 import json
+from functools import lru_cache
 
 import joblib
 import numpy as np
 import pandas as pd
 import shap
-import streamlit as st
 
 from .features import FEATURES
 from .training import aggregate_shap, transformed_feature_groups
@@ -16,7 +16,7 @@ USE_REAL_MODEL = True
 ROOT = Path(__file__).resolve().parents[1]
 
 
-@st.cache_resource(show_spinner=False)
+@lru_cache(maxsize=1)
 def _load_model():
     """Load one model object for the lifetime of the Streamlit server."""
     model_path = ROOT / "models" / "model.pkl"
@@ -25,10 +25,19 @@ def _load_model():
     return joblib.load(model_path)
 
 
-@st.cache_resource(show_spinner=False)
+@lru_cache(maxsize=1)
 def _load_shap_explainer():
     """Build the model-specific SHAP tree explainer once per app process."""
     return shap.TreeExplainer(_load_model().named_steps["model"])
+
+
+@lru_cache(maxsize=1)
+def _load_calibrator():
+    """Load the validation-fitted isotonic wrapper; SHAP still uses the base tree."""
+    path = ROOT / "models" / "calibrator.pkl"
+    if not path.exists():
+        raise FileNotFoundError("The validation-fitted models/calibrator.pkl file is missing.")
+    return joblib.load(path)
 
 
 def _settings():
@@ -41,6 +50,32 @@ def _settings():
     if not 0 < threshold < 1 or not 0 <= band <= 0.5:
         raise ValueError("The stored model threshold settings are invalid.")
     return threshold, band
+
+
+@lru_cache(maxsize=1)
+def _readiness_settings():
+    path = ROOT / "models" / "readiness.json"
+    if not path.exists():
+        raise FileNotFoundError("The validation-quantile models/readiness.json file is missing.")
+    values = json.loads(path.read_text(encoding="utf-8"))
+    good_max = float(values["good_max"])
+    fair_max = float(values["fair_max"])
+    if not 0 <= good_max < fair_max <= 1:
+        raise ValueError("The stored readiness band settings are invalid.")
+    return good_max, fair_max
+
+
+def readiness_band(probability: float) -> str:
+    """Map a calibrated risk estimate to a validation-quantile readiness band."""
+    probability = float(probability)
+    if not np.isfinite(probability) or not 0 <= probability <= 1:
+        raise ValueError("Risk probability must be between zero and one.")
+    good_max, fair_max = _readiness_settings()
+    if probability <= good_max:
+        return "good"
+    if probability <= fair_max:
+        return "fair"
+    return "needs_work"
 
 
 def _model_frame(features):
@@ -63,11 +98,14 @@ def predict_many(features_list):
     """Predict a batch in one model call (also used by the what-if search)."""
     if not features_list:
         return []
-    model = _load_model()
+    model = _load_calibrator()
     class_index = list(model.classes_).index(1)
     probabilities = model.predict_proba(_frame_for_profiles(features_list))[:, class_index]
     labels = _labels(probabilities)
-    return [{"label": str(label), "risk": float(probability)} for label, probability in zip(labels, probabilities)]
+    return [
+        {"label": str(label), "risk": float(probability), "readiness_band": readiness_band(probability)}
+        for label, probability in zip(labels, probabilities)
+    ]
 
 
 def predict(features: dict) -> dict:

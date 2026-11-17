@@ -12,4 +12,5 @@ headless = true
 gatherUsageStats = false
 
 [client]
-showErrorDetails = false
+showErrorDetails = "none"
+showSidebarNavigation = false

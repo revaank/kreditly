@@ -9,7 +9,7 @@ from src.explainer import explain_reasons, suggestion_text
 from src.finance import loan_summary, foir, format_inr
 from src.counterfactual import apply_change, find_improvements
 from src.translations import t
-from src.ui import contribution_chart, footer, header, page_setup, result_card, section_title
+from src.ui import contribution_chart, footer, header, page_setup, render_whatif_result, result_card, section_title
 
 def reset_sample(case_id):
     """Restore that example's original values in its what-if controls."""
@@ -40,7 +40,7 @@ for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky
                             features=build_features(details); result=predict(features)
                         except Exception:
                             st.warning(t("model_error")); continue
-                        result_card(result)
+                        result_card(result,show_risk_details=False)
                         try:
                             contributions=explain(features)
                         except Exception:
@@ -75,8 +75,7 @@ for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky
                             st.warning(t("model_error")); continue
                         monthly=loan_summary(loan,details["rate"],tenure)["emi"]
                         salary_share=foir(income/12,emi_existing,monthly)
-                        new_label=t({"STRONG":"strong","BORDERLINE":"borderline","RISKY":"risky"}[new_result["label"]])
-                        st.metric(t("simulator_result"),f'{new_result["risk"]:.0%} · {new_label}',delta=f'{new_result["risk"]-result["risk"]:+.0%} {t("vs_original")}',delta_color="inverse")
+                        render_whatif_result(new_result,result,show_risk_details=False)
                         st.caption(f'{t("monthly_emi")}: {format_inr(monthly)} · {t("salary_emi")}: {salary_share:.1f}%')
                         st.button(t("reset"),key=f"reset_{case['id']}",on_click=reset_sample,args=(case["id"],))
                         st.caption(t("dummy_notice"))

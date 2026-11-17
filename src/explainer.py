@@ -2,6 +2,24 @@
 from .translations import t
 
 
+EXPLANATION_TEMPLATES = {
+    "loan_to_income": {"higher": "explain_loan_to_income_higher", "lower": "explain_loan_to_income_lower"},
+    "revol_bal_to_income": {"higher": "explain_revol_bal_to_income_higher", "lower": "explain_revol_bal_to_income_lower"},
+    "dti": {"higher": "explain_dti_higher", "lower": "explain_dti_lower"},
+    "revol_util": {"higher": "explain_revol_util_higher", "lower": "explain_revol_util_lower"},
+    "open_acc": {"higher": "explain_open_acc_higher", "lower": "explain_open_acc_lower"},
+    "total_acc": {"higher": "explain_total_acc_higher", "lower": "explain_total_acc_lower"},
+    "pub_rec": {"higher": "explain_pub_rec_higher", "lower": "explain_pub_rec_lower"},
+    "mort_acc": {"higher": "explain_mort_acc_higher", "lower": "explain_mort_acc_lower"},
+    "pub_rec_bankruptcies": {"higher": "explain_bankruptcies_higher", "lower": "explain_bankruptcies_lower"},
+    "term": {"higher": "explain_term_higher", "lower": "explain_term_lower"},
+    "purpose": {"higher": "explain_purpose_higher", "lower": "explain_purpose_lower"},
+    "emp_length": {"higher": "explain_emp_length_higher", "lower": "explain_emp_length_lower"},
+    "home_ownership": {"higher": "explain_home_higher", "lower": "explain_home_lower"},
+    "credit_history_years": {"higher": "explain_history_higher", "lower": "explain_history_lower"},
+}
+
+
 def _format_feature_value(key, value):
     if key == "loan_to_income":
         ratio = float(value)
@@ -36,13 +54,15 @@ def explain_reasons(features: dict, contributions: list | None = None):
         feature = item["feature"]
         if feature not in features:
             continue
-        detail = t(f"factor_{feature}", x=_format_feature_value(feature, features[feature]))
+        detail = _format_feature_value(feature, features[feature])
         moved_up = float(item.get("contribution", 0)) >= 0
+        direction = "higher" if moved_up else "lower"
+        template = EXPLANATION_TEMPLATES.get(feature, {}).get(direction, "explain_generic_" + direction)
         sentences.append({
             "feature": feature,
             "helpful": not moved_up,
             "contribution": float(item.get("contribution", 0)),
-            "text": t("model_higher" if moved_up else "model_lower", detail=detail),
+            "text": t(template, x=detail),
         })
     return sentences
 

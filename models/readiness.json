@@ -1,0 +1,7 @@
+{
+  "method": "isotonic-calibrated validation-probability quantiles",
+  "good_quantile": 0.3333333333333333,
+  "fair_quantile": 0.6666666666666666,
+  "good_max": 0.13404254615306854,
+  "fair_max": 0.2238806039094925
+}

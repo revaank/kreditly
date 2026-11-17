@@ -63,6 +63,7 @@ def _rule_row(key, status, user_value, requirement, rule, message_key=None, mess
         "reliability": rule.get("reliability"),
         "note": rule.get("note"),
         "source": rule.get("source"),
+        "needs_review": bool(rule.get("needs_review", False)),
         "message_key": message_key,
         "message_values": message_values or {},
     }

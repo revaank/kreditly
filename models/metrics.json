@@ -87,12 +87,12 @@
   "model_selection": "Highest validation ROC-AUC; cutoff tuned on validation F1 for Charged Off.",
   "best_model": "XGBoost",
   "best_test_tuned_threshold": {
-    "threshold": 0.5194309949874878,
+    "threshold": 0.2238806039094925,
     "accuracy": 0.6760037033919704,
     "precision": 0.32034058656575215,
     "recall": 0.5812376620032615,
     "f1": 0.41304016345948585,
-    "roc_auc": 0.693647400118121,
+    "roc_auc": 0.6929593043485562,
     "confusion_matrix": [
       [
         33386,
@@ -104,9 +104,9 @@
       ]
     ]
   },
-  "validation_tuned_threshold": 0.5194309949874878,
+  "validation_tuned_threshold": 0.2238806039094925,
   "borderline_band": 0.1,
-  "validation_risky_f1_at_threshold": 0.4130619684082624,
+  "validation_risky_f1_at_threshold": 0.4130619684082625,
   "comparison": [
     {
       "model": "Logistic Regression",
@@ -2540,5 +2540,21 @@
       "rank": 14
     }
   ],
-  "threshold_notes": "STRONG below threshold - band; BORDERLINE within plus/minus band; RISKY above threshold + band."
+  "threshold_notes": "STRONG below threshold - band; BORDERLINE within plus/minus band; RISKY above threshold + band.",
+  "calibration": {
+    "method": "isotonic",
+    "fit_partition": "validation",
+    "validation_brier_before": 0.22045213429627725,
+    "validation_brier_after": 0.1446769916248988,
+    "test_brier_before": 0.21950197619163184,
+    "test_brier_after": 0.14491779309038044,
+    "shap_note": "SHAP stays on the uncalibrated XGBoost tree; it explains the base model, not the isotonic mapping."
+  },
+  "readiness_band": {
+    "method": "isotonic-calibrated validation-probability quantiles",
+    "good_quantile": 0.3333333333333333,
+    "fair_quantile": 0.6666666666666666,
+    "good_max": 0.13404254615306854,
+    "fair_max": 0.2238806039094925
+  }
 }

@@ -9,7 +9,7 @@ from src.features import build_features
 from src.finance import format_inr, loan_summary, foir
 from src.predictor import explain, predict
 from src.translations import t
-from src.ui import contribution_chart, footer, header, money_input, page_setup, result_card, section_title
+from src.ui import contribution_chart, footer, header, money_input, page_setup, render_whatif_result, result_card, section_title
 
 page_setup(); header("check")
 section_title(t("check_title"))
@@ -107,14 +107,15 @@ with left:
                     st.session_state.estimate={"features":features,"result":prediction,"values":dict(v)}
                 st.rerun()
 
+summary=loan_summary(v["loan_amount"],v["rate"],v["tenure_months"])
+monthly_income=v["annual_income"]/12
+ratio=foir(monthly_income,v["existing_emi"],summary["emi"])
 with right:
-    summary=loan_summary(v["loan_amount"],v["rate"],v["tenure_months"])
-    monthly_income=v["annual_income"]/12
-    ratio=foir(monthly_income,v["existing_emi"],summary["emi"])
-    st.markdown(f'<div class="panel"><div class="small-label">{t("summary")}</div><h3>{format_inr(summary["emi"])} <span class="muted" style="font-size:14px">{t("per_month")}</span></h3><p>{t("monthly_emi")}</p><hr><p>{t("total_interest")}: <b>{format_inr(summary["interest"])}</b></p><p>{t("total_repayment")}: <b>{format_inr(summary["total"])}</b></p><p>{t("salary_emi")}: <b>{ratio:.1f}%</b></p></div>',unsafe_allow_html=True)
-    meter_tone="safe" if ratio<35 else "watch" if ratio<=50 else "high"
-    st.markdown(f'<div class="afford-track"><div class="afford-fill {meter_tone}" style="width:{min(100,max(0,ratio))}%"></div></div>',unsafe_allow_html=True)
-    st.caption(t("afford_ok") if ratio<35 else t("afford_mid") if ratio<=50 else t("afford_high"))
+    if st.session_state.form_step >= 3:
+        st.markdown(f'<div class="panel"><div class="small-label">{t("summary")}</div><h3>{format_inr(summary["emi"])} <span class="muted" style="font-size:14px">{t("per_month")}</span></h3><p>{t("monthly_emi")}</p><hr><p>{t("total_interest")}: <b>{format_inr(summary["interest"])}</b></p><p>{t("total_repayment")}: <b>{format_inr(summary["total"])}</b></p><p>{t("salary_emi")}: <b>{ratio:.1f}%</b></p></div>',unsafe_allow_html=True)
+        meter_tone="safe" if ratio<35 else "watch" if ratio<=50 else "high"
+        st.markdown(f'<div class="afford-track"><div class="afford-fill {meter_tone}" style="width:{min(100,max(0,ratio))}%"></div></div>',unsafe_allow_html=True)
+        st.caption(t("afford_ok") if ratio<35 else t("afford_mid") if ratio<=50 else t("afford_high"))
 
 if "estimate" in st.session_state:
     st.markdown("---"); estimate=st.session_state.estimate; result=estimate["result"]; values=estimate["values"]; features=estimate["features"]
@@ -173,8 +174,8 @@ if "estimate" in st.session_state:
             st.warning(t("model_error"))
         new_emi=loan_summary(loan,values["rate"],tenure)["emi"]; new_foir=foir(income/12,emi_old,new_emi)
         if new_result:
-            status_label=t({"STRONG":"strong","BORDERLINE":"borderline","RISKY":"risky"}[new_result["label"]])
-            st.metric(t("simulator_result"),f'{new_result["risk"]:.0%} · {status_label}',delta=f'{new_result["risk"]-result["risk"]:+.0%} {t("vs_original")}',delta_color="inverse")
+            render_whatif_result(new_result,result)
+            status_label=t(f"readiness_{new_result.get('readiness_band','fair')}")
             st.caption(f'{t("monthly_emi")}: {format_inr(new_emi)} · {t("salary_emi")}: {new_foir:.1f}% · {status_label}')
         st.button(t("reset"),on_click=reset_whatif)
         render_bank_results(new_values,compact=True)
@@ -182,7 +183,8 @@ if "estimate" in st.session_state:
     label_key={"STRONG":"strong","BORDERLINE":"borderline","RISKY":"risky"}[result["label"]]
     report_lines=[
         t("report"),t("report_dummy"),
-        f'{t("risk")}: {result["risk"]:.0%} ({t(label_key)})',
+        t("readiness_result",band=t(f"readiness_{result.get('readiness_band','fair')}")),
+        f'{t("risk_details")}: {t("calibrated_risk")} {result["risk"]:.0%} ({t(label_key)})',
         f'{t("monthly_emi")}: {format_inr(summary["emi"])}',
         f'{t("salary_emi")}: {ratio:.1f}%',
     ]
@@ -195,5 +197,5 @@ if "estimate" in st.session_state:
     report="\n".join(report_lines)
     actions=st.columns(2)
     with actions[0]: st.download_button(t("download"),report,file_name="kreditly-estimate.txt",mime="text/plain",use_container_width=True)
-    with actions[1]: st.link_button(t("whatsapp"),"https://wa.me/?text="+quote(t("wa_summary",label=t(label_key),risk=round(result["risk"]*100))),use_container_width=True)
+    with actions[1]: st.link_button(t("whatsapp"),"https://wa.me/?text="+quote(t("wa_summary",band=t(f"readiness_{result.get('readiness_band','fair')}"))),use_container_width=True)
 footer()

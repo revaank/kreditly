@@ -14,9 +14,12 @@
       "type": "Bank",
       "product": "Xpress Credit Personal Loan",
       "employment_types_allowed": {
-        "value": ["Salaried"],
+        "value": [
+          "Salaried"
+        ],
         "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
+        "needs_review": true
       },
       "min_age": {
         "value": 21,
@@ -35,12 +38,14 @@
         "existing_customer_value": null,
         "reliability": "typical",
         "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "note": "Varies by scheme; some SBI schemes ask for Rs 20,000-25,000 or more."
+        "note": "Varies by scheme; some SBI schemes ask for Rs 20,000-25,000 or more.",
+        "needs_review": true
       },
       "min_current_job_years": {
         "value": 1,
         "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
+        "needs_review": true
       },
       "min_cibil": {
         "value": null,
@@ -52,7 +57,8 @@
         "value": 50,
         "reliability": "typical",
         "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "note": "EMI/NMI ratio; some sources quote up to 65% for certain SBI schemes."
+        "note": "EMI/NMI ratio; some sources quote up to 65% for certain SBI schemes.",
+        "needs_review": true
       },
       "min_loan": {
         "value": 25000,
@@ -62,7 +68,8 @@
       "max_loan": {
         "value": 2000000,
         "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
+        "needs_review": true
       },
       "max_tenure_months": {
         "value": 72,
@@ -72,7 +79,8 @@
       "interest_rate_from": {
         "value": 10.0,
         "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
+        "needs_review": true
       },
       "official_page": "https://sbi.co.in"
     },
@@ -83,7 +91,10 @@
       "type": "Bank",
       "product": "Personal Loan for Salaried",
       "employment_types_allowed": {
-        "value": ["Salaried", "Self-employed"],
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
         "reliability": "official",
         "source": "https://v.hdfc.bank.in/htdocs/amp/personal-loan/eligibility_criteria.html",
         "note": "Self-employed income criteria are not published; only salaried rules are checked."
@@ -153,7 +164,10 @@
       "type": "Bank",
       "product": "Personal Loan",
       "employment_types_allowed": {
-        "value": ["Salaried", "Self-employed"],
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
         "reliability": "official",
         "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility",
         "note": "Self-employed applicants: minimum age 23; income criteria based on business profits, not checked here."
@@ -223,7 +237,9 @@
       "type": "Bank",
       "product": "Personal Loan",
       "employment_types_allowed": {
-        "value": ["Salaried"],
+        "value": [
+          "Salaried"
+        ],
         "reliability": "official",
         "source": "https://www.axisbank.com/personal-loan/index.html"
       },
@@ -292,7 +308,10 @@
       "type": "NBFC",
       "product": "Personal Loan",
       "employment_types_allowed": {
-        "value": ["Salaried", "Self-employed"],
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
         "reliability": "official",
         "source": "https://www.bajajfinserv.in/kannada/personal-loan-eligibility-and-documents"
       },
@@ -361,7 +380,10 @@
       "type": "NBFC",
       "product": "Personal Loan",
       "employment_types_allowed": {
-        "value": ["Salaried", "Self-employed"],
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
         "reliability": "official",
         "source": "https://www.tatacapital.com/hindi/personal-loan/eligibility-calculator.html",
         "note": "Only salaried rules are published in detail; self-employed income not checked."
@@ -421,7 +443,8 @@
         "value": 10.99,
         "reliability": "official",
         "source": "https://www.tatacapital.com/covid.html",
-        "note": "May be outdated; check the current rate."
+        "note": "May be outdated; check the current rate.",
+        "needs_review": true
       },
       "official_page": "https://www.tatacapital.com/personal-loan.html"
     }
