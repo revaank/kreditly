@@ -16,6 +16,8 @@ from src.counterfactual import find_improvements
 from src.features import build_features
 from src.finance import emi, foir
 from src.predictor import predict, readiness_band
+from src.translations import reset_language, set_language
+from src.ui import format_whatif_delta
 
 
 PROFILE = {
@@ -106,6 +108,25 @@ class TestCore(unittest.TestCase):
     self.assertEqual(at.session_state["language"], "EN")
     en_titles_restored = [m.value for m in at.markdown if "Know where you stand before a bank says no." in m.value]
     self.assertTrue(len(en_titles_restored) > 0)
+
+
+ def test_whatif_delta_wording_points_not_percentage(self):
+    token = set_language("EN")
+    try:
+        self.assertEqual(format_whatif_delta(-0.19), "↓ 19 points lower")
+        self.assertEqual(format_whatif_delta(0.05), "↑ 5 points higher")
+        self.assertEqual(format_whatif_delta(0.001), "No change")
+        self.assertEqual(format_whatif_delta(-0.01), "↓ 1 point lower")
+    finally:
+        reset_language(token)
+
+    token = set_language("हिं")
+    try:
+        self.assertEqual(format_whatif_delta(-0.19), "↓ 19 अंक कम")
+        self.assertEqual(format_whatif_delta(0.05), "↑ 5 अंक अधिक")
+        self.assertEqual(format_whatif_delta(0.001), "कोई बदलाव नहीं")
+    finally:
+        reset_language(token)
 
 
 if __name__ == "__main__":

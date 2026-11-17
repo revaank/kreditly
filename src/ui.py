@@ -81,16 +81,30 @@ def result_card(result, show_risk_details=True):
     else:
         st.caption(f'{t("risk_details")}: {t("calibrated_risk")} {risk}%')
 
+def format_whatif_delta(delta: float) -> str:
+    """Format the change in risk points into localized text."""
+    pts = round(abs(delta) * 100)
+    if pts == 0:
+        return t("no_change")
+    if delta < 0:
+        label = t("point_lower", points=pts) if pts == 1 else t("points_lower", points=pts)
+        return f"↓ {label}"
+    label = t("point_higher", points=pts) if pts == 1 else t("points_higher", points=pts)
+    return f"↑ {label}"
+
 def render_whatif_result(result, original, show_risk_details=True):
     """Show a calibrated readiness band and a neutral/colored risk delta."""
     band = t(f"readiness_{result.get('readiness_band', 'fair')}")
     delta = float(result["risk"]) - float(original["risk"])
-    if abs(delta) < 0.005:
-        delta_html = f'<span class="delta-neutral">{t("no_change")} · {t("vs_original")}</span>'
+    pts = round(abs(delta) * 100)
+    if pts == 0:
+        delta_html = f'<span class="delta-neutral">{t("no_change")}</span>'
     elif delta < 0:
-        delta_html = f'<span class="delta-down">↓ {abs(delta):.0%} {t("vs_original")}</span>'
+        label = t("point_lower", points=pts) if pts == 1 else t("points_lower", points=pts)
+        delta_html = f'<span class="delta-down">↓ {label}</span>'
     else:
-        delta_html = f'<span class="delta-up">↑ {delta:.0%} {t("vs_original")}</span>'
+        label = t("point_higher", points=pts) if pts == 1 else t("points_higher", points=pts)
+        delta_html = f'<span class="delta-up">↑ {label}</span>'
     st.markdown(
         f'<div class="whatif-result"><div class="small-label">{t("simulator_result")}</div>'
         f'<strong>{band}</strong><div>{delta_html}</div></div>', unsafe_allow_html=True,
