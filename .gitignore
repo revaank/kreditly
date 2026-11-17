@@ -14,3 +14,9 @@ __pycache__/
 .codex-uv.exe
 .codex-streamlit*.log
 .codex-preview*.log
+web/node_modules/
+web/.pnpm-store/
+web/.next/
+web/out/
+web/.vercel/
+web/tsconfig.tsbuildinfo

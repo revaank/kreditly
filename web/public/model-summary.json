@@ -1,0 +1,736 @@
+{
+  "best_model": "XGBoost",
+  "dataset": {
+    "years": [
+      2007,
+      2016
+    ],
+    "rows": 396030,
+    "target_counts": {
+      "Fully Paid": 318357,
+      "Charged Off": 77673
+    }
+  },
+  "calibration": {
+    "method": "isotonic",
+    "fit_partition": "validation",
+    "validation_brier_before": 0.22045213429627725,
+    "validation_brier_after": 0.1446769916248988,
+    "test_brier_before": 0.21950197619163184,
+    "test_brier_after": 0.14491779309038044,
+    "shap_note": "SHAP stays on the uncalibrated XGBoost tree; it explains the base model, not the isotonic mapping."
+  },
+  "comparison": [
+    {
+      "model": "Logistic Regression",
+      "validation_roc_auc": 0.6807859442465505,
+      "test_at_0_50": {
+        "threshold": 0.5,
+        "accuracy": 0.6452823836377409,
+        "precision": 0.3006475094163951,
+        "recall": 0.6097330701227363,
+        "f1": 0.40272108843537413,
+        "roc_auc": 0.6808246535660741,
+        "confusion_matrix": [
+          [
+            31229,
+            16525
+          ],
+          [
+            4547,
+            7104
+          ]
+        ]
+      }
+    },
+    {
+      "model": "Random Forest",
+      "validation_roc_auc": 0.6819181993468475,
+      "test_at_0_50": {
+        "threshold": 0.5,
+        "accuracy": 0.7010857671913139,
+        "precision": 0.3298595630851538,
+        "recall": 0.5080250622264183,
+        "f1": 0.4,
+        "roc_auc": 0.6831570570955393,
+        "confusion_matrix": [
+          [
+            35729,
+            12025
+          ],
+          [
+            5732,
+            5919
+          ]
+        ]
+      }
+    },
+    {
+      "model": "XGBoost",
+      "validation_roc_auc": 0.693137776646892,
+      "test_at_0_50": {
+        "threshold": 0.5,
+        "accuracy": 0.6525208315798333,
+        "precision": 0.30890541976620617,
+        "recall": 0.623723285554888,
+        "f1": 0.4131794405276325,
+        "roc_auc": 0.693647400118121,
+        "confusion_matrix": [
+          [
+            31496,
+            16258
+          ],
+          [
+            4384,
+            7267
+          ]
+        ]
+      }
+    }
+  ],
+  "curves": [
+    {
+      "Logistic Regression_fpr": 0,
+      "Logistic Regression_tpr": 0,
+      "Random Forest_fpr": 0,
+      "Random Forest_tpr": 0,
+      "XGBoost_fpr": 0,
+      "XGBoost_tpr": 0
+    },
+    {
+      "Logistic Regression_fpr": 0.00525610420069523,
+      "Logistic Regression_tpr": 0.02926787400223157,
+      "Random Forest_fpr": 0.004565062612556016,
+      "Random Forest_tpr": 0.026521328641318342,
+      "XGBoost_fpr": 0.0046069439209280895,
+      "XGBoost_tpr": 0.02909621491717449
+    },
+    {
+      "Logistic Regression_fpr": 0.011203249989529674,
+      "Logistic Regression_tpr": 0.053643464080336455,
+      "Random Forest_fpr": 0.010156217280227834,
+      "Random Forest_tpr": 0.048837009698738304,
+      "XGBoost_fpr": 0.009967751392553504,
+      "XGBoost_tpr": 0.054415929963093294
+    },
+    {
+      "Logistic Regression_fpr": 0.020270553252083594,
+      "Logistic Regression_tpr": 0.08342631533773925,
+      "Random Forest_fpr": 0.01763203082464296,
+      "Random Forest_tpr": 0.07561582696764227,
+      "XGBoost_fpr": 0.01756920886208485,
+      "XGBoost_tpr": 0.08385546305038194
+    },
+    {
+      "Logistic Regression_fpr": 0.026824978012313105,
+      "Logistic Regression_tpr": 0.1021371556089606,
+      "Random Forest_fpr": 0.024291158855802655,
+      "Random Forest_tpr": 0.09621491717449146,
+      "XGBoost_fpr": 0.024039871005570215,
+      "XGBoost_tpr": 0.10625697365033045
+    },
+    {
+      "Logistic Regression_fpr": 0.03358880931440298,
+      "Logistic Regression_tpr": 0.12342288215603811,
+      "Random Forest_fpr": 0.030845583616032166,
+      "Random Forest_tpr": 0.11586988241352673,
+      "XGBoost_fpr": 0.031641328475101566,
+      "XGBoost_tpr": 0.1263410866020084
+    },
+    {
+      "Logistic Regression_fpr": 0.04125308874649244,
+      "Logistic Regression_tpr": 0.14273452922495924,
+      "Random Forest_fpr": 0.03846798173974955,
+      "Random Forest_tpr": 0.13801390438588962,
+      "XGBoost_fpr": 0.03834233781463333,
+      "XGBoost_tpr": 0.14745515406402884
+    },
+    {
+      "Logistic Regression_fpr": 0.050822967709511245,
+      "Logistic Regression_tpr": 0.16925585786627756,
+      "Random Forest_fpr": 0.04780751350672195,
+      "Random Forest_tpr": 0.16247532400652304,
+      "XGBoost_fpr": 0.04820538593625665,
+      "XGBoost_tpr": 0.17303235773753325
+    },
+    {
+      "Logistic Regression_fpr": 0.05850818779578674,
+      "Logistic Regression_tpr": 0.18865333447772722,
+      "Random Forest_fpr": 0.055576496209741595,
+      "Random Forest_tpr": 0.18049952793751609,
+      "XGBoost_fpr": 0.055450852284625374,
+      "XGBoost_tpr": 0.19277315251909707
+    },
+    {
+      "Logistic Regression_fpr": 0.06703103404950371,
+      "Logistic Regression_tpr": 0.2087374474294052,
+      "Random Forest_fpr": 0.06370147003392386,
+      "Random Forest_tpr": 0.2002403227190799,
+      "XGBoost_fpr": 0.06340830087531935,
+      "XGBoost_tpr": 0.2120847995880182
+    },
+    {
+      "Logistic Regression_fpr": 0.07415085647275621,
+      "Logistic Regression_tpr": 0.22830658312591193,
+      "Random Forest_fpr": 0.07182644385810613,
+      "Random Forest_tpr": 0.2186078448201871,
+      "XGBoost_fpr": 0.07065376722368807,
+      "XGBoost_tpr": 0.22985151489142563
+    },
+    {
+      "Logistic Regression_fpr": 0.08265276207228714,
+      "Logistic Regression_tpr": 0.2459016393442623,
+      "Random Forest_fpr": 0.08106127235414834,
+      "Random Forest_tpr": 0.23783366234657968,
+      "XGBoost_fpr": 0.07817146207647527,
+      "XGBoost_tpr": 0.2499356278431036
+    },
+    {
+      "Logistic Regression_fpr": 0.09251581019391046,
+      "Logistic Regression_tpr": 0.2689039567419106,
+      "Random Forest_fpr": 0.0923692256146082,
+      "Random Forest_tpr": 0.2604926615741138,
+      "XGBoost_fpr": 0.08859990786112158,
+      "XGBoost_tpr": 0.2718221611878809
+    },
+    {
+      "Logistic Regression_fpr": 0.10204380784855718,
+      "Logistic Regression_tpr": 0.28529739936486137,
+      "Random Forest_fpr": 0.0998869204673954,
+      "Random Forest_tpr": 0.27843103596257834,
+      "XGBoost_fpr": 0.09666205972274573,
+      "XGBoost_tpr": 0.29104797871427346
+    },
+    {
+      "Logistic Regression_fpr": 0.11155086484901788,
+      "Logistic Regression_tpr": 0.3024633078705691,
+      "Random Forest_fpr": 0.1091636302718097,
+      "Random Forest_tpr": 0.2962835808085143,
+      "XGBoost_fpr": 0.10642040457343888,
+      "XGBoost_tpr": 0.3090721826452665
+    },
+    {
+      "Logistic Regression_fpr": 0.12068099007412991,
+      "Logistic Regression_tpr": 0.3198008754613338,
+      "Random Forest_fpr": 0.1183984587678519,
+      "Random Forest_tpr": 0.31302034160157927,
+      "XGBoost_fpr": 0.11521547933157432,
+      "XGBoost_tpr": 0.3245215003004034
+    },
+    {
+      "Logistic Regression_fpr": 0.13309879800644972,
+      "Logistic Regression_tpr": 0.34117243155093985,
+      "Random Forest_fpr": 0.13163295221342713,
+      "Random Forest_tpr": 0.33404857952107114,
+      "XGBoost_fpr": 0.1271516522176153,
+      "XGBoost_tpr": 0.3450347609647241
+    },
+    {
+      "Logistic Regression_fpr": 0.14239644846505004,
+      "Logistic Regression_tpr": 0.35705089691871944,
+      "Random Forest_fpr": 0.14097248398039955,
+      "Random Forest_tpr": 0.3509569993991932,
+      "XGBoost_fpr": 0.13850148678644722,
+      "XGBoost_tpr": 0.36134237404514635
+    },
+    {
+      "Logistic Regression_fpr": 0.1525736063994639,
+      "Logistic Regression_tpr": 0.3733585099991417,
+      "Random Forest_fpr": 0.1512543451857436,
+      "Random Forest_tpr": 0.3679512488198438,
+      "XGBoost_fpr": 0.1485320601415588,
+      "XGBoost_tpr": 0.3781649643807399
+    },
+    {
+      "Logistic Regression_fpr": 0.16331616199690077,
+      "Logistic Regression_tpr": 0.38915114582439275,
+      "Random Forest_fpr": 0.16231101059597103,
+      "Random Forest_tpr": 0.3847738391554373,
+      "XGBoost_fpr": 0.15898144658039118,
+      "XGBoost_tpr": 0.394129259291048
+    },
+    {
+      "Logistic Regression_fpr": 0.17359802320224485,
+      "Logistic Regression_tpr": 0.40683203158527165,
+      "Random Forest_fpr": 0.17441470871550027,
+      "Random Forest_tpr": 0.401939747661145,
+      "XGBoost_fpr": 0.17005905264480461,
+      "XGBoost_tpr": 0.41086602008411294
+    },
+    {
+      "Logistic Regression_fpr": 0.18676969468526197,
+      "Logistic Regression_tpr": 0.4272594627070638,
+      "Random Forest_fpr": 0.18846588767433095,
+      "Random Forest_tpr": 0.4221096901553515,
+      "XGBoost_fpr": 0.18337730870712401,
+      "XGBoost_tpr": 0.43146511029096213
+    },
+    {
+      "Logistic Regression_fpr": 0.19887339280479122,
+      "Logistic Regression_tpr": 0.443395416702429,
+      "Random Forest_fpr": 0.19966913766386063,
+      "Random Forest_tpr": 0.4379023259806025,
+      "XGBoost_fpr": 0.19468526196758387,
+      "XGBoost_tpr": 0.44717191657368466
+    },
+    {
+      "Logistic Regression_fpr": 0.21124931942873895,
+      "Logistic Regression_tpr": 0.4588447343575659,
+      "Random Forest_fpr": 0.2114587259705993,
+      "Random Forest_tpr": 0.4538666208909107,
+      "XGBoost_fpr": 0.20737529840432214,
+      "XGBoost_tpr": 0.46347952965410694
+    },
+    {
+      "Logistic Regression_fpr": 0.22360430539850065,
+      "Logistic Regression_tpr": 0.47489485881040255,
+      "Random Forest_fpr": 0.2229970264271056,
+      "Random Forest_tpr": 0.46845764312076216,
+      "XGBoost_fpr": 0.2188507768982703,
+      "XGBoost_tpr": 0.47927216547935797
+    },
+    {
+      "Logistic Regression_fpr": 0.23796959417012187,
+      "Logistic Regression_tpr": 0.4946356535919664,
+      "Random Forest_fpr": 0.23794865351593583,
+      "Random Forest_tpr": 0.48837009698738304,
+      "XGBoost_fpr": 0.23373958202454245,
+      "XGBoost_tpr": 0.4994421079735645
+    },
+    {
+      "Logistic Regression_fpr": 0.2523977049043012,
+      "Logistic Regression_tpr": 0.5099991417045747,
+      "Random Forest_fpr": 0.24917284415965155,
+      "Random Forest_tpr": 0.5046777100678054,
+      "XGBoost_fpr": 0.246597143694769,
+      "XGBoost_tpr": 0.5158355505965153
+    },
+    {
+      "Logistic Regression_fpr": 0.2656950203124346,
+      "Logistic Regression_tpr": 0.5257917775298258,
+      "Random Forest_fpr": 0.26045985676592537,
+      "Random Forest_tpr": 0.5204703458930564,
+      "XGBoost_fpr": 0.2592243581689492,
+      "XGBoost_tpr": 0.5316281864217663
+    },
+    {
+      "Logistic Regression_fpr": 0.2787619885245215,
+      "Logistic Regression_tpr": 0.5410694360999055,
+      "Random Forest_fpr": 0.273338359090338,
+      "Random Forest_tpr": 0.5369496180585357,
+      "XGBoost_fpr": 0.27245885161452443,
+      "XGBoost_tpr": 0.5481074585872457
+    },
+    {
+      "Logistic Regression_fpr": 0.2928131674833522,
+      "Logistic Regression_tpr": 0.556432924212514,
+      "Random Forest_fpr": 0.2877664698245173,
+      "Random Forest_tpr": 0.5523131061711442,
+      "XGBoost_fpr": 0.28452066842568163,
+      "XGBoost_tpr": 0.5639859239550253
+    },
+    {
+      "Logistic Regression_fpr": 0.3100263852242744,
+      "Logistic Regression_tpr": 0.5748862758561497,
+      "Random Forest_fpr": 0.30577543242450894,
+      "Random Forest_tpr": 0.5717964123251223,
+      "XGBoost_fpr": 0.3023411651379989,
+      "XGBoost_tpr": 0.5832117414814179
+    },
+    {
+      "Logistic Regression_fpr": 0.32405662352891906,
+      "Logistic Regression_tpr": 0.5884473435756588,
+      "Random Forest_fpr": 0.32007789923357205,
+      "Random Forest_tpr": 0.5861299459273882,
+      "XGBoost_fpr": 0.3166645726012481,
+      "XGBoost_tpr": 0.5984035705089692
+    },
+    {
+      "Logistic Regression_fpr": 0.3395736482807723,
+      "Logistic Regression_tpr": 0.6032958544330959,
+      "Random Forest_fpr": 0.3369560665075177,
+      "Random Forest_tpr": 0.6006351386147112,
+      "XGBoost_fpr": 0.32998282866356743,
+      "XGBoost_tpr": 0.6138528881641061
+    },
+    {
+      "Logistic Regression_fpr": 0.3544624534070444,
+      "Logistic Regression_tpr": 0.6183160243755901,
+      "Random Forest_fpr": 0.3526824978012313,
+      "Random Forest_tpr": 0.615741138099734,
+      "XGBoost_fpr": 0.3454998534154207,
+      "XGBoost_tpr": 0.628186421766372
+    },
+    {
+      "Logistic Regression_fpr": 0.36933031787913057,
+      "Logistic Regression_tpr": 0.6332503647755557,
+      "Random Forest_fpr": 0.36796917535703816,
+      "Random Forest_tpr": 0.631533773924985,
+      "XGBoost_fpr": 0.3605771244293672,
+      "XGBoost_tpr": 0.6435499098789803
+    },
+    {
+      "Logistic Regression_fpr": 0.3922393935586548,
+      "Logistic Regression_tpr": 0.6515320573341344,
+      "Random Forest_fpr": 0.38578967206935544,
+      "Random Forest_tpr": 0.6492146596858639,
+      "XGBoost_fpr": 0.3783138585249403,
+      "XGBoost_tpr": 0.6608016479272165
+    },
+    {
+      "Logistic Regression_fpr": 0.4090128575616702,
+      "Logistic Regression_tpr": 0.6659514204789289,
+      "Random Forest_fpr": 0.4010763496251623,
+      "Random Forest_tpr": 0.6641490000858296,
+      "XGBoost_fpr": 0.3970766846756293,
+      "XGBoost_tpr": 0.6752210110720109
+    },
+    {
+      "Logistic Regression_fpr": 0.42519998324747665,
+      "Logistic Regression_tpr": 0.680628272251309,
+      "Random Forest_fpr": 0.4177660510114336,
+      "Random Forest_tpr": 0.6789975109432667,
+      "XGBoost_fpr": 0.4144364869958537,
+      "XGBoost_tpr": 0.6892112265041628
+    },
+    {
+      "Logistic Regression_fpr": 0.44325082715584035,
+      "Logistic Regression_tpr": 0.6942751695133464,
+      "Random Forest_fpr": 0.4353771411818905,
+      "Random Forest_tpr": 0.6944468285984036,
+      "XGBoost_fpr": 0.429974452401893,
+      "XGBoost_tpr": 0.7034589305639001
+    },
+    {
+      "Logistic Regression_fpr": 0.46354232106210996,
+      "Logistic Regression_tpr": 0.713157668869625,
+      "Random Forest_fpr": 0.456129329480253,
+      "Random Forest_tpr": 0.7117843961891683,
+      "XGBoost_fpr": 0.452171545839092,
+      "XGBoost_tpr": 0.7207964981546648
+    },
+    {
+      "Logistic Regression_fpr": 0.4805461322611718,
+      "Logistic Regression_tpr": 0.7274912024718908,
+      "Random Forest_fpr": 0.4730493780625707,
+      "Random Forest_tpr": 0.7262037593339628,
+      "XGBoost_fpr": 0.4669347070402479,
+      "XGBoost_tpr": 0.7342717363316453
+    },
+    {
+      "Logistic Regression_fpr": 0.5008376261674414,
+      "Logistic Regression_tpr": 0.7418247360741568,
+      "Random Forest_fpr": 0.49103740000837626,
+      "Random Forest_tpr": 0.7409664406488713,
+      "XGBoost_fpr": 0.48768689533861037,
+      "XGBoost_tpr": 0.7482619517637971
+    },
+    {
+      "Logistic Regression_fpr": 0.5190978766176655,
+      "Logistic Regression_tpr": 0.7549566560810231,
+      "Random Forest_fpr": 0.5086066088704612,
+      "Random Forest_tpr": 0.7552141447086087,
+      "XGBoost_fpr": 0.5081877957867403,
+      "XGBoost_tpr": 0.7617371899407777
+    },
+    {
+      "Logistic Regression_fpr": 0.5413577920174226,
+      "Logistic Regression_tpr": 0.7692043601407604,
+      "Random Forest_fpr": 0.5284583490388239,
+      "Random Forest_tpr": 0.7688610419706463,
+      "XGBoost_fpr": 0.5266365121246388,
+      "XGBoost_tpr": 0.7749549394901725
+    },
+    {
+      "Logistic Regression_fpr": 0.5658374167608996,
+      "Logistic Regression_tpr": 0.7865419277315252,
+      "Random Forest_fpr": 0.5549273359299745,
+      "Random Forest_tpr": 0.7874860526993391,
+      "XGBoost_fpr": 0.5484776144406751,
+      "XGBoost_tpr": 0.7922925070809372
+    },
+    {
+      "Logistic Regression_fpr": 0.5848934120701931,
+      "Logistic Regression_tpr": 0.8000171659085057,
+      "Random Forest_fpr": 0.5751560078736859,
+      "Random Forest_tpr": 0.8009612908763196,
+      "XGBoost_fpr": 0.567240440591364,
+      "XGBoost_tpr": 0.8059394043429748
+    },
+    {
+      "Logistic Regression_fpr": 0.6044938643883235,
+      "Logistic Regression_tpr": 0.8139215517981289,
+      "Random Forest_fpr": 0.5975206265443732,
+      "Random Forest_tpr": 0.8149515063084714,
+      "XGBoost_fpr": 0.5877832223478662,
+      "XGBoost_tpr": 0.8193288129774269
+    },
+    {
+      "Logistic Regression_fpr": 0.6254973405369184,
+      "Logistic Regression_tpr": 0.8278259376877521,
+      "Random Forest_fpr": 0.6182937554969217,
+      "Random Forest_tpr": 0.8288558921980946,
+      "XGBoost_fpr": 0.6092473928885538,
+      "XGBoost_tpr": 0.8334906874946356
+    },
+    {
+      "Logistic Regression_fpr": 0.6530343007915568,
+      "Logistic Regression_tpr": 0.8449918461934598,
+      "Random Forest_fpr": 0.6467939858441177,
+      "Random Forest_tpr": 0.8454209939061025,
+      "XGBoost_fpr": 0.6342295933324957,
+      "XGBoost_tpr": 0.8506565960003433
+    },
+    {
+      "Logistic Regression_fpr": 0.6734933199313147,
+      "Logistic Regression_tpr": 0.8591537207106686,
+      "Random Forest_fpr": 0.667483352179922,
+      "Random Forest_tpr": 0.8593253797957257,
+      "XGBoost_fpr": 0.6565104493864389,
+      "XGBoost_tpr": 0.8636168569221526
+    },
+    {
+      "Logistic Regression_fpr": 0.6968002680403735,
+      "Logistic Regression_tpr": 0.872457299802592,
+      "Random Forest_fpr": 0.6892406918792143,
+      "Random Forest_tpr": 0.8734872543129345,
+      "XGBoost_fpr": 0.6778070946936382,
+      "XGBoost_tpr": 0.876748776929019
+    },
+    {
+      "Logistic Regression_fpr": 0.719206768019433,
+      "Logistic Regression_tpr": 0.8867050038623294,
+      "Random Forest_fpr": 0.7126104619508313,
+      "Random Forest_tpr": 0.8870483220324435,
+      "XGBoost_fpr": 0.7027055325208359,
+      "XGBoost_tpr": 0.8908248219036993
+    },
+    {
+      "Logistic Regression_fpr": 0.7447334254722118,
+      "Logistic Regression_tpr": 0.9004377306668956,
+      "Random Forest_fpr": 0.7389538049168656,
+      "Random Forest_tpr": 0.901296026092181,
+      "XGBoost_fpr": 0.7257821334338485,
+      "XGBoost_tpr": 0.9030984464852803
+    },
+    {
+      "Logistic Regression_fpr": 0.7760606441345228,
+      "Logistic Regression_tpr": 0.917088661917432,
+      "Random Forest_fpr": 0.7692968128324329,
+      "Random Forest_tpr": 0.9181186164277745,
+      "XGBoost_fpr": 0.7604598567659253,
+      "XGBoost_tpr": 0.9194060595657025
+    },
+    {
+      "Logistic Regression_fpr": 0.8055032039200904,
+      "Logistic Regression_tpr": 0.9308213887219982,
+      "Random Forest_fpr": 0.7946768857059094,
+      "Random Forest_tpr": 0.9314221955196978,
+      "XGBoost_fpr": 0.7874523600117268,
+      "XGBoost_tpr": 0.9323663204875118
+    },
+    {
+      "Logistic Regression_fpr": 0.8349248230514721,
+      "Logistic Regression_tpr": 0.943867479186336,
+      "Random Forest_fpr": 0.8283913389454286,
+      "Random Forest_tpr": 0.9452407518667926,
+      "XGBoost_fpr": 0.8157013025086903,
+      "XGBoost_tpr": 0.9456698995794353
+    },
+    {
+      "Logistic Regression_fpr": 0.8658751099384345,
+      "Logistic Regression_tpr": 0.9576860355334306,
+      "Random Forest_fpr": 0.8576035515349499,
+      "Random Forest_tpr": 0.9585443309587159,
+      "XGBoost_fpr": 0.8485990702349542,
+      "XGBoost_tpr": 0.9588018195863016
+    },
+    {
+      "Logistic Regression_fpr": 0.907756418310508,
+      "Logistic Regression_tpr": 0.9742511372414385,
+      "Random Forest_fpr": 0.900343426728651,
+      "Random Forest_tpr": 0.9747661144966098,
+      "XGBoost_fpr": 0.8920090463626084,
+      "XGBoost_tpr": 0.9746802849540812
+    },
+    {
+      "Logistic Regression_fpr": 0.9473133140679315,
+      "Logistic Regression_tpr": 0.9868680799931336,
+      "Random Forest_fpr": 0.9414080495874692,
+      "Random Forest_tpr": 0.987726375418419,
+      "XGBoost_fpr": 0.9374502659463082,
+      "XGBoost_tpr": 0.9874688867908334
+    },
+    {
+      "Logistic Regression_fpr": 1,
+      "Logistic Regression_tpr": 1,
+      "Random Forest_fpr": 1,
+      "Random Forest_tpr": 1,
+      "XGBoost_fpr": 1,
+      "XGBoost_tpr": 1
+    }
+  ],
+  "confusion_matrix": [
+    [
+      33386,
+      14368
+    ],
+    [
+      4879,
+      6772
+    ]
+  ],
+  "confusion_matrix_labels": [
+    "Fully Paid (0)",
+    "Charged Off (1)"
+  ],
+  "feature_importance": [
+    {
+      "feature": "term",
+      "mean_absolute_shap": 0.30624915117025375,
+      "rank": 1
+    },
+    {
+      "feature": "loan_to_income",
+      "mean_absolute_shap": 0.22596444176731892,
+      "rank": 2
+    },
+    {
+      "feature": "revol_util",
+      "mean_absolute_shap": 0.20755104068858782,
+      "rank": 3
+    },
+    {
+      "feature": "dti",
+      "mean_absolute_shap": 0.1940530230539298,
+      "rank": 4
+    },
+    {
+      "feature": "open_acc",
+      "mean_absolute_shap": 0.1256764739111095,
+      "rank": 5
+    },
+    {
+      "feature": "revol_bal_to_income",
+      "mean_absolute_shap": 0.12538629002450033,
+      "rank": 6
+    },
+    {
+      "feature": "home_ownership",
+      "mean_absolute_shap": 0.11991580642364329,
+      "rank": 7
+    },
+    {
+      "feature": "mort_acc",
+      "mean_absolute_shap": 0.10255157875921578,
+      "rank": 8
+    },
+    {
+      "feature": "total_acc",
+      "mean_absolute_shap": 0.08665973366249818,
+      "rank": 9
+    },
+    {
+      "feature": "purpose",
+      "mean_absolute_shap": 0.08096750513352072,
+      "rank": 10
+    },
+    {
+      "feature": "pub_rec",
+      "mean_absolute_shap": 0.054190717079301065,
+      "rank": 11
+    },
+    {
+      "feature": "emp_length",
+      "mean_absolute_shap": 0.05367313291366736,
+      "rank": 12
+    },
+    {
+      "feature": "credit_history_years",
+      "mean_absolute_shap": 0.04775887644235627,
+      "rank": 13
+    },
+    {
+      "feature": "pub_rec_bankruptcies",
+      "mean_absolute_shap": 0,
+      "rank": 14
+    }
+  ],
+  "data_sources": [
+    {
+      "url": "https://sbi.co.in",
+      "name": "State Bank of India",
+      "rule_sources": [
+        "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
+        "https://www.creditmantri.com/sbi-personal-loan-eligibility",
+        "https://investorgain.com/personal-loan/sbi/6/"
+      ]
+    },
+    {
+      "url": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried",
+      "name": "HDFC Bank",
+      "rule_sources": [
+        "https://v.hdfc.bank.in/htdocs/amp/personal-loan/eligibility_criteria.html",
+        "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried",
+        "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-government-employees",
+        "https://www.bankbazaar.com/hdfc-personal-loan-eligibility-calculator.html"
+      ]
+    },
+    {
+      "url": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility",
+      "name": "ICICI Bank",
+      "rule_sources": [
+        "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility",
+        "https://www.icici.bank.in/personal-banking/loans/personal-loan/relationship-based-loan",
+        "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility/eligibility-faqs",
+        "https://www.icici.bank.in/personal-banking/loans/personal-loan/20-lakhs-personal-loan",
+        "https://www.icici.bank.in/personal-banking/loans/personal-loan/instant-loan/instant-loan-faqs",
+        "https://www.icici.bank.in/personal-banking/loans/personal-loan/70000-personal-loan",
+        "https://www.bankbazaar.com/icici-personal-loan-eligibility-calculator.html"
+      ]
+    },
+    {
+      "url": "https://www.axisbank.com/personal-loan/index.html",
+      "name": "Axis Bank",
+      "rule_sources": [
+        "https://www.axisbank.com/personal-loan/index.html",
+        "https://axisbank.com/retail/calculators/personal-loan-eligibility-calculator",
+        "https://axisbank.com/retail/loans/personal-loan/personal-loan-for-salaried",
+        "https://www.axis.bank.in/calculators/personal-loan-eligibility-calculator",
+        "https://cobrand.bankbazaar.com/axis-bank-personal-loan-eligibility-calculator.html",
+        "https://www.axisbank.com/retail/loans/personal-loan"
+      ]
+    },
+    {
+      "url": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator",
+      "name": "Bajaj Finance",
+      "rule_sources": [
+        "https://www.bajajfinserv.in/kannada/personal-loan-eligibility-and-documents",
+        "https://www.bajajfinserv.in/personal-loan-eligibility-calculator",
+        "https://www.bajajfinserv.in/personal-loan-for-salaried-employees",
+        "https://www.bajajfinserv.in/tamil/personal-loan-eligibility-and-documents"
+      ]
+    },
+    {
+      "url": "https://www.tatacapital.com/personal-loan.html",
+      "name": "Tata Capital",
+      "rule_sources": [
+        "https://www.tatacapital.com/hindi/personal-loan/eligibility-calculator.html",
+        "https://www.tatacapital.com/content/tata-capital-web/en/personal-loan/eligibility-calculator.html",
+        "https://tatacapital.com/personal-loan.html",
+        "https://www.tatacapital.com/personal-loan/application-process.html",
+        "https://tatacapital.com/content/tata-capital/en/personal-loan.html"
+      ]
+    }
+  ],
+  "review_sources": [
+    {
+      "name": "SBI",
+      "url": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html"
+    },
+    {
+      "name": "Tata Capital",
+      "url": "https://www.tatacapital.com/covid.html"
+    }
+  ]
+}
