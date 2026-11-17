@@ -156,3 +156,69 @@ def render_bank_results(user: dict, compact: bool = False):
 
     st.warning(t("bank_footer"), icon="⚠️")
     return results
+
+
+def get_lender_key_reason(lender: dict) -> str:
+    """Return the single most critical reason for the lender's status."""
+    status = lender.get("status")
+    if status == "meets":
+        return t("lender_all_met")
+    for rule in lender.get("rules", []):
+        if status == "not_yet" and rule.get("status") == "fail":
+            return f"{t('bank_rule_' + rule['key'])} ({_value_text(rule, lender)})"
+        elif status == "close" and rule.get("status") == "warn":
+            return f"{t('bank_rule_' + rule['key'])} ({_value_text(rule, lender)})"
+    fixes = lender.get("fixes", [])
+    if fixes:
+        return fixes[0]
+    return t(f"bank_status_{status}")
+
+
+def render_lender_cards(results: list[dict]):
+    """Render six sorted lender cards with badge, key reason and full criteria in an expander."""
+    for lender in sorted(results, key=lambda item: STATUS_RANK[item["status"]]):
+        with st.container(border=True):
+            col_name, col_status = st.columns([3, 2], vertical_alignment="center")
+            with col_name:
+                st.markdown(f"### {lender['name']}")
+                badge_key = "bank_type_nbfc" if lender["type"] == "NBFC" else "bank_type_bank"
+                st.caption(f"{t(badge_key)} · {lender['product']}")
+            with col_status:
+                status = lender["status"]
+                badge_text = t("qualify_badge_meets") if status == "meets" else (t("qualify_badge_close") if status == "close" else t("qualify_badge_not_yet"))
+                st.markdown(
+                    f'<span class="bank-status {status}">{badge_text}</span>',
+                    unsafe_allow_html=True,
+                )
+            key_reason = get_lender_key_reason(lender)
+            st.markdown(f'<p style="font-size:14px;color:#34433A;margin:8px 0 10px;"><b>{t("key_reason")}:</b> {key_reason}</p>', unsafe_allow_html=True)
+            with st.expander(t("see_all_rules")):
+                if lender.get("interest_rate_from") is not None:
+                    st.markdown(t("bank_interest_from", rate=lender["interest_rate_from"]))
+                    rate_rule = lender["interest_rate_rule"]
+                    rate_reliability = "bank_official" if rate_rule.get("reliability") == "official" else "bank_typical"
+                    st.caption(t(rate_reliability))
+                    note = _translate_note(lender["id"], "interest_rate_from", lender["interest_rate_rule"].get("note"))
+                    if note:
+                        st.caption(note)
+                    if rate_rule.get("source"):
+                        st.markdown(f"[{t('bank_view_source')}]({rate_rule['source']})")
+                for row in lender["rules"]:
+                    cols = st.columns([3, 6, 1], vertical_alignment="center")
+                    with cols[0]:
+                        st.markdown(f"{STATUS_ICON[row['status']]} **{t('bank_rule_' + row['key'])}**")
+                    with cols[1]:
+                        st.write(_value_text(row, lender))
+                    with cols[2]:
+                        reliability_key = "bank_official" if row.get("reliability") == "official" else "bank_typical"
+                        st.caption(t(reliability_key))
+                    if row.get("message_key"):
+                        st.caption(t(row["message_key"], **row.get("message_values", {})))
+                    note = _translate_note(lender["id"], row["key"], row.get("note"))
+                    if note:
+                        st.caption(f"{t('bank_note_label')}: {note}")
+                    if row.get("source"):
+                        st.markdown(f"[{t('bank_view_source')}]({row['source']})")
+                if lender.get("official_page"):
+                    st.markdown(f"[{t('lender_information_page')}]({lender['official_page']})")
+

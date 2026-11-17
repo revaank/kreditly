@@ -44,6 +44,8 @@ Dataset preprocessing derives loan and revolving-balance to annual-income ratios
 
 ## Lender rule evaluation
 
+Take-home monthly salary design choice: Indian lenders assess FOIR and eligibility directly against net take-home monthly salary, so take-home monthly pay is used for FOIR and published lender checks; for the historical XGBoost model's annual income feature, annual income is derived as take-home monthly salary × 12.
+
 `src.bank_checker.load_bank_rules` reads the supplied JSON. `check_all(user)` derives monthly income from yearly income, computes EMI and FOIR with `src.finance`, evaluates only populated rule values (null values are skipped), and returns criterion rows with pass/warn/fail, profile value, requirement, reliability, notes, and source URL. CIBIL bands are Excellent 750+, Good 700–749, Average 650–699, and Low under 650. Income exceptions for existing salary-account customers and disclosed self-employed rule limits are represented as warnings. Lender statuses are `meets`, `close`, and `not_yet`; `count_meets` counts only `meets`. Fix suggestions use `src.finance` for rupee/EMI computations and never advise concealing debts or misstating income.
 
 `src.bank_ui.render_bank_results` shows the rule-file disclaimer, last-checked date, match count, sorted lender cards, criteria, source links, and fixes. In compact mode it returns the same results and displays a counter for the what-if state. The eligibility page includes bank outcomes and date/disclaimer in its downloadable text report.

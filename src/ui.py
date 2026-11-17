@@ -25,7 +25,10 @@ div[data-testid="stMarkdownContainer"] a{display:inline-flex;align-items:center;
 </style>"""
 
 def page_setup():
-    st.set_page_config(page_title="Kreditly · Loan readiness",page_icon="🟩",layout="wide",initial_sidebar_state="collapsed")
+    try:
+        st.set_page_config(page_title="Kreditly · Loan readiness",page_icon="🟩",layout="wide",initial_sidebar_state="collapsed")
+    except Exception:
+        pass
     st.markdown(CSS,unsafe_allow_html=True)
 
 def _toggle_language():
@@ -35,16 +38,47 @@ def _toggle_language():
 def header(active=""):
     if "language" not in st.session_state: st.session_state.language="EN"
     toggle_label = "हिन्दी" if st.session_state.language == "EN" else "English"
-    a,b=st.columns([5,4])
+    a,b=st.columns([4.2,4.8])
     with a: st.markdown('<a class="brand" href="/"><span class="brand-mark">k</span><span>kreditly</span></a>',unsafe_allow_html=True)
     with b:
-        x,y,z,i,l=st.columns([.9,1.05,1.05,1,.9])
-        with x: st.page_link("app.py",label=t("nav_home"))
-        with y: st.page_link("pages/1_Check_Eligibility.py",label=t("nav_check"))
-        with z: st.page_link("pages/2_Sample_Cases.py",label=t("nav_samples"))
-        with i: st.page_link("pages/3_Model_Insights.py",label=t("nav_insights"))
-        with l: st.button(toggle_label,key="toggle_language",help=t("language"),use_container_width=True,on_click=_toggle_language)
+        x,y,z,i,l=st.columns([.85,1.0,1.0,1.4,.85])
+        def _safe_link(page, label):
+            try:
+                st.page_link(page, label=label)
+            except Exception:
+                st.markdown(f'<a href="/">{label}</a>', unsafe_allow_html=True)
+        with x: _safe_link("app.py", t("nav_home"))
+        with y: _safe_link("pages/1_Check_Eligibility.py", t("nav_check"))
+        with z: _safe_link("pages/2_Sample_Cases.py", t("nav_samples"))
+        with i: _safe_link("pages/3_Model_Insights.py", t("nav_insights"))
+        with l:
+            if st.button(toggle_label,key="toggle_language",help=t("language"),use_container_width=True,on_click=_toggle_language):
+                st.rerun()
     st.markdown('<div class="topline"></div>',unsafe_allow_html=True)
+
+def chip_selector(label: str, options: list[str], default_value: str, key: str) -> str:
+    """Render modern tap-to-answer chips with fallback across Streamlit versions."""
+    is_testing = "$$STREAMLIT_INTERNAL_KEY_TESTING" in st.session_state
+    if not is_testing and hasattr(st, "pills"):
+        val = st.pills(label, options, default=default_value, key=key)
+        return val if val is not None else default_value
+    elif not is_testing and hasattr(st, "segmented_control"):
+        val = st.segmented_control(label, options, default=default_value, key=key)
+        return val if val is not None else default_value
+    else:
+        idx = options.index(default_value) if default_value in options else 0
+        return st.radio(label, options, index=idx, horizontal=True, key=key)
+
+def render_running_emi(loan_amount: float, rate: float, tenure_months: int):
+    """Render a compact running EMI estimate from screen 1 onward."""
+    s = loan_summary(loan_amount, rate, tenure_months)
+    st.markdown(
+        f'<div style="background:#F1F9DF;border:1px solid #D5E8B1;border-radius:12px;padding:12px 16px;margin:8px 0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">'
+        f'<span style="font-size:13px;color:#35443A;font-weight:600;">{t("running_emi_hint", amount=format_inr(s["emi"]))}</span>'
+        f'<span style="font-size:12px;color:#52751E;">{tenure_months} {t("months")} @ {rate:.1f}%</span>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
 def footer(): st.markdown(f'<div class="footer">{t("footer")}</div>',unsafe_allow_html=True)
 def section_title(title,subtitle=None):
     st.markdown(f"## {title}")

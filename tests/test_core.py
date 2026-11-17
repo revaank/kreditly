@@ -235,18 +235,37 @@ class TestCore(unittest.TestCase):
         reset_language(token)
 
 
- def test_home_sample_preview_card_shows_good_shape_and_at_least_five_lenders(self):
+ def test_home_page_clean_hero_and_trust_ticks_and_sample_cases(self):
     from streamlit.testing.v1 import AppTest
     at = AppTest.from_file("app.py", default_timeout=25)
     at.run()
-    # Find sample result markdown
+    # Check headline
+    headlines = [m.value for m in at.markdown if "Know where you stand before a bank says no." in m.value]
+    self.assertTrue(len(headlines) > 0)
+    # Check trust ticks
+    trust_mds = [m.value for m in at.markdown if "Doesn't touch your CIBIL score" in m.value]
+    self.assertTrue(len(trust_mds) > 0)
+    # Check that competing preview card was removed
     sample_mds = [m.value for m in at.markdown if '<section class="sample-result"' in m.value]
-    self.assertTrue(len(sample_mds) > 0)
-    card_html = sample_mds[0]
-    self.assertIn("Good shape", card_html)
-    self.assertNotIn("Good ·", card_html)
-    # Check that it meets 5 / 6 or 6 / 6 lenders
-    self.assertTrue("5 / 6" in card_html or "6 / 6" in card_html)
+    self.assertEqual(len(sample_mds), 0)
+
+
+ def test_check_wizard_five_steps_and_back_preserves_state(self):
+    from streamlit.testing.v1 import AppTest
+    at = AppTest.from_file("pages/1_Check_Eligibility.py", default_timeout=25)
+    at.run()
+    # Initial step 1
+    self.assertEqual(at.session_state["wizard_step"], 1)
+    # Check running EMI
+    emi_mds = [m.value for m in at.markdown if "9,822" in m.value]
+    self.assertTrue(len(emi_mds) > 0)
+    # Click continue to Step 2
+    at.button(key="btn_step1_cont").click().run()
+    self.assertEqual(at.session_state["wizard_step"], 2)
+    # Click back to Step 1
+    at.button(key="btn_step2_back").click().run()
+    self.assertEqual(at.session_state["wizard_step"], 1)
+
 
 
  def test_whatif_zero_card_usage_threshold_band_fair(self):
