@@ -389,6 +389,7 @@ EN.update({
     "no_change":"No change", "bank_source_review":"Source under review",
     "points_lower":"{points} points lower", "point_lower":"{points} point lower",
     "points_higher":"{points} points higher", "point_higher":"{points} point higher",
+    "selected_term":"Selected",
 })
 HI.update({
     "readiness_band":"तैयारी स्तर", "readiness_good":"अच्छी स्थिति", "readiness_fair":"मध्यम स्थिति",
@@ -397,6 +398,7 @@ HI.update({
     "no_change":"कोई बदलाव नहीं", "bank_source_review":"स्रोत की समीक्षा जारी है",
     "points_lower":"{points} अंक कम", "point_lower":"{points} अंक कम",
     "points_higher":"{points} अंक अधिक", "point_higher":"{points} अंक अधिक",
+    "selected_term":"चुनी हुई अवधि",
 })
 
 EN.update({

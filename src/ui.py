@@ -2,7 +2,7 @@
 import streamlit as st
 import plotly.graph_objects as go
 from .translations import t
-from .finance import format_inr
+from .finance import format_inr, loan_summary
 
 CSS="""
 <style>
@@ -115,3 +115,25 @@ def render_whatif_result(result, original, show_risk_details=True):
             st.caption(detail)
     else:
         st.caption(f'{t("risk_details")}: {detail}')
+
+def render_emi_planner(principal: float, rate: float, selected_months: int):
+    """Render a 12/24/36/48/60 month EMI and total interest comparison grid."""
+    section_title(t("v2_feature4"), t("v2_feature4_body"))
+    terms = [12, 24, 36, 48, 60]
+    cols = st.columns(len(terms))
+    for term, col in zip(terms, cols):
+        s = loan_summary(principal, rate, term)
+        is_selected = (int(term) == int(selected_months))
+        highlight_style = 'border: 2px solid #0F1B15; background: #F1F9DF;' if is_selected else 'border: 1px solid #E2E5DC; background: #FFFFFF;'
+        badge = f'<span style="background:#0F1B15;color:#C6F24E;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700;">{t("selected_term")}</span>' if is_selected else ''
+        with col:
+            col.markdown(
+                f'<div style="{highlight_style} border-radius: 14px; padding: 14px; text-align: center; height: 100%;">'
+                f'<div style="min-height: 22px; margin-bottom: 4px;">{badge}</div>'
+                f'<div style="font-size: 15px; font-weight: 700; color: #0F1B15; margin-bottom: 8px;">{term} {t("months")}</div>'
+                f'<div style="font-size: 18px; font-weight: 700; color: #0F1B15; font-family: Sora, sans-serif;">{format_inr(s["emi"])}</div>'
+                f'<div style="font-size: 11px; color: #4A554F; margin-bottom: 10px;">{t("per_month")}</div>'
+                f'<div style="border-top: 1px solid #E2E5DC; padding-top: 8px; font-size: 11px; color: #4A554F;">{t("total_interest")}:<br><b>{format_inr(s["interest"])}</b></div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )

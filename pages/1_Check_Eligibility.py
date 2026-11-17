@@ -9,7 +9,7 @@ from src.features import build_features
 from src.finance import format_inr, loan_summary, foir
 from src.predictor import explain, predict
 from src.translations import t
-from src.ui import contribution_chart, footer, header, money_input, page_setup, render_whatif_result, result_card, section_title
+from src.ui import contribution_chart, footer, header, money_input, page_setup, render_emi_planner, render_whatif_result, result_card, section_title
 
 page_setup(); header("check")
 section_title(t("check_title"))
@@ -179,6 +179,7 @@ if "estimate" in st.session_state:
             st.caption(f'{t("monthly_emi")}: {format_inr(new_emi)} · {t("salary_emi")}: {new_foir:.1f}% · {status_label}')
         st.button(t("reset"),on_click=reset_whatif)
         render_bank_results(new_values,compact=True)
+    render_emi_planner(values["loan_amount"], values["rate"], values["tenure_months"])
     bank_results=render_bank_results(values)
     label_key={"STRONG":"strong","BORDERLINE":"borderline","RISKY":"risky"}[result["label"]]
     report_lines=[

@@ -14,7 +14,7 @@ os.environ.setdefault("MPLCONFIGDIR", os.path.join(tempfile.gettempdir(), "matpl
 from src.bank_checker import check_all, count_meets
 from src.counterfactual import find_improvements
 from src.features import build_features
-from src.finance import emi, foir
+from src.finance import emi, foir, loan_summary
 from src.predictor import predict, readiness_band
 from src.translations import reset_language, set_language
 from src.ui import CSS, format_whatif_delta
@@ -134,6 +134,20 @@ class TestCore(unittest.TestCase):
     self.assertIn('.stSlider:has([aria-label*="Repayment"])', CSS)
     self.assertIn('.stSlider:has([aria-label*="अवधि"])', CSS)
     self.assertIn('.stSlider:has([aria-valuetext*="month"])', CSS)
+
+
+ def test_emi_planner_calculations_across_all_terms(self):
+    s36 = loan_summary(300_000, 11, 36)
+    self.assertAlmostEqual(s36["emi"], 9_822, delta=1)
+    self.assertAlmostEqual(s36["interest"], 53_578, delta=1)
+
+    terms = [12, 24, 36, 48, 60]
+    summaries = [loan_summary(300_000, 11, m) for m in terms]
+    emis = [s["emi"] for s in summaries]
+    interests = [s["interest"] for s in summaries]
+
+    self.assertTrue(all(emis[i] > emis[i+1] for i in range(len(emis)-1)))
+    self.assertTrue(all(interests[i] < interests[i+1] for i in range(len(interests)-1)))
 
 
 if __name__ == "__main__":
