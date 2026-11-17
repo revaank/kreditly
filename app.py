@@ -115,11 +115,10 @@ st.markdown("""
 .step-num{color:#47611C;font-size:12px;font-weight:800;letter-spacing:.08em}
 .step-card h3{font:700 18px 'Space Grotesk',sans-serif;margin:12px 0 6px;color:#0F1B15}
 .step-card p{font-size:14px;line-height:1.55;color:#4A554F;margin:0}
-.stPageLink a,.stButton>button{min-height:50px!important;border-radius:14px!important;font-weight:700!important}
-.stPageLink a[kind="primary"],.stButton>button[kind="primary"]{background:#0F1B15!important;border-color:#0F1B15!important;color:#fff!important;font-size:16px!important}
-.cta-btn-wrap a,.cta-btn-wrap a:visited,.cta-btn-wrap [data-testid="stPageLink-NavLink"]{background:#0F1B15!important;border:1px solid #0F1B15!important;color:#ffffff!important;font-size:16px!important;font-weight:700!important;border-radius:14px!important;min-height:52px!important;box-shadow:0 4px 14px rgba(15,27,21,.2)!important;display:flex!important;align-items:center!important;justify-content:center!important;text-decoration:none!important}
-.cta-btn-wrap a:hover,.cta-btn-wrap [data-testid="stPageLink-NavLink"]:hover{background:#1f3328!important;color:#ffffff!important}
-.cta-btn-wrap a *,.cta-btn-wrap [data-testid="stPageLink-NavLink"] *{color:#ffffff!important}
+.stPageLink a,.stButton>button{min-height:52px!important;border-radius:14px!important;font-weight:700!important}
+.stPageLink a[kind="primary"],.stButton>button[kind="primary"],.stButton>button[data-testid="stBaseButton-primary"]{background:#0F1B15!important;border:1px solid #0F1B15!important;color:#ffffff!important;font-size:16px!important;font-weight:700!important;box-shadow:0 4px 14px rgba(15,27,21,.2)!important}
+.stButton>button[kind="primary"]:hover,.stButton>button[data-testid="stBaseButton-primary"]:hover{background:#1f3328!important;border-color:#1f3328!important;color:#ffffff!important}
+.stButton>button[kind="primary"] *,.stButton>button[data-testid="stBaseButton-primary"] *{color:#ffffff!important}
 @media(max-width:720px){.block-container{padding:1rem .9rem 2.5rem}.home-title{font-size:36px!important}.hero-copy{font-size:16px}.trust-row{flex-direction:column;gap:8px;align-items:center}.lender-strip{justify-content:center;gap:10px}.cta-wrap{max-width:100%}div[data-testid="stHorizontalBlock"]{flex-direction:column!important;gap:14px!important}div[data-testid="column"]{width:100%!important;flex:1 1 100%!important}}
 </style>
 """, unsafe_allow_html=True)
@@ -135,9 +134,8 @@ st.markdown(
 
 c_left, c_cta, c_right = st.columns([1, 1.4, 1])
 with c_cta:
-    st.markdown('<div class="cta-btn-wrap">', unsafe_allow_html=True)
-    st.page_link("pages/1_Check_Eligibility.py", label=t("start_check"), icon=":material/arrow_forward:", use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    if st.button(t("start_check"), type="primary", use_container_width=True, icon=":material/arrow_forward:"):
+        st.switch_page("pages/1_Check_Eligibility.py")
 
 st.markdown(
     f'<div class="sample-link-wrap"><a href="/Sample_Cases">{home_text("example")} →</a></div>'

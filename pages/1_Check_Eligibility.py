@@ -458,10 +458,12 @@ else:
         band = result.get("readiness_band", "fair")
         band_label = t(f"readiness_{band}")
         band_class = "risky" if band == "needs_work" else ("borderline" if band == "fair" else "")
+        eyebrow_text = t("eyebrow_results") if t("eyebrow_results") != "eyebrow_results" else "Your loan readiness"
+        lenders_matched_label = t("lenders_matched") if t("lenders_matched") != "lenders_matched" else "lenders matched"
 
         st.markdown(
             f'<div class="result-card {band_class}" style="margin-top:12px;margin-bottom:16px;">'
-            f'<div class="small-label">{t("eyebrow_results").upper()}</div>'
+            f'<div class="small-label">{eyebrow_text.upper()}</div>'
             f'<h2 style="font-size:32px;margin:8px 0 12px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{band_label}</h2>'
             f'<p style="font-size:16px;line-height:1.6;color:#35443A;margin-bottom:6px;">'
             f'Your estimated monthly EMI would be <b>{format_inr(summary["emi"])}</b>, which takes about <b>{ratio:.1f}%</b> of your monthly take-home income.'
@@ -489,7 +491,7 @@ else:
                 f'<div class="panel" style="text-align:center;padding:16px 12px;">'
                 f'<div class="small-label">{t("v2_lenders_met")}</div>'
                 f'<strong style="font-size:22px;color:#0F1B15;font-family:\'Space Grotesk\',sans-serif;">{count_meets(bank_results)} / {len(bank_results)}</strong>'
-                f'<div style="font-size:12px;color:#4A554F;">{t("lenders_matched")}</div>'
+                f'<div style="font-size:12px;color:#4A554F;">{lenders_matched_label}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
