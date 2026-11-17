@@ -104,7 +104,7 @@ header("home")
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-.stApp{background:#F5F6F1;color:#0F1B15;font-family:Inter,Arial,sans-serif}.block-container{max-width:1240px;padding:1.1rem 1.5rem 3rem}.brand{font:700 23px 'Space Grotesk',sans-serif!important;color:#0F1B15!important}.brand-mark{background:#0F1B15!important;color:#C6F24E!important}.topline{background:#E2E5DC!important}
+.stApp{background:#F5F6F1;color:#0F1B15;font-family:Inter,Arial,sans-serif}.block-container{max-width:1240px;padding:1.1rem 1.5rem 3rem}.brand{font:700 23px 'Space Grotesk',sans-serif!important;color:#0F1B15!important}.brand-mark{background:#0F1B15!important;color:#C6F24E!important}.topline{background:#E2E5DC!important}[data-testid="stSidebarCollapsedControl"],[data-testid="collapsedControl"]{display:none!important}
 .home-title{font-family:'Space Grotesk',sans-serif!important;font-size:clamp(38px,5vw,62px)!important;line-height:1.04!important;letter-spacing:-.045em!important;color:#0F1B15!important;margin:0 0 16px}
 .hero-copy{font:400 17px/1.65 Inter,Arial,sans-serif;color:#4A554F;max-width:670px}.hero-pill{display:inline-flex;background:#fff;border:1px solid #E2E5DC;border-radius:999px;padding:8px 13px;margin:12px 0 18px;color:#4A554F;font-size:13px;font-weight:600}
 .trust-row{display:flex;flex-wrap:wrap;gap:8px 18px;margin:18px 0 25px;color:#4A554F;font-size:12px}.sample-result{background:#0F1B15;color:#fff;border:1px solid #293A30;border-radius:26px;padding:26px;box-shadow:0 18px 42px rgba(15,27,21,.12)}

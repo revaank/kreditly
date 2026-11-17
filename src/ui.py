@@ -8,7 +8,7 @@ CSS="""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Courgette&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap');
 :root{--ink:#0F1B15;--navy:var(--ink);--lime:#C6F24E;--emerald:#1F7A4D;--red:#B63E32;--amber:#8A4B00;--muted:#4A554F;--line:#E2E5DC;--bg:#F5F6F1;--card:#FFFFFF}
-html,body,[class*="css"]{font-family:Inter,Arial,sans-serif;color:var(--ink)}.stApp{background:var(--bg)}.block-container{max-width:1240px;padding:1.1rem 1.5rem 3rem}#MainMenu,footer{visibility:hidden}header[data-testid="stHeader"]{background:transparent}
+html,body,[class*="css"]{font-family:Inter,Arial,sans-serif;color:var(--ink)}.stApp{background:var(--bg)}.block-container{max-width:1240px;padding:1.1rem 1.5rem 3rem}#MainMenu,footer{visibility:hidden}header[data-testid="stHeader"]{background:transparent}[data-testid="stSidebarCollapsedControl"],[data-testid="collapsedControl"]{display:none!important}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none!important;color:var(--ink)!important;font-family:'Space Grotesk',sans-serif;font-size:23px;letter-spacing:-.03em;font-weight:700}.brand-mark{width:38px;height:38px;border-radius:12px;background:var(--ink);display:grid;place-items:center;color:var(--lime);font-family:'Space Grotesk',sans-serif;font-size:25px}
 .topline{height:1px;background:var(--line);margin:14px 0 24px}.hero{padding:clamp(30px,7vw,80px) 0 45px;max-width:820px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#52751e;margin-bottom:16px}h1{font-family:Sora,sans-serif;font-weight:600;letter-spacing:-.045em;line-height:1.1!important;font-size:clamp(36px,6vw,62px)!important;color:var(--navy)}.hero-copy{font-size:18px;line-height:1.65;color:var(--muted);max-width:690px}h2{font-family:Sora,sans-serif;letter-spacing:-.03em;font-size:25px!important}
 .stSlider [data-testid="stSliderThumbValue"],.stSlider [data-testid="stSliderTickBarMin"],.stSlider [data-testid="stSliderTickBarMax"]{display:none!important}
@@ -28,10 +28,11 @@ def page_setup():
 
 def _toggle_language():
     """Switch between English and Hindi before page text is rendered."""
-    st.session_state.language="हिं" if st.session_state.language=="EN" else "EN"
+    st.session_state.language = "हिं" if st.session_state.get("language", "EN") == "EN" else "EN"
 
 def header(active=""):
     if "language" not in st.session_state: st.session_state.language="EN"
+    toggle_label = "हिन्दी" if st.session_state.language == "EN" else "English"
     a,b=st.columns([5,4])
     with a: st.markdown('<a class="brand" href="/"><span class="brand-mark">k</span><span>kreditly</span></a>',unsafe_allow_html=True)
     with b:
@@ -40,7 +41,7 @@ def header(active=""):
         with y: st.page_link("pages/1_Check_Eligibility.py",label=t("nav_check"))
         with z: st.page_link("pages/2_Sample_Cases.py",label=t("nav_samples"))
         with i: st.page_link("pages/3_Model_Insights.py",label=t("nav_insights"))
-        with l: st.button("EN | हिं",key="toggle_language",help=t("language"),use_container_width=True,on_click=_toggle_language)
+        with l: st.button(toggle_label,key="toggle_language",help=t("language"),use_container_width=True,on_click=_toggle_language)
     st.markdown('<div class="topline"></div>',unsafe_allow_html=True)
 def footer(): st.markdown(f'<div class="footer">{t("footer")}</div>',unsafe_allow_html=True)
 def section_title(title,subtitle=None):

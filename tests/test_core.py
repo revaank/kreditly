@@ -1,7 +1,15 @@
 import json
+import os
 from pathlib import Path
-
+import sys
+import tempfile
 import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+os.environ.setdefault("MPLCONFIGDIR", os.path.join(tempfile.gettempdir(), "matplotlib"))
 
 from src.bank_checker import check_all, count_meets
 from src.counterfactual import find_improvements
@@ -77,6 +85,27 @@ class TestCore(unittest.TestCase):
     self.assertEqual(tata["status"], "close")
     cibil = next(item for item in tata["rules"] if item["key"] == "min_cibil")
     self.assertEqual(cibil["status"], "warn")
+
+
+ def test_language_toggle_switches_home_page_to_hindi(self):
+    from streamlit.testing.v1 import AppTest
+    at = AppTest.from_file("app.py", default_timeout=25)
+    at.run()
+    self.assertEqual(at.session_state["language"], "EN")
+    en_titles = [m.value for m in at.markdown if "Know where you stand before a bank says no." in m.value]
+    self.assertTrue(len(en_titles) > 0)
+
+    # Click toggle button
+    at.button(key="toggle_language").click().run()
+    self.assertEqual(at.session_state["language"], "हिं")
+    hi_titles = [m.value for m in at.markdown if "बैंक के मना करने से पहले अपनी स्थिति समझें।" in m.value]
+    self.assertTrue(len(hi_titles) > 0)
+
+    # Toggle back to English
+    at.button(key="toggle_language").click().run()
+    self.assertEqual(at.session_state["language"], "EN")
+    en_titles_restored = [m.value for m in at.markdown if "Know where you stand before a bank says no." in m.value]
+    self.assertTrue(len(en_titles_restored) > 0)
 
 
 if __name__ == "__main__":
