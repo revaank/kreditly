@@ -6,31 +6,13 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from src.bank_checker import check_all, count_meets, load_bank_rules
-try:
-    from src.bank_ui import aggregate_next_steps, render_bank_results, render_lender_cards
-except ImportError:
-    from src.bank_ui import aggregate_next_steps, render_bank_results
-    STATUS_RANK = {"meets": 0, "close": 1, "not_yet": 2}
-    def render_lender_cards(results: list[dict]):
-        for lender in sorted(results, key=lambda item: STATUS_RANK.get(item.get("status"), 3)):
-            with st.container(border=True):
-                col_name, col_status = st.columns([3, 2], vertical_alignment="center")
-                with col_name:
-                    st.markdown(f"### {lender['name']}")
-                    badge_key = "bank_type_nbfc" if lender.get("type") == "NBFC" else "bank_type_bank"
-                    st.caption(f"{t(badge_key)} · {lender.get('product', '')}")
-                with col_status:
-                    status = lender.get("status", "meets")
-                    badge_text = t("qualify_badge_meets") if status == "meets" else (t("qualify_badge_close") if status == "close" else t("qualify_badge_not_yet"))
-                    st.markdown(f'<span class="bank-status {status}">{badge_text}</span>', unsafe_allow_html=True)
-                fixes = lender.get("fixes", [])
-                key_reason = fixes[0] if fixes else t("lender_all_met")
-                st.markdown(f'<p style="font-size:14px;color:#34433A;margin:8px 0 10px;"><b>{t("key_reason")}:</b> {key_reason}</p>', unsafe_allow_html=True)
+from src.bank_ui import aggregate_next_steps, render_bank_results, render_lender_cards
 from src.counterfactual import apply_change, find_improvements
 from src.explainer import explain_reasons, suggestion_text
 from src.features import build_features
 from src.finance import foir, format_inr, loan_summary
 from src.predictor import explain, get_threshold_settings, predict
+from src.readiness import safe_loan_amount, standing, standing_reasons, total_foir
 from src.translations import t
 from src.ui import (
     build_download_report,
@@ -489,27 +471,80 @@ else:
 
     # ==================== Section 1: Your Result ====================
     if cur_sec == "result":
-        band = result.get("readiness_band", "fair")
-        band_label = t(f"readiness_{band}")
-        band_class = "risky" if band == "needs_work" else ("borderline" if band == "fair" else "")
-        eyebrow_text = t("eyebrow_results") if t("eyebrow_results") != "eyebrow_results" else "Your loan readiness"
-        lenders_matched_label = t("lenders_matched") if t("lenders_matched") != "lenders_matched" else "lenders matched"
+        monthly_inc = float(values.get("annual_income", 0)) / 12.0
+        exist_emi = float(values.get("existing_emi", 0))
+        new_loan_emi = summary["emi"]
+        cur_foir_pct = total_foir(monthly_inc, exist_emi, new_loan_emi)
+        lenders_met = count_meets(bank_results)
+        lenders_total = len(bank_results)
+        cibil_val = values.get("cibil_index") if values.get("cibil_index") is not None else values.get("cibil")
+
+        # 1. Headline card (Indian lending standing)
+        st_status = standing(cur_foir_pct, cibil_val, lenders_met, lenders_total)
+        st_title = t(f"standing_{st_status}_title")
+        st_reasons = standing_reasons(cur_foir_pct, cibil_val, lenders_met, lenders_total)
+
+        if st_status == "good":
+            st_border = "#15803D"
+            st_card_class = "good"
+        elif st_status == "almost":
+            st_border = "#D97706"
+            st_card_class = "borderline"
+        else:
+            st_border = "#DC2626"
+            st_card_class = "risky"
+
+        reasons_html = "".join([f'<div style="font-size:14px;color:#35443A;line-height:1.6;margin:3px 0;">• {r}</div>' for r in st_reasons])
 
         st.markdown(
-            f'<div class="result-card {band_class}" style="margin-top:12px;margin-bottom:16px;">'
-            f'<div class="small-label">{eyebrow_text.upper()}</div>'
-            f'<h2 style="font-size:32px;margin:8px 0 12px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{band_label}</h2>'
-            f'<p style="font-size:16px;line-height:1.6;color:#35443A;margin-bottom:6px;">'
-            f'Your estimated monthly EMI would be <b>{format_inr(summary["emi"])}</b>, which takes about <b>{ratio:.1f}%</b> of your monthly take-home income.'
-            f'</p>'
-            f'<p style="font-size:15px;line-height:1.6;color:#4A554F;margin-bottom:0;">'
-            f'Based on published criteria, you qualify for <b>{count_meets(bank_results)} of {len(bank_results)}</b> lenders.'
-            f'</p>'
+            f'<div class="result-card {st_card_class}" style="margin-top:12px;margin-bottom:16px;border-top-color:{st_border}!important;">'
+            f'<div class="small-label">{t("where_you_stand").upper()}</div>'
+            f'<h2 style="font-size:30px;margin:8px 0 12px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{st_title}</h2>'
+            f'{reasons_html}'
             f'</div>',
             unsafe_allow_html=True,
         )
 
-        # 3 stat cards
+        # 2. "How much can you safely borrow?" card
+        rate = float(values.get("rate", 11.0))
+        months = int(values.get("tenure_months", 36))
+        safe_comf = safe_loan_amount(monthly_inc, exist_emi, rate, months, 40)
+        safe_stretch = safe_loan_amount(monthly_inc, exist_emi, rate, months, 50)
+        loan_asked = float(values.get("loan_amount", 0))
+
+        if loan_asked <= safe_comf:
+            asked_icon = "✅"
+        elif loan_asked <= safe_stretch:
+            asked_icon = "⚠️"
+        else:
+            asked_icon = "❌"
+
+        with st.container(border=True):
+            st.markdown(f'<div class="small-label">{t("safe_borrow_label").upper()}</div>', unsafe_allow_html=True)
+            st.markdown(f'<h3 style="font-size:20px;margin:4px 0 12px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("safe_borrow_title")}</h3>', unsafe_allow_html=True)
+            col_comf, col_asked = st.columns([1, 1])
+            with col_comf:
+                st.markdown(
+                    f'<div style="font-size:13px;color:#4A554F;margin-bottom:2px;">{t("safe_comfortable_label")}</div>'
+                    f'<div style="font-size:26px;font-weight:700;color:#15803D;font-family:\'Space Grotesk\',sans-serif;">{format_inr(safe_comf)}</div>'
+                    f'<div style="font-size:12px;color:#6B7280;margin-top:2px;">{t("safe_stretch_label")}: <b>{format_inr(safe_stretch)}</b></div>',
+                    unsafe_allow_html=True,
+                )
+            with col_asked:
+                st.markdown(
+                    f'<div style="font-size:13px;color:#4A554F;margin-bottom:2px;">{t("safe_asked_label")}</div>'
+                    f'<div style="font-size:26px;font-weight:700;color:#0F1B15;font-family:\'Space Grotesk\',sans-serif;">{asked_icon} {format_inr(loan_asked)}</div>'
+                    f'<div style="font-size:12px;color:#6B7280;margin-top:2px;">{t("safe_tenure_rate_note", months=months, rate=rate)}</div>',
+                    unsafe_allow_html=True,
+                )
+            st.markdown(
+                f'<p style="font-size:13px;color:#4A554F;margin-top:14px;margin-bottom:0;line-height:1.5;">'
+                f'{t("safe_borrow_explainer")}'
+                f'</p>',
+                unsafe_allow_html=True,
+            )
+
+        # 3. 3 stat tiles
         c1, c2, c3 = st.columns(3)
         with c1:
             st.markdown(
@@ -524,8 +559,8 @@ else:
             st.markdown(
                 f'<div class="panel" style="text-align:center;padding:16px 12px;">'
                 f'<div class="small-label">{t("v2_lenders_met")}</div>'
-                f'<strong style="font-size:22px;color:#0F1B15;font-family:\'Space Grotesk\',sans-serif;">{count_meets(bank_results)} / {len(bank_results)}</strong>'
-                f'<div style="font-size:12px;color:#4A554F;">{lenders_matched_label}</div>'
+                f'<strong style="font-size:22px;color:#0F1B15;font-family:\'Space Grotesk\',sans-serif;">{lenders_met} / {lenders_total}</strong>'
+                f'<div style="font-size:12px;color:#4A554F;">{t("lenders_matched")}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
@@ -534,47 +569,69 @@ else:
                 f'<div class="panel" style="text-align:center;padding:16px 12px;">'
                 f'<div class="small-label">{t("total_interest")}</div>'
                 f'<strong style="font-size:22px;color:#0F1B15;font-family:\'Space Grotesk\',sans-serif;">{format_inr(summary["interest"])}</strong>'
-                f'<div style="font-size:12px;color:#4A554F;">over {values["tenure_months"]} months</div>'
+                f'<div style="font-size:12px;color:#4A554F;">{t("over_months", months=values["tenure_months"])}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
 
-        # SHAP and reasons expander
-        optional_credit_feature_map = {
-            "credit_year": "credit_history_years",
-            "open_acc": "open_acc",
-            "total_acc": "total_acc",
-            "mort_acc": "mort_acc",
-            "pub_rec": "pub_rec",
-            "bankruptcies": "pub_rec_bankruptcies",
-        }
-        assumed_fields = set()
-        for prof_key, feat_key in optional_credit_feature_map.items():
-            if values.get(prof_key) == DEFAULT_PROFILE[prof_key] or (prof_key == "credit_year" and values.get("credit_unknown")):
-                assumed_fields.add(feat_key)
+        # 4. NEW model card titled "Repayment habits check (US data)"
+        readiness_band = result.get("readiness_band", "fair")
+        if readiness_band in ("good", "strong"):
+            warning_label = t("warning_few")
+            warning_color = "#15803D"
+        elif readiness_band in ("fair", "borderline"):
+            warning_label = t("warning_some")
+            warning_color = "#D97706"
+        else:
+            warning_label = t("warning_several")
+            warning_color = "#DC2626"
 
-        with st.expander(t("see_what_influenced")):
-            try:
-                contributions = explain(features)
-                reasons = explain_reasons(features, contributions, assumed_fields=assumed_fields)
-                for reason in reasons:
-                    st.markdown(("✅ " if reason["helpful"] else "⚠️ ") + reason["text"])
-                if assumed_fields:
-                    st.caption(t("assumed_values_note"))
-                st.markdown("---")
-                contribution_chart(contributions)
-            except Exception:
-                st.warning(t("explanation_error"))
+        with st.container(border=True):
+            st.markdown(f'<div class="small-label">HISTORICAL CHECK</div>', unsafe_allow_html=True)
+            col_mtitle, col_mbadge = st.columns([3, 2], vertical_alignment="center")
+            with col_mtitle:
+                st.markdown(f'<h3 style="font-size:20px;margin:2px 0 6px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("us_model_card_title")}</h3>', unsafe_allow_html=True)
+            with col_mbadge:
+                st.markdown(f'<div style="text-align:right;"><span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;color:{warning_color};background:#F3F4F6;">{warning_label}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<p style="font-size:13px;color:#4A554F;line-height:1.5;margin-bottom:12px;">{t("us_model_card_desc")}</p>', unsafe_allow_html=True)
 
-        # Risk details expander
-        with st.expander(t("risk_details")):
-            risk_pct_str = format_risk_pct(result["risk"])
-            st.write(f"**{t('calibrated_risk')}:** {risk_pct_str}")
-            cutoff_threshold, cutoff_band = get_threshold_settings()
-            st.caption(t("cutoff_caption", threshold=cutoff_threshold, band=cutoff_band, class_name=t("outcome_charged_off")))
-            st.caption(t("model_warning"))
+            optional_credit_feature_map = {
+                "credit_year": "credit_history_years",
+                "open_acc": "open_acc",
+                "total_acc": "total_acc",
+                "mort_acc": "mort_acc",
+                "pub_rec": "pub_rec",
+                "bankruptcies": "pub_rec_bankruptcies",
+            }
+            assumed_fields = set()
+            for prof_key, feat_key in optional_credit_feature_map.items():
+                if values.get(prof_key) == DEFAULT_PROFILE[prof_key] or (prof_key == "credit_year" and values.get("credit_unknown")):
+                    assumed_fields.add(feat_key)
 
-        st.caption(t("dummy_notice"))
+            # Move existing "See what influenced this" expander INSIDE this card
+            with st.expander(t("see_what_influenced")):
+                try:
+                    contributions = explain(features)
+                    reasons = explain_reasons(features, contributions, assumed_fields=assumed_fields)
+                    for reason in reasons:
+                        icon = "ℹ️ " if reason.get("assumed") else ("✅ " if reason["helpful"] else "⚠️ ")
+                        st.markdown(icon + reason["text"])
+                    if assumed_fields:
+                        st.caption(t("assumed_values_note"))
+                    st.markdown("---")
+                    contribution_chart(contributions)
+                except Exception:
+                    st.warning(t("explanation_error"))
+
+            # Move existing "Risk estimate details" expander INSIDE this card
+            with st.expander(t("risk_details")):
+                risk_pct_str = format_risk_pct(result["risk"])
+                st.write(f"**{t('calibrated_risk')}:** {risk_pct_str}")
+                cutoff_threshold, cutoff_band = get_threshold_settings()
+                st.caption(t("cutoff_caption", threshold=cutoff_threshold, band=cutoff_band, class_name=t("outcome_charged_off")))
+                st.caption(t("model_warning"))
+
+        # TODO: Indian approval-pattern card goes here (Phase 3)
 
         if st.button(t("next_to_banks"), type="primary", use_container_width=True, key="btn_next_banks"):
             st.session_state.results_section = "banks"
@@ -707,7 +764,7 @@ else:
                     format="₹%d",
                 )
                 annual_income_equiv = monthly_salary * 12
-                st.caption(f"{format_inr(monthly_salary)} {t('per_month')} ({format_inr(annual_income_equiv)} / {t('years')})")
+                st.caption(f"{format_inr(monthly_salary)} {t('per_month')} ({format_inr(annual_income_equiv)} / {t('year')})")
             with col2:
                 loan = st.slider(
                     t("loan_amount") + " (₹)",

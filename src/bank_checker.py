@@ -146,6 +146,7 @@ def _add_rule(rows, lender, key, user, context):
         rows.append(_rule_row(key, "pass" if job_years >= value else "fail", job_years, value, rule))
     elif key == "min_cibil":
         band = _cibil_band(user)
+        msg_vals = None
         if band is None:
             status, message = "warn", "bank_cibil_unknown"
         elif band[0] >= value:
@@ -154,7 +155,9 @@ def _add_rule(rows, lender, key, user, context):
             status, message = "fail", None
         else:
             status, message = "warn", "bank_cibil_overlap"
-        rows.append(_rule_row(key, status, user.get("cibil", ""), value, rule, message))
+            user_band_str = f"{band[0]}–{int(band[1])}" if math.isfinite(band[1]) else f"{band[0]}+"
+            msg_vals = {"user_band": user_band_str, "min_cibil": int(value)}
+        rows.append(_rule_row(key, status, user.get("cibil", ""), value, rule, message, msg_vals))
     elif key == "max_foir":
         rows.append(_rule_row(key, "pass" if current_foir <= value else "fail", current_foir, value, rule))
     elif key == "min_loan":
