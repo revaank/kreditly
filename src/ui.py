@@ -47,7 +47,7 @@ def header(active=""):
     a,b=st.columns([2.0,8.0])
     with a: st.markdown('<a class="brand" href="/"><span class="brand-mark">k</span><span>kreditly</span></a>',unsafe_allow_html=True)
     with b:
-        x,y,z,i,l=st.columns([1.1,1.1,1.2,1.8,1.4],gap="small")
+        x,y,z,w,i,l=st.columns([1.0,1.0,1.1,1.0,1.3,1.2],gap="small")
         def _safe_link(page, label):
             try:
                 st.page_link(page, label=label)
@@ -56,6 +56,7 @@ def header(active=""):
         with x: _safe_link("app.py", t("nav_home"))
         with y: _safe_link("pages/1_Check_Eligibility.py", t("nav_check"))
         with z: _safe_link("pages/2_Sample_Cases.py", t("nav_samples"))
+        with w: _safe_link("pages/4_Tools.py", t("nav_tools"))
         with i: _safe_link("pages/3_Model_Insights.py", t("nav_insights"))
         with l:
             if st.button(toggle_label,key="toggle_language",use_container_width=True,on_click=_toggle_language):
