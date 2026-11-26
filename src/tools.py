@@ -253,3 +253,86 @@ def prepay(
         "original_balances": orig_balances,
         "prepay_balances": prepay_balances,
     }
+
+
+SAFETY_QUESTIONS = [
+    {"id": 1, "key": "safety_q1", "risky": "no", "safe": "yes"},
+    {"id": 2, "key": "safety_q2", "risky": "yes", "safe": "no"},
+    {"id": 3, "key": "safety_q3", "risky": "yes", "safe": "no"},
+    {"id": 4, "key": "safety_q4", "risky": "no", "safe": "yes"},
+    {"id": 5, "key": "safety_q5", "risky": "yes", "safe": "no"},
+    {"id": 6, "key": "safety_q6", "risky": "yes", "safe": "no"},
+]
+
+
+def _normalize_safety_answer(val: str) -> str:
+    s = str(val).strip().lower()
+    if s in {"yes", "हाँ", "y", "true", "1"}:
+        return "yes"
+    if s in {"no", "नहीं", "n", "false", "0"}:
+        return "no"
+    return "not_sure"
+
+
+def app_safety_result(answers: list[str] | dict) -> dict:
+    """Evaluate loan app safety checklist.
+
+    Rules:
+    - any red flag: red (2+) or amber (1).
+    - no red flags but 1+ 'Not sure': amber incomplete warning.
+    - all 6 'Not sure': neutral info box.
+    - green only when all 6 answers are safe.
+    """
+    if isinstance(answers, dict):
+        raw_list = [
+            answers.get(i) or answers.get(f"q_{i}") or answers.get(q["key"])
+            for i, q in enumerate(SAFETY_QUESTIONS, 1)
+        ]
+    else:
+        raw_list = list(answers)
+
+    while len(raw_list) < len(SAFETY_QUESTIONS):
+        raw_list.append("not_sure")
+
+    red_flags = 0
+    not_sures = 0
+    safe_count = 0
+
+    for q, raw_ans in zip(SAFETY_QUESTIONS, raw_list):
+        norm = _normalize_safety_answer(raw_ans)
+        if norm == q["risky"]:
+            red_flags += 1
+        elif norm == q["safe"]:
+            safe_count += 1
+        else:
+            not_sures += 1
+
+    if red_flags >= 2:
+        status = "red"
+        level = "error"
+        message_key = "safety_res_red"
+    elif red_flags == 1:
+        status = "amber"
+        level = "warning"
+        message_key = "safety_res_amber"
+    elif not_sures == len(SAFETY_QUESTIONS):
+        status = "unanswered"
+        level = "info"
+        message_key = "safety_res_unanswered"
+    elif not_sures > 0:
+        status = "incomplete"
+        level = "warning"
+        message_key = "safety_res_incomplete"
+    else:
+        status = "green"
+        level = "success"
+        message_key = "safety_res_green"
+
+    return {
+        "status": status,
+        "level": level,
+        "red_flags": red_flags,
+        "not_sures": not_sures,
+        "safe_count": safe_count,
+        "message_key": message_key,
+    }

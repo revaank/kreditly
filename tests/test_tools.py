@@ -1,5 +1,5 @@
 import pytest
-from src.tools import compare_offer, prepay
+from src.tools import app_safety_result, compare_offer, prepay
 
 
 def test_compare_offer_zero_fees():
@@ -72,3 +72,60 @@ def test_prepay_charge_reduces_saving():
     assert res_with_charge["charge_paid"] == 1500.0
     assert res_with_charge["interest_saved"] == pytest.approx(res_no_charge["interest_saved"], 0.01)
     assert res_with_charge["net_saving"] == pytest.approx(res_no_charge["net_saving"] - 1500.0, 0.01)
+
+
+def test_app_safety_all_safe():
+    # Q1: yes, Q2: no, Q3: no, Q4: yes, Q5: no, Q6: no
+    safe_answers = ["yes", "no", "no", "yes", "no", "no"]
+    res = app_safety_result(safe_answers)
+    assert res["status"] == "green"
+    assert res["level"] == "success"
+    assert res["red_flags"] == 0
+    assert res["not_sures"] == 0
+    assert res["safe_count"] == 6
+
+
+def test_app_safety_all_not_sure():
+    res = app_safety_result(["not_sure"] * 6)
+    assert res["status"] == "unanswered"
+    assert res["level"] == "info"
+    assert res["red_flags"] == 0
+    assert res["not_sures"] == 6
+
+
+def test_app_safety_incomplete_no_red_flags():
+    # 5 safe, 1 not_sure
+    answers = ["yes", "no", "no", "yes", "no", "not_sure"]
+    res = app_safety_result(answers)
+    assert res["status"] == "incomplete"
+    assert res["level"] == "warning"
+    assert res["red_flags"] == 0
+    assert res["not_sures"] == 1
+    assert res["safe_count"] == 5
+
+
+def test_app_safety_one_red_flag():
+    # Q2 (fees before loan) answered Yes -> 1 red flag
+    answers = ["yes", "yes", "no", "yes", "no", "no"]
+    res = app_safety_result(answers)
+    assert res["status"] == "amber"
+    assert res["level"] == "warning"
+    assert res["red_flags"] == 1
+
+
+def test_app_safety_multiple_red_flags():
+    # Q2 (fee before) yes, Q3 (access contacts) yes -> 2 red flags
+    answers = ["yes", "yes", "yes", "yes", "no", "no"]
+    res = app_safety_result(answers)
+    assert res["status"] == "red"
+    assert res["level"] == "error"
+    assert res["red_flags"] == 2
+
+
+def test_app_safety_red_flag_with_not_sure():
+    # 1 red flag, 2 not sure -> still amber
+    answers = ["yes", "yes", "not_sure", "not_sure", "no", "no"]
+    res = app_safety_result(answers)
+    assert res["status"] == "amber"
+    assert res["red_flags"] == 1
+    assert res["not_sures"] == 2

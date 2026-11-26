@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.finance import format_inr
-from src.tools import compare_offer, prepay
+from src.tools import SAFETY_QUESTIONS, app_safety_result, compare_offer, prepay
 from src.translations import t
 from src.ui import chip_selector, footer, header, page_setup, section_title
 
@@ -61,7 +61,7 @@ with tab_compare:
                     key=f"offer_amt_{i}",
                 )
                 rate_in = st.number_input(
-                    f"{t('rate')} (%)",
+                    t("rate"),
                     min_value=1.0,
                     max_value=50.0,
                     value=float(d["rate"]),
@@ -207,7 +207,7 @@ with tab_prepay:
     with c1:
         p_amount = st.number_input(f"{t('loan_amount')} (₹)", min_value=10000, max_value=10000000, value=int(def_loan), step=25000, key="prepay_amt")
     with c2:
-        p_rate = st.number_input(f"{t('rate')} (%)", min_value=1.0, max_value=50.0, value=float(def_rate), step=0.25, key="prepay_rate")
+        p_rate = st.number_input(t("rate"), min_value=1.0, max_value=50.0, value=float(def_rate), step=0.25, key="prepay_rate")
     with c3:
         p_months = st.number_input(f"{t('tenure')} ({t('months')})", min_value=6, max_value=84, value=int(def_tenure), step=6, key="prepay_tenure")
 
@@ -264,7 +264,7 @@ with tab_prepay:
         margin=dict(l=20, r=20, t=40, b=20),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    st.plotly_chart(fig_prepay, use_container_width=True)
+    st.plotly_chart(fig_prepay, use_container_width=True, config={"displayModeBar": False})
 
     st.caption(t("prepay_rbi_rule_note"))
 
@@ -273,46 +273,34 @@ with tab_prepay:
 # TAB C — Is this loan app safe?
 # ==============================================================================
 with tab_safety:
-    questions = [
-        ("safety_q1", "no"),   # risky if No
-        ("safety_q2", "yes"),  # risky if Yes
-        ("safety_q3", "yes"),  # risky if Yes
-        ("safety_q4", "no"),   # risky if No
-        ("safety_q5", "yes"),  # risky if Yes
-        ("safety_q6", "yes"),  # risky if Yes
-    ]
+    user_answers = []
 
-    red_flags = 0
-    not_sures = 0
-
-    for idx, (q_key, risky_val) in enumerate(questions):
+    for idx, q_info in enumerate(SAFETY_QUESTIONS):
         i = idx + 1
         ans = st.radio(
-            t(q_key),
+            t(q_info["key"]),
             [t("ans_yes"), t("ans_no"), t("ans_not_sure")],
             index=2,
             horizontal=True,
             key=f"safety_q_{i}",
         )
-        if risky_val == "yes" and ans == t("ans_yes"):
-            red_flags += 1
-        elif risky_val == "no" and ans == t("ans_no"):
-            red_flags += 1
-        elif ans == t("ans_not_sure"):
-            not_sures += 1
+        user_answers.append(ans)
 
     st.markdown("---")
 
-    # Results
-    if red_flags == 0:
-        st.success(f"✅ **{t('safety_res_green')}**")
-    elif red_flags == 1:
-        st.warning(f"⚠️ **{t('safety_res_amber')}**")
-    else:
-        st.error(f"🚨 **{t('safety_res_red', n=red_flags)}**")
+    res_safety = app_safety_result(user_answers)
+    status = res_safety["status"]
 
-    if not_sures > 0:
-        st.info(f"ℹ️ {t('safety_not_sure_warning', n=not_sures)}")
+    if status == "red":
+        st.error(f"🚨 **{t('safety_res_red', n=res_safety['red_flags'])}**")
+    elif status == "amber":
+        st.warning(f"⚠️ **{t('safety_res_amber')}**")
+    elif status == "incomplete":
+        st.warning(f"⚠️ **{t('safety_res_incomplete')}**")
+    elif status == "unanswered":
+        st.info(f"ℹ️ {t('safety_res_unanswered')}")
+    elif status == "green":
+        st.success(f"✅ **{t('safety_res_green')}**")
 
     with st.container(border=True):
         st.markdown(f"#### {t('safety_how_to_check')}")
