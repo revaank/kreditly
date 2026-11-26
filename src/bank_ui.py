@@ -8,15 +8,20 @@ from .finance import format_inr
 from .translations import t
 
 STATUS_ICON = {"pass": "✅", "warn": "⚠️", "fail": "❌"}
-STATUS_RANK = {"meets": 0, "close": 1, "not_yet": 2}
+STATUS_RANK = {"meets": 0, "close": 1, "limited": 2, "not_yet": 3}
 
 
-def _translate_note(lender_id, rule_key, note):
-    if not note:
-        return ""
-    key = f"bank_note_{lender_id}_{rule_key}"
-    translated = t(key)
-    return note if translated == key else translated
+def _translate_note(lender_id, rule_key, note, note_hi=None):
+    from .translations import _request_language
+    lang = _request_language.get()
+    if lang is None:
+        try:
+            lang = st.session_state.get("language", "EN")
+        except Exception:
+            lang = "EN"
+    if lang == "हिं" and note_hi:
+        return note_hi
+    return note or ""
 
 
 def _employment(value):
@@ -58,6 +63,9 @@ def _value_text(rule, result):
     elif key == "max_tenure_months":
         actual = f"{value} {t('bank_months')}"
         required = f"≤ {requirement} {t('bank_months')}"
+    elif key == "typical_foir":
+        actual = f"{value:.1f}%"
+        required = f"≤ {requirement['value']}%"
     else:
         actual, required = str(value), str(requirement)
     return t("bank_rule_comparison", user=actual, requirement=required)
@@ -90,7 +98,9 @@ def render_bank_results(user: dict, compact: bool = False):
         return results
 
     st.subheader(t("bank_section"))
-    st.info(t("bank_disclaimer"))
+    rules_meta = load_bank_rules()
+    disclaimer_text = rules_meta.get("disclaimer_hi") if st.session_state.get("language") == "हिं" and rules_meta.get("disclaimer_hi") else rules_meta.get("disclaimer", t("bank_disclaimer"))
+    st.info(disclaimer_text)
     st.caption(t("bank_last_checked", date=rules.get("last_checked", "")))
     st.caption(t("bank_reliability_legend"))
     st.write(t("bank_summary", count=met, total=total))
@@ -120,7 +130,7 @@ def render_bank_results(user: dict, compact: bool = False):
                 rate_rule = lender["interest_rate_rule"]
                 rate_reliability = "bank_official" if rate_rule.get("reliability") == "official" else "bank_typical"
                 st.caption(t(rate_reliability))
-                note = _translate_note(lender["id"], "interest_rate_from", lender["interest_rate_rule"].get("note"))
+                note = _translate_note(lender["id"], "interest_rate_from", lender["interest_rate_rule"].get("note"), lender["interest_rate_rule"].get("note_hi"))
                 if note:
                     st.caption(note)
                 if rate_rule.get("source"):
@@ -139,7 +149,7 @@ def render_bank_results(user: dict, compact: bool = False):
                     st.caption(t(reliability_key))
                 if row.get("message_key"):
                     st.caption(t(row["message_key"], **row.get("message_values", {})))
-                note = _translate_note(lender["id"], row["key"], row.get("note"))
+                note = _translate_note(lender["id"], row["key"], row.get("note"), row.get("note_hi"))
                 if note:
                     st.caption(f"{t('bank_note_label')}: {note}")
                 if row.get("source"):
@@ -185,20 +195,62 @@ def render_lender_cards(results: list[dict]):
                 st.caption(f"{t(badge_key)} · {lender['product']}")
             with col_status:
                 status = lender["status"]
-                badge_text = t("qualify_badge_meets") if status == "meets" else (t("qualify_badge_close") if status == "close" else t("qualify_badge_not_yet"))
+                if status == "meets":
+                    badge_text = t("qualify_badge_meets")
+                elif status == "close":
+                    badge_text = t("qualify_badge_close")
+                elif status == "limited":
+                    badge_text = t("qualify_badge_limited")
+                else:
+                    badge_text = t("qualify_badge_not_yet")
                 st.markdown(
                     f'<span class="bank-status {status}">{badge_text}</span>',
                     unsafe_allow_html=True,
                 )
+
+            # Details on the card
+            rate_from = lender.get("interest_rate_from")
+            rate_to = lender.get("interest_rate_to")
+            if rate_from is not None:
+                if rate_to is not None:
+                    st.markdown(t("bank_interest_range", rate_from=rate_from, rate_to=rate_to))
+                else:
+                    st.markdown(t("bank_interest_from", rate=rate_from))
+            else:
+                st.markdown(t("bank_interest_not_published"))
+
+            fee = lender.get("processing_fee")
+            if fee and isinstance(fee, dict):
+                fee_text = fee.get("text_hi") if st.session_state.get("language") == "हिं" and fee.get("text_hi") else fee.get("text")
+                if fee_text:
+                    st.markdown(f'<div style="font-size:13px;color:#4A554F;"><b>{t("bank_processing_fee")}:</b> {fee_text}</div>', unsafe_allow_html=True)
+
+            if lender.get("requires_salary_account"):
+                sal_note = lender.get("salary_account_note_hi") if st.session_state.get("language") == "हिं" and lender.get("salary_account_note_hi") else lender.get("salary_account_note")
+                if sal_note:
+                    st.markdown(f'<div style="font-size:12px;color:#854D0E;background:#FEF3C7;padding:4px 8px;border-radius:6px;margin:4px 0;">ℹ️ {sal_note}</div>', unsafe_allow_html=True)
+
             key_reason = get_lender_key_reason(lender)
             st.markdown(f'<p style="font-size:14px;color:#34433A;margin:8px 0 10px;"><b>{t("key_reason")}:</b> {key_reason}</p>', unsafe_allow_html=True)
+
+            if lender.get("official_page"):
+                st.markdown(f'<a href="{lender["official_page"]}" target="_blank" rel="noopener noreferrer">{t("visit_official_page")} ↗</a>', unsafe_allow_html=True)
+
+            rules_meta = load_bank_rules()
+            last_checked = rules_meta.get("last_checked", "")
+            if last_checked:
+                st.caption(t("bank_checked_date", date=last_checked))
+
             with st.expander(t("see_all_rules")):
                 if lender.get("interest_rate_from") is not None:
-                    st.markdown(t("bank_interest_from", rate=lender["interest_rate_from"]))
+                    if rate_to is not None:
+                        st.markdown(t("bank_interest_range", rate_from=rate_from, rate_to=rate_to))
+                    else:
+                        st.markdown(t("bank_interest_from", rate=rate_from))
                     rate_rule = lender["interest_rate_rule"]
                     rate_reliability = "bank_official" if rate_rule.get("reliability") == "official" else "bank_typical"
                     st.caption(t(rate_reliability))
-                    note = _translate_note(lender["id"], "interest_rate_from", lender["interest_rate_rule"].get("note"))
+                    note = _translate_note(lender["id"], "interest_rate_from", lender["interest_rate_rule"].get("note"), lender["interest_rate_rule"].get("note_hi"))
                     if note:
                         st.caption(note)
                     if rate_rule.get("source"):
@@ -214,7 +266,7 @@ def render_lender_cards(results: list[dict]):
                         st.caption(t(reliability_key))
                     if row.get("message_key"):
                         st.caption(t(row["message_key"], **row.get("message_values", {})))
-                    note = _translate_note(lender["id"], row["key"], row.get("note"))
+                    note = _translate_note(lender["id"], row["key"], row.get("note"), row.get("note_hi"))
                     if note:
                         st.caption(f"{t('bank_note_label')}: {note}")
                     if row.get("source"):

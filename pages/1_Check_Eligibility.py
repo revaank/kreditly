@@ -406,7 +406,7 @@ if st.session_state.view_mode == "wizard":
                     st.rerun()
             with col_c:
                 if st.button(t("run_check"), type="primary", use_container_width=True, key="btn_run_check"):
-                    with st.spinner(t("checking_lenders")):
+                    with st.spinner(t("checking_lenders", count=15)):
                         try:
                             features = build_features(v)
                             prediction = predict(features)
@@ -459,7 +459,7 @@ else:
     cur_sec = st.session_state.get("results_section", "result")
     cur_label = dict(sections).get(cur_sec, sec_labels[0])
 
-    selected_sec_label = chip_selector("Section", sec_labels, cur_label, key="results_section_nav")
+    selected_sec_label = chip_selector(t("section_label"), sec_labels, cur_label, key="results_section_nav")
     # Sync selected section key
     for k, label in sections:
         if label == selected_sec_label:
@@ -581,10 +581,10 @@ else:
             warning_color = "#15803D"
         elif readiness_band in ("fair", "borderline"):
             warning_label = t("warning_some")
-            warning_color = "#D97706"
+            warning_color = "#8A4B00"
         else:
             warning_label = t("warning_several")
-            warning_color = "#DC2626"
+            warning_color = "#8A4B00"
 
         with st.container(border=True):
             st.markdown(f'<div class="small-label">HISTORICAL CHECK</div>', unsafe_allow_html=True)
@@ -593,6 +593,7 @@ else:
                 st.markdown(f'<h3 style="font-size:20px;margin:2px 0 6px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("us_model_card_title")}</h3>', unsafe_allow_html=True)
             with col_mbadge:
                 st.markdown(f'<div style="text-align:right;"><span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;color:{warning_color};background:#F3F4F6;">{warning_label}</span></div>', unsafe_allow_html=True)
+            st.caption(t("us_model_card_caption"))
             st.markdown(f'<p style="font-size:13px;color:#4A554F;line-height:1.5;margin-bottom:12px;">{t("us_model_card_desc")}</p>', unsafe_allow_html=True)
 
             optional_credit_feature_map = {
@@ -642,7 +643,9 @@ else:
         met_count = count_meets(bank_results)
         total_count = len(bank_results)
         st.markdown(f"### {t('bank_summary', count=met_count, total=total_count)}")
-        st.caption(t("bank_disclaimer"))
+        rules_meta = load_bank_rules()
+        disclaimer_text = rules_meta.get("disclaimer_hi") if st.session_state.get("language") == "हिं" and rules_meta.get("disclaimer_hi") else rules_meta.get("disclaimer", t("bank_disclaimer"))
+        st.caption(disclaimer_text)
 
         render_lender_cards(bank_results)
 

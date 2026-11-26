@@ -155,7 +155,7 @@ def lender_results(profile: Profile):
         lenders = check_all(user)
     finally:
         reset_language(token)
-    status_map = {"meets": "qualify", "close": "close", "not_yet": "miss"}
+    status_map = {"meets": "qualify", "close": "close", "limited": "limited", "not_yet": "miss"}
     rules_file = load_bank_rules()
     return {
         "lenders": [

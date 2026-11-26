@@ -83,11 +83,21 @@ class TestCore(unittest.TestCase):
 
  def test_example_profile_meets_five_lenders_and_tata_is_close(self):
     results = check_all(PROFILE)
-    self.assertEqual(count_meets(results), 5)
+    expected_meets = sum(1 for item in results if item["status"] == "meets")
+    self.assertEqual(expected_meets, 10)
+    self.assertEqual(count_meets(results), expected_meets)
     tata = next(item for item in results if item["id"] == "tata")
-    self.assertEqual(tata["status"], "close")
-    cibil = next(item for item in tata["rules"] if item["key"] == "min_cibil")
-    self.assertEqual(cibil["status"], "warn")
+    self.assertEqual(tata["status"], "meets")
+    indusind = next(item for item in results if item["id"] == "indusind")
+    self.assertEqual(indusind["status"], "close")
+    idfc = next(item for item in results if item["id"] == "idfc")
+    self.assertEqual(idfc["status"], "close")
+    pnb = next(item for item in results if item["id"] == "pnb")
+    self.assertEqual(pnb["status"], "limited")
+    canara = next(item for item in results if item["id"] == "canara")
+    self.assertEqual(canara["status"], "limited")
+    abc = next(item for item in results if item["id"] == "abc")
+    self.assertEqual(abc["status"], "limited")
 
 
  def test_language_toggle_switches_home_page_to_hindi(self):
@@ -154,8 +164,8 @@ class TestCore(unittest.TestCase):
  def test_aggregate_next_steps_deduplication(self):
     results = check_all(PROFILE)
     fixes = aggregate_next_steps(results)
-    self.assertEqual(len(fixes), 1)
-    self.assertIn("CIBIL", fixes[0])
+    self.assertEqual(len(fixes), 2)
+    self.assertTrue(all("CIBIL" in fix for fix in fixes))
 
     # Multi-fail profile produces multiple distinct next steps without duplicates
     p = dict(PROFILE)
@@ -179,7 +189,8 @@ class TestCore(unittest.TestCase):
     report = build_download_report(result, summary, ratio, bank_results)
     self.assertIn("Readiness band: Needs work", report)
     self.assertIn("State Bank of India: Meets published criteria", report)
-    self.assertIn("Tata Capital: Close", report)
+    self.assertIn("IndusInd Bank: Close", report)
+    self.assertIn("Punjab National Bank: Few rules published - check with the bank", report)
     self.assertIn("Last checked:", report)
     self.assertIn("Published minimum criteria only. Meeting them does not guarantee approval", report)
 
@@ -189,7 +200,8 @@ class TestCore(unittest.TestCase):
         hi_report = build_download_report(result, summary, ratio, bank_results)
         self.assertIn("तैयारी स्तर: सुधार की ज़रूरत", hi_report)
         self.assertIn("State Bank of India: प्रकाशित मानदंड पूरे", hi_report)
-        self.assertIn("Tata Capital: करीब", hi_report)
+        self.assertIn("IndusInd Bank: करीब", hi_report)
+        self.assertIn("Punjab National Bank: कम नियम प्रकाशित - बैंक से संपर्क करें", hi_report)
         self.assertIn("अंतिम जाँच:", hi_report)
         self.assertIn("केवल प्रकाशित न्यूनतम मानदंड", hi_report)
     finally:
@@ -199,13 +211,13 @@ class TestCore(unittest.TestCase):
  def test_whatif_loan_amount_slider_updates_risk_and_bank_eligibility(self):
     from src.counterfactual import apply_change
     orig_meets = count_meets(check_all(PROFILE))
-    self.assertEqual(orig_meets, 5)
+    self.assertEqual(orig_meets, 10)
 
     # Decreasing loan amount lowers or maintains risk and eligibility
     _, low_res = apply_change(PROFILE, loan=100_000)
     low_meets = count_meets(check_all(dict(PROFILE, loan_amount=100_000)))
     self.assertLessEqual(low_res["risk"], 0.324)  # Remains Good or Fair
-    self.assertEqual(low_meets, 5)
+    self.assertEqual(low_meets, 10)
 
     # Increasing loan amount significantly increases risk and reduces lender eligibility
     _, high_res = apply_change(PROFILE, loan=4_000_000)
@@ -311,6 +323,41 @@ class TestCore(unittest.TestCase):
         self.assertIn("before this new loan", dti_reason["text"])
     finally:
         reset_language(token)
+
+
+ def test_typical_foir_failure_for_high_debt_profile(self):
+    high_debt_profile = {
+        "annual_income": 360_000,  # 30,000 / month
+        "existing_emi": 15_000,
+        "loan_amount": 500_000,
+        "tenure_months": 36,
+        "rate": 11.0,
+        "age": 30,
+        "employment": "Salaried",
+        "job_years": 5,
+        "cibil": "Good · 700–749",
+        "cibil_index": 1,
+    }
+    results = check_all(high_debt_profile)
+    for r in results:
+        typ_rows = [row for row in r["rules"] if row["key"] == "typical_foir"]
+        if typ_rows:
+            self.assertEqual(typ_rows[0]["status"], "fail")
+    self.assertLessEqual(count_meets(results), 1)
+
+
+ def test_all_lenders_have_official_page_and_valid_sources(self):
+    from src.bank_checker import RULE_KEYS, load_bank_rules
+    data = load_bank_rules()
+    for lender in data["lenders"]:
+        self.assertIn("official_page", lender)
+        self.assertTrue(lender["official_page"].startswith("https://"), f"{lender['name']} official_page must start with https://")
+        for key in RULE_KEYS + ("interest_rate_from",):
+            val = lender.get(key)
+            if isinstance(val, dict) and "value" in val and val["value"] is not None:
+                source = val.get("source")
+                self.assertIsNotNone(source, f"{lender['name']}.{key} has non-null value but missing source")
+                self.assertTrue(str(source).startswith("https://"), f"{lender['name']}.{key} source '{source}' must start with https://")
 
 
 if __name__ == "__main__":

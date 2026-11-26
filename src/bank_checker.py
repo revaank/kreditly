@@ -15,6 +15,14 @@ CIBIL_BANDS = {
     "average": (650, 699),
     "low": (0, 649),
 }
+TYPICAL_MAX_FOIR = {
+    "value": 50,
+    "fail_above": 65,
+    "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility/eligibility-faqs",
+    "note": "Typical limit (debt-to-income under 45-50% is commonly preferred). This lender does not publish its own limit.",
+    "note_hi": "सामान्य सीमा (आय का 45-50% से कम किस्त आमतौर पर पसंद की जाती है)। यह ऋणदाता अपनी सीमा प्रकाशित नहीं करता।",
+    "reliability": "typical",
+}
 RULE_KEYS = (
     "employment_types_allowed", "min_age", "max_age", "min_monthly_income",
     "min_current_job_years", "min_cibil", "max_foir", "min_loan",
@@ -64,6 +72,7 @@ def _rule_row(key, status, user_value, requirement, rule, message_key=None, mess
         "requirement": requirement,
         "reliability": rule.get("reliability"),
         "note": rule.get("note"),
+        "note_hi": rule.get("note_hi"),
         "source": rule.get("source"),
         "needs_review": bool(rule.get("needs_review", False)),
         "message_key": message_key,
@@ -202,6 +211,28 @@ def _fixes_for(lender, user, result, lenders):
         else:
             fixes.append(t("bank_fix_clear_emi", amount=format_inr(required_clear)))
 
+    typical_foir_rule = by_key.get("typical_foir")
+    if typical_foir_rule and typical_foir_rule["status"] in ("warn", "fail"):
+        limit = float(TYPICAL_MAX_FOIR["value"])
+        max_loan = principal_within_foir(income, existing_emi, limit, rate, months)
+        fixes.append(t("bank_fix_foir_loan", amount=format_inr(max_loan)))
+        longest = int(_value(lender.get("max_tenure_months")) or months)
+        if lender.get("max_age", {}).get("at_loan_maturity", False):
+            max_age = _value(lender.get("max_age"))
+            age_cap = max(0, math.floor((float(user.get("age", 0)) - max_age) * -12))
+            longest = min(longest, age_cap)
+        if longest > 0:
+            new_emi = loan_summary(loan, rate, longest)["emi"]
+            new_foir = foir(income, existing_emi, new_emi)
+            fixes.append(t("bank_fix_foir_tenure", months=longest, foir=new_foir))
+        target_emi = income * limit / 100
+        required_clear = max(0, math.ceil(existing_emi + loan_summary(loan, rate, months)["emi"] - target_emi))
+        if required_clear > existing_emi:
+            remaining_foir = foir(income, 0, loan_summary(loan, rate, months)["emi"])
+            fixes.append(t("bank_fix_clear_all", amount=format_inr(existing_emi), foir=remaining_foir))
+        else:
+            fixes.append(t("bank_fix_clear_emi", amount=format_inr(required_clear)))
+
     min_loan = _value(lender.get("min_loan"))
     if min_loan is not None and loan < min_loan:
         fixes.append(t("bank_fix_loan_min", amount=format_inr(min_loan)))
@@ -266,15 +297,42 @@ def check_all(user: dict, rules: dict | None = None) -> list[dict]:
         rows = []
         for key in RULE_KEYS:
             _add_rule(rows, lender, key, user, context)
+        published_count = len(rows)
+        if _value(lender.get("max_foir")) is None:
+            current_foir = context["foir"]
+            if current_foir <= TYPICAL_MAX_FOIR["value"]:
+                typical_status = "pass"
+            elif current_foir <= TYPICAL_MAX_FOIR["fail_above"]:
+                typical_status = "warn"
+            else:
+                typical_status = "fail"
+            rows.append(_rule_row(
+                "typical_foir", typical_status, current_foir,
+                {"value": TYPICAL_MAX_FOIR["value"], "fail_above": TYPICAL_MAX_FOIR["fail_above"]},
+                TYPICAL_MAX_FOIR,
+            ))
         fails = sum(row["status"] == "fail" for row in rows)
         warns = sum(row["status"] == "warn" for row in rows)
-        status = "meets" if rows and fails == 0 and warns == 0 else "close" if fails <= 1 else "not_yet"
+        if published_count < 4 and fails == 0 and warns == 0:
+            status = "limited"
+        elif rows and fails == 0 and warns == 0:
+            status = "meets"
+        elif fails <= 1:
+            status = "close"
+        else:
+            status = "not_yet"
         result = {
             "id": lender["id"], "name": lender["name"], "short_name": lender["short_name"],
             "type": lender["type"], "product": lender["product"], "status": status,
             "rules": rows, "foir": context["foir"], "monthly_emi": context["monthly_emi"],
             "interest_rate_from": lender.get("interest_rate_from", {}).get("value"),
+            "interest_rate_to": lender.get("interest_rate_to", {}).get("value"),
             "interest_rate_rule": lender.get("interest_rate_from", {}),
+            "interest_rate_to_rule": lender.get("interest_rate_to", {}),
+            "processing_fee": lender.get("processing_fee"),
+            "requires_salary_account": lender.get("requires_salary_account"),
+            "salary_account_note": lender.get("salary_account_note"),
+            "salary_account_note_hi": lender.get("salary_account_note_hi"),
             "official_page": lender.get("official_page"), "fixes": [],
         }
         result["fixes"] = _fixes_for(lender, user, result, data["lenders"])

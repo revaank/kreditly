@@ -50,10 +50,14 @@ class TestAPI(unittest.TestCase):
         response = self.client.post("/lenders", json=profile)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["total"], 6)
-        self.assertEqual(data["qualify_count"], 5)
+        self.assertEqual(data["total"], 15)
+        self.assertEqual(data["qualify_count"], sum(1 for row in data["lenders"] if row["status"] == "qualify"))
         tata = next(row for row in data["lenders"] if "Tata" in row["name"])
-        self.assertEqual(tata["status"], "close")
+        self.assertEqual(tata["status"], "qualify")
+        indus = next(row for row in data["lenders"] if "IndusInd" in row["name"])
+        self.assertEqual(indus["status"], "close")
+        pnb = next(row for row in data["lenders"] if "Punjab" in row["name"])
+        self.assertEqual(pnb["status"], "limited")
 
     def test_prediction_and_whatif_return_band_and_finance(self):
         profile = {

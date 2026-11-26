@@ -4,7 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from src.bank_checker import check_all, count_meets
+from src.bank_checker import check_all, count_meets, load_bank_rules
 from src.counterfactual import find_improvements
 from src.explainer import suggestion_text
 from src.features import build_features
@@ -27,7 +27,7 @@ HOME_COPY = {
         "fix": "A practical next step",
         "sample_fix": "Consider a smaller loan amount to reduce the monthly EMI.",
         "sample_good_note": "Low credit card limit usage and steady employment support this profile.",
-        "lender_caption": "Published criteria from six lenders",
+        "lender_caption": "Published criteria from {count} lenders",
         "features_title": "A clearer first step",
         "feature1": "Published lender criteria",
         "feature1_body": "Compare your details with the rules and source links we have.",
@@ -51,7 +51,7 @@ HOME_COPY = {
         "fix": "एक व्यावहारिक अगला कदम",
         "sample_fix": "मासिक EMI घटाने के लिए कम ऋण राशि पर विचार करें।",
         "sample_good_note": "कम कार्ड उपयोग और नियमित रोज़गार इस प्रोफ़ाइल को मज़बूत बनाते हैं।",
-        "lender_caption": "छह ऋणदाताओं के प्रकाशित मानदंड",
+        "lender_caption": "{count} ऋणदाताओं के प्रकाशित मानदंड",
         "features_title": "एक बेहतर शुरुआत",
         "feature1": "प्रकाशित ऋणदाता मानदंड",
         "feature1_body": "अपनी जानकारी की उपलब्ध नियमों और स्रोत लिंक से तुलना करें।",
@@ -65,9 +65,15 @@ HOME_COPY = {
 }
 
 
-def home_text(key: str) -> str:
+def home_text(key: str, **values) -> str:
     language = st.session_state.get("language", "EN")
-    return HOME_COPY.get(language, HOME_COPY["EN"])[key]
+    template = HOME_COPY.get(language, HOME_COPY["EN"])[key]
+    if values and isinstance(template, str):
+        try:
+            return template.format(**values)
+        except Exception:
+            return template
+    return template
 
 
 @st.cache_data(show_spinner=False)
@@ -158,10 +164,17 @@ for col, (number, title, body) in zip(st.columns(3, gap="medium"), steps):
             unsafe_allow_html=True,
         )
 
+try:
+    bank_data = load_bank_rules()
+    lenders_list = bank_data.get("lenders", [])
+    lender_tags = "".join(f'<strong>{l.get("short_name", l.get("name"))}</strong>' for l in lenders_list)
+    lender_caption_text = home_text("lender_caption", count=len(lenders_list))
+except Exception:
+    lender_tags = ""
+    lender_caption_text = home_text("lender_caption", count=15)
+
 st.markdown(
-    f'<div class="lender-strip"><span>{home_text("lender_caption")}</span>'
-    '<strong>SBI</strong><strong>HDFC Bank</strong><strong>ICICI Bank</strong>'
-    '<strong>Axis Bank</strong><strong>Bajaj Finance</strong><strong>Tata Capital</strong></div>',
+    f'<div class="lender-strip"><span>{lender_caption_text}</span>{lender_tags}</div>',
     unsafe_allow_html=True,
 )
 

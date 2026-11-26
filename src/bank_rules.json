@@ -1,10 +1,10 @@
 {
-  "last_checked": "2026-11-17",
+  "last_checked": "2026-11-27",
   "loan_type": "Unsecured personal loan",
-  "disclaimer": "Published minimum criteria only. Meeting them does not guarantee approval; lenders also use internal checks (full credit report, employer category, city, banking history). Rules change often - verify on the lender's website before applying.",
+  "disclaimer": "Published minimum criteria only, taken from each lender's own website. Meeting them does not guarantee a loan; lenders also check your full credit report, employer, city and banking history. Rules change often - verify on the lender's website before applying.",
+  "disclaimer_hi": "केवल प्रकाशित न्यूनतम मानदंड, हर ऋणदाता की अपनी वेबसाइट से। इन्हें पूरा करने से ऋण की गारंटी नहीं मिलती; ऋणदाता आपकी पूरी क्रेडिट रिपोर्ट, नियोक्ता, शहर और बैंकिंग इतिहास भी देखते हैं। नियम अक्सर बदलते हैं - आवेदन से पहले ऋणदाता की वेबसाइट पर जाँचें।",
   "reliability_legend": {
-    "official": "Taken from the lender's own website",
-    "typical": "Taken from loan comparison sites or general guidance; may differ by scheme or change without notice"
+    "official": "Taken from the lender's own website"
   },
   "lenders": [
     {
@@ -12,150 +12,186 @@
       "name": "State Bank of India",
       "short_name": "SBI",
       "type": "Bank",
-      "product": "Xpress Credit Personal Loan",
+      "product": "Xpress Credit / Real-Time Xpress Credit",
+      "requires_salary_account": true,
+      "salary_account_note": "Digital Xpress Credit is for customers with an SBI salary package account.",
+      "salary_account_note_hi": "डिजिटल एक्सप्रेस क्रेडिट SBI सैलरी पैकेज खाते वाले ग्राहकों के लिए है।",
       "employment_types_allowed": {
         "value": [
           "Salaried"
         ],
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "needs_review": true
+        "reliability": "official",
+        "source": "https://sbi.bank.in/web/personal-banking/loans/personal-loans/real-time-xpress-credit"
       },
       "min_age": {
-        "value": 21,
-        "reliability": "typical",
-        "source": "https://www.creditmantri.com/sbi-personal-loan-eligibility"
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "max_age": {
-        "value": 58,
-        "at_loan_maturity": true,
-        "reliability": "typical",
-        "source": "https://www.creditmantri.com/sbi-personal-loan-eligibility",
-        "note": "Some sources say up to 60 for certain schemes."
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_monthly_income": {
-        "value": 15000,
-        "existing_customer_value": null,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "note": "Varies by scheme; some SBI schemes ask for Rs 20,000-25,000 or more.",
-        "needs_review": true
+        "value": 25000,
+        "reliability": "official",
+        "source": "https://sbi.bank.in/web/personal-banking/loans/personal-loans/real-time-xpress-credit",
+        "note": "₹25,000 for corporate employees; ₹20,000 for government/defence employees.",
+        "note_hi": "कॉर्पोरेट कर्मचारियों के लिए ₹25,000; सरकारी/रक्षा कर्मचारियों के लिए ₹20,000।",
+        "existing_customer_value": null
       },
       "min_current_job_years": {
-        "value": 1,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "needs_review": true
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_cibil": {
         "value": null,
         "reliability": null,
         "source": null,
-        "note": "Not published."
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "max_foir": {
-        "value": 50,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "note": "EMI/NMI ratio; some sources quote up to 65% for certain SBI schemes.",
-        "needs_review": true
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "SBI checks the EMI-to-income ratio but does not publish the limit.",
+        "note_hi": "SBI किस्त-आय अनुपात देखता है, पर सीमा प्रकाशित नहीं करता।"
       },
       "min_loan": {
-        "value": 25000,
-        "reliability": "typical",
-        "source": "https://www.creditmantri.com/sbi-personal-loan-eligibility"
+        "value": 100000,
+        "reliability": "official",
+        "source": "https://sbi.bank.in/web/personal-banking/loans/personal-loans/real-time-xpress-credit"
       },
       "max_loan": {
-        "value": 2000000,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "needs_review": true
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "max_tenure_months": {
-        "value": 72,
-        "reliability": "typical",
-        "source": "https://investorgain.com/personal-loan/sbi/6/"
+        "value": 84,
+        "reliability": "official",
+        "source": "https://sbi.bank.in/web/customer-care/rtxc-real-time-xpress-credit-",
+        "note": "6 to 84 months, depending on EMI-to-income ratio.",
+        "note_hi": "किस्त-आय अनुपात के अनुसार 6 से 84 महीने।"
       },
       "interest_rate_from": {
-        "value": 10.0,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/state-bank-of-hyderabad-loan.html",
-        "needs_review": true
+        "value": 11.0,
+        "reliability": "official",
+        "source": "https://sbi.bank.in/web/business/information/interest-rates",
+        "note": "Xpress Credit: 11.00%–13.50%, fixed for the full tenure.",
+        "note_hi": "एक्सप्रेस क्रेडिट: 11.00%–13.50%, पूरी अवधि के लिए स्थिर।"
       },
-      "official_page": "https://sbi.co.in"
+      "interest_rate_to": {
+        "value": 13.5
+      },
+      "processing_fee": {
+        "text": "1.50% of loan amount (min ₹1,000, max ₹15,000) + GST",
+        "text_hi": "ऋण राशि का 1.50% (न्यूनतम ₹1,000, अधिकतम ₹15,000) + GST",
+        "source": "https://sbi.bank.in/web/interest-rates/interest-rates/processing-fees"
+      },
+      "official_page": "https://sbi.bank.in/web/personal-banking/loans/personal-loans/real-time-xpress-credit"
     },
     {
       "id": "hdfc",
       "name": "HDFC Bank",
       "short_name": "HDFC",
       "type": "Bank",
-      "product": "Personal Loan for Salaried",
+      "product": "Xpress Personal Loan (Salaried)",
       "employment_types_allowed": {
         "value": [
-          "Salaried",
-          "Self-employed"
+          "Salaried"
         ],
         "reliability": "official",
-        "source": "https://v.hdfc.bank.in/htdocs/amp/personal-loan/eligibility_criteria.html",
-        "note": "Self-employed income criteria are not published; only salaried rules are checked."
+        "source": "https://www.hdfc.bank.in/personal-loan",
+        "note": "Personal loan is offered to salaried individuals.",
+        "note_hi": "पर्सनल लोन वेतनभोगी व्यक्तियों को दिया जाता है।"
       },
       "min_age": {
         "value": 21,
         "reliability": "official",
-        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried"
+        "source": "https://www.hdfc.bank.in/personal-loan"
       },
       "max_age": {
         "value": 60,
-        "at_loan_maturity": false,
         "reliability": "official",
-        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried"
+        "source": "https://www.hdfc.bank.in/personal-loan",
+        "at_loan_maturity": false
       },
       "min_monthly_income": {
         "value": 50000,
-        "existing_customer_value": 25000,
         "reliability": "official",
-        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-government-employees",
-        "note": "Rs 25,000 net/month if your salary account is with HDFC Bank; Rs 50,000 if it is with another bank."
+        "source": "https://www.hdfc.bank.in/personal-loan/types-of-personal-loan",
+        "note": "₹50,000 net if your salary account is with another bank; ₹25,000 for HDFC salary account holders.",
+        "note_hi": "दूसरे बैंक में सैलरी खाता हो तो ₹50,000; HDFC सैलरी खाते वालों के लिए ₹25,000।",
+        "existing_customer_value": 25000
       },
       "min_current_job_years": {
         "value": 1,
         "reliability": "official",
-        "source": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried",
-        "note": "Also needs at least 2 years of total work experience."
+        "source": "https://www.hdfc.bank.in/personal-loan",
+        "note": "Also 2 years of total work experience.",
+        "note_hi": "कुल 2 वर्ष का कार्य अनुभव भी चाहिए।"
       },
       "min_cibil": {
         "value": null,
         "reliability": null,
         "source": null,
-        "note": "Not published for this product."
+        "note": "Not a published minimum (HDFC articles mention 730–750+ for better chances).",
+        "note_hi": "प्रकाशित न्यूनतम नहीं (HDFC लेख बेहतर संभावना के लिए 730–750+ बताते हैं)।"
       },
       "max_foir": {
         "value": null,
         "reliability": null,
         "source": null,
-        "note": "Not published."
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_loan": {
-        "value": null,
-        "reliability": null,
-        "source": null
+        "value": 25000,
+        "reliability": "official",
+        "source": "https://www.hdfc.bank.in/personal-loan/premium-personal-loan"
       },
       "max_loan": {
-        "value": 4000000,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/hdfc-personal-loan-eligibility-calculator.html"
+        "value": 10000000,
+        "reliability": "official",
+        "source": "https://www.hdfc.bank.in/personal-loan",
+        "note": "Up to ₹1 crore for eligible profiles; many pages say ₹40 lakh.",
+        "note_hi": "योग्य प्रोफ़ाइल के लिए ₹1 करोड़ तक; कई पृष्ठ ₹40 लाख बताते हैं।"
       },
       "max_tenure_months": {
-        "value": 60,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/hdfc-personal-loan-eligibility-calculator.html"
+        "value": 84,
+        "reliability": "official",
+        "source": "https://www.hdfc.bank.in/personal-loan",
+        "note": "Some HDFC pages say 72 months.",
+        "note_hi": "कुछ HDFC पृष्ठ 72 महीने बताते हैं।"
       },
       "interest_rate_from": {
-        "value": null,
-        "reliability": null,
-        "source": null
+        "value": 10.25,
+        "reliability": "official",
+        "source": "https://www.hdfc.bank.in/personal-loan/interest-rates-and-charges",
+        "note": "Rack rate for salaried: 10.25%–24.00% (fixed).",
+        "note_hi": "वेतनभोगियों के लिए दर: 10.25%–24.00% (स्थिर)।"
       },
-      "official_page": "https://hdfcbank.com/personal/borrow/popular-loans/types-of-personal-loan/personal-loan-for-salaried"
+      "interest_rate_to": {
+        "value": 24.0
+      },
+      "processing_fee": {
+        "text": "Up to ₹6,500 + GST",
+        "text_hi": "₹6,500 + GST तक",
+        "source": "https://www.hdfc.bank.in/personal-loan/interest-rates-and-charges"
+      },
+      "official_page": "https://www.hdfc.bank.in/personal-loan"
     },
     {
       "id": "icici",
@@ -169,66 +205,85 @@
           "Self-employed"
         ],
         "reliability": "official",
-        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility",
-        "note": "Self-employed applicants: minimum age 23; income criteria based on business profits, not checked here."
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
       },
       "min_age": {
         "value": 20,
         "reliability": "official",
-        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/relationship-based-loan"
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan",
+        "note": "ICICI pages vary (18, 20 or 21); the product page says 20.",
+        "note_hi": "ICICI के पृष्ठ अलग-अलग (18, 20 या 21) बताते हैं; उत्पाद पृष्ठ 20 कहता है।"
       },
       "max_age": {
         "value": 58,
-        "at_loan_maturity": true,
         "reliability": "official",
-        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility/eligibility-faqs"
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan",
+        "at_loan_maturity": false
       },
       "min_monthly_income": {
         "value": 30000,
-        "existing_customer_value": null,
         "reliability": "official",
-        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/20-lakhs-personal-loan",
-        "note": "Some instant-loan offers start at Rs 20,000/month; depends on employer and profile."
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility",
+        "note": "May vary by employer, city and relationship with the bank.",
+        "note_hi": "नियोक्ता, शहर और बैंक संबंध के अनुसार बदल सकता है।",
+        "existing_customer_value": null
       },
       "min_current_job_years": {
         "value": null,
         "reliability": null,
         "source": null,
-        "note": "Asks for about 2 years of total work experience (typical); not checked here."
+        "note": "2 years of total work experience required (not current job).",
+        "note_hi": "कुल 2 वर्ष का कार्य अनुभव चाहिए (वर्तमान नौकरी नहीं)।"
       },
       "min_cibil": {
-        "value": 700,
-        "reliability": "official",
-        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/instant-loan/instant-loan-faqs",
-        "note": "Stated as preferred, not a hard cutoff."
-      },
-      "max_foir": {
-        "value": 50,
-        "reliability": "official",
-        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility/eligibility-faqs",
-        "note": "Debt-to-income below 45-50% preferred."
-      },
-      "min_loan": {
         "value": null,
         "reliability": null,
-        "source": null
+        "source": null,
+        "note": "Not a fixed minimum; ICICI FAQs mention 700+ for instant digital loans.",
+        "note_hi": "तय न्यूनतम नहीं; ICICI FAQ तुरंत डिजिटल लोन के लिए 700+ बताते हैं।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not a fixed limit; ICICI FAQs mention debt-to-income below 40% for digital approval.",
+        "note_hi": "तय सीमा नहीं; ICICI FAQ डिजिटल मंज़ूरी के लिए 40% से कम बताते हैं।"
+      },
+      "min_loan": {
+        "value": 50000,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/personal-loans-faqs"
       },
       "max_loan": {
         "value": 5000000,
         "reliability": "official",
-        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/70000-personal-loan"
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan"
       },
       "max_tenure_months": {
-        "value": 60,
-        "reliability": "typical",
-        "source": "https://www.bankbazaar.com/icici-personal-loan-eligibility-calculator.html"
+        "value": 84,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan",
+        "note": "Some ICICI pages say 72 months.",
+        "note_hi": "कुछ ICICI पृष्ठ 72 महीने बताते हैं।"
       },
       "interest_rate_from": {
-        "value": null,
-        "reliability": null,
-        "source": null
+        "value": 10.25,
+        "reliability": "official",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/personal-loan-interest-rates",
+        "note": "10.25%–16.50% per year.",
+        "note_hi": "10.25%–16.50% प्रति वर्ष।"
       },
-      "official_page": "https://www.icici.bank.in/personal-banking/loans/personal-loan/eligibility"
+      "interest_rate_to": {
+        "value": 16.5
+      },
+      "processing_fee": {
+        "text": "Up to 2% of loan amount + taxes",
+        "text_hi": "ऋण राशि का 2% तक + कर",
+        "source": "https://www.icici.bank.in/personal-banking/loans/personal-loan/personal-loan-interest-rates"
+      },
+      "official_page": "https://www.icici.bank.in/personal-banking/loans/personal-loan"
     },
     {
       "id": "axis",
@@ -241,65 +296,769 @@
           "Salaried"
         ],
         "reliability": "official",
-        "source": "https://www.axisbank.com/personal-loan/index.html"
+        "source": "https://www.axis.bank.in/loans/personal-loan",
+        "note": "Eligibility is published for salaried applicants.",
+        "note_hi": "पात्रता वेतनभोगी आवेदकों के लिए प्रकाशित है।"
       },
       "min_age": {
         "value": 21,
         "reliability": "official",
-        "source": "https://www.axisbank.com/personal-loan/index.html"
+        "source": "https://www.axis.bank.in/loans/personal-loan"
       },
       "max_age": {
         "value": 60,
-        "at_loan_maturity": true,
         "reliability": "official",
-        "source": "https://www.axisbank.com/personal-loan/index.html"
+        "source": "https://www.axis.bank.in/loans/personal-loan",
+        "at_loan_maturity": true
       },
       "min_monthly_income": {
         "value": 25000,
-        "existing_customer_value": 15000,
         "reliability": "official",
-        "source": "https://www.axisbank.com/personal-loan/index.html",
-        "note": "Rs 15,000 net/month for Axis Bank customers; Rs 25,000 for others."
+        "source": "https://www.axis.bank.in/loans/personal-loan",
+        "note": "₹25,000 net for non-Axis customers; ₹15,000 for Axis Bank customers.",
+        "note_hi": "गैर-Axis ग्राहकों के लिए ₹25,000; Axis ग्राहकों के लिए ₹15,000।",
+        "existing_customer_value": 15000
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not a published minimum (Axis says 700+ is preferred).",
+        "note_hi": "प्रकाशित न्यूनतम नहीं (Axis 700+ को पसंद करता है)।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": 50000,
+        "reliability": "official",
+        "source": "https://www.axis.bank.in/digital-lending-applications"
+      },
+      "max_loan": {
+        "value": 5000000,
+        "reliability": "official",
+        "source": "https://www.axis.bank.in/loans/personal-loan"
+      },
+      "max_tenure_months": {
+        "value": 84,
+        "reliability": "official",
+        "source": "https://www.axis.bank.in/loans/personal-loan"
+      },
+      "interest_rate_from": {
+        "value": 9.99,
+        "reliability": "official",
+        "source": "https://www.axis.bank.in/loans/personal-loan/interest-rates-charges",
+        "note": "9.99%–22% per year.",
+        "note_hi": "9.99%–22% प्रति वर्ष।"
+      },
+      "interest_rate_to": {
+        "value": 22.0
+      },
+      "processing_fee": {
+        "text": "Up to 2% of loan amount + GST",
+        "text_hi": "ऋण राशि का 2% तक + GST",
+        "source": "https://www.axis.bank.in/digital-lending-applications"
+      },
+      "official_page": "https://www.axis.bank.in/loans/personal-loan"
+    },
+    {
+      "id": "kotak",
+      "name": "Kotak Mahindra Bank",
+      "short_name": "Kotak",
+      "type": "Bank",
+      "product": "Personal Loan",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan/personal-loan-in-bangalore.html",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan/personal-loan-for-9-lakhs.html"
+      },
+      "max_age": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan/personal-loan-for-9-lakhs.html",
+        "at_loan_maturity": false
+      },
+      "min_monthly_income": {
+        "value": 30000,
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan/personal-loan-for-9-lakhs.html",
+        "note": "₹30,000 net if salary account is elsewhere; ₹25,000 for Kotak salary account holders.",
+        "note_hi": "सैलरी खाता दूसरे बैंक में हो तो ₹30,000; Kotak सैलरी खाते वालों के लिए ₹25,000।",
+        "existing_customer_value": 25000
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": 50000,
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan/personal-loan-in-kolkata.html"
+      },
+      "max_loan": {
+        "value": 10000000,
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan.html",
+        "note": "Up to ₹1 crore; city pages say ₹35 lakh.",
+        "note_hi": "₹1 करोड़ तक; शहर पृष्ठ ₹35 लाख बताते हैं।"
+      },
+      "max_tenure_months": {
+        "value": 72,
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan.html"
+      },
+      "interest_rate_from": {
+        "value": 10.99,
+        "reliability": "official",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan/interest-rates/pl-interest-rates-faqs.html"
+      },
+      "processing_fee": {
+        "text": "Up to 5% of loan amount",
+        "text_hi": "ऋण राशि का 5% तक",
+        "source": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan/personal-loan-in-bangalore.html"
+      },
+      "official_page": "https://www.kotak.bank.in/en/personal-banking/loans/personal-loan.html"
+    },
+    {
+      "id": "pnb",
+      "name": "Punjab National Bank",
+      "short_name": "PNB",
+      "type": "Bank",
+      "product": "PNB Sahyog Rin (Personal Loan for Public)",
+      "requires_salary_account": true,
+      "salary_account_note": "Mainly for employees whose salary is credited to a PNB account (or with employer check-off).",
+      "salary_account_note_hi": "मुख्य रूप से उन कर्मचारियों के लिए जिनका वेतन PNB खाते में आता है (या नियोक्ता चेक-ऑफ के साथ)।",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried"
+        ],
+        "reliability": "official",
+        "source": "https://pnb.bank.in/personalloanforpublic.html"
+      },
+      "min_age": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_age": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_monthly_income": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "2 years of service required, including previous employers.",
+        "note_hi": "पिछले नियोक्ताओं सहित 2 वर्ष की सेवा चाहिए।"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Rate depends on CIBIL band; no minimum published.",
+        "note_hi": "दर CIBIL पर निर्भर; न्यूनतम प्रकाशित नहीं।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_loan": {
+        "value": 2000000,
+        "reliability": "official",
+        "source": "https://pnb.bank.in/PAPL.html",
+        "note": "₹20 lakh for pre-approved salaried customers.",
+        "note_hi": "पूर्व-स्वीकृत वेतनभोगी ग्राहकों के लिए ₹20 लाख।"
+      },
+      "max_tenure_months": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "interest_rate_from": {
+        "value": 10.5,
+        "reliability": "official",
+        "source": "https://pnb.bank.in/Retail-Advances-interst-rate-on-advances-linked-to-mclr.html",
+        "note": "Starting rate for Sahyog Rin; varies by CIBIL band and employer.",
+        "note_hi": "सहयोग ऋण की प्रारंभिक दर; CIBIL और नियोक्ता के अनुसार।"
+      },
+      "processing_fee": {
+        "text": "1% of loan amount + taxes (bank disclosure, Sept 2024)",
+        "text_hi": "ऋण राशि का 1% + कर (बैंक प्रकटीकरण, सितंबर 2024)",
+        "source": "https://www.pnb.bank.in/downloadprocess.aspx?fid=r0O4wjPC39Mk41kt2Wo%2FbA%3D%3D",
+        "needs_review": true
+      },
+      "official_page": "https://pnb.bank.in/personalloanforpublic.html"
+    },
+    {
+      "id": "bob",
+      "name": "Bank of Baroda",
+      "short_name": "BoB",
+      "type": "Bank",
+      "product": "Baroda Personal Loan",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
+        "reliability": "official",
+        "source": "https://bankofbaroda.bank.in/loans/personal-loan/baroda-personal-loan",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://bankofbaroda.bank.in/loans/personal-loan/baroda-personal-loan"
+      },
+      "max_age": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://bankofbaroda.bank.in/loans/personal-loan/baroda-personal-loan",
+        "note": "60 for salaried at the end of repayment (65 for non-salaried).",
+        "note_hi": "वेतनभोगियों के लिए चुकौती के अंत में 60 (गैर-वेतनभोगी 65)।",
+        "at_loan_maturity": true
+      },
+      "min_monthly_income": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_current_job_years": {
         "value": 1,
         "reliability": "official",
-        "source": "https://axisbank.com/retail/calculators/personal-loan-eligibility-calculator",
-        "note": "Stated as expected work experience."
+        "source": "https://bankofbaroda.bank.in/loans/personal-loan/baroda-personal-loan",
+        "note": "At least 1 year of continuous service.",
+        "note_hi": "कम से कम 1 वर्ष की लगातार सेवा।"
       },
       "min_cibil": {
-        "value": 700,
-        "reliability": "official",
-        "source": "https://axisbank.com/retail/loans/personal-loan/personal-loan-for-salaried",
-        "note": "Stated as preferred."
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Rate is linked to CIBIL score; no minimum published.",
+        "note_hi": "दर CIBIL से जुड़ी; न्यूनतम प्रकाशित नहीं।"
       },
       "max_foir": {
-        "value": 40,
-        "reliability": "typical",
-        "source": "https://www.axis.bank.in/calculators/personal-loan-eligibility-calculator",
-        "note": "Axis guidance says debt-to-income should ideally be under 40%; general guidance, not a fixed rule."
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_loan": {
-        "value": 50000,
-        "reliability": "typical",
-        "source": "https://cobrand.bankbazaar.com/axis-bank-personal-loan-eligibility-calculator.html"
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "max_loan": {
-        "value": 4000000,
-        "reliability": "typical",
-        "source": "https://cobrand.bankbazaar.com/axis-bank-personal-loan-eligibility-calculator.html"
+        "value": 2000000,
+        "reliability": "official",
+        "source": "https://bankofbaroda.bank.in/loans/personal-loan"
       },
       "max_tenure_months": {
+        "value": 84,
+        "reliability": "official",
+        "source": "https://bankofbaroda.bank.in/loans/personal-loan/baroda-personal-loan",
+        "note": "From the bank's EMI calculator range.",
+        "note_hi": "बैंक के EMI कैलकुलेटर की सीमा से।"
+      },
+      "interest_rate_from": {
+        "value": 11.0,
+        "reliability": "official",
+        "source": "https://bankofbaroda.bank.in/loans/personal-loan",
+        "note": "Advertised starting rate; digital personal loan starts at 12.40%.",
+        "note_hi": "विज्ञापित प्रारंभिक दर; डिजिटल पर्सनल लोन 12.40% से।"
+      },
+      "official_page": "https://bankofbaroda.bank.in/loans/personal-loan/baroda-personal-loan"
+    },
+    {
+      "id": "canara",
+      "name": "Canara Bank",
+      "short_name": "Canara",
+      "type": "Bank",
+      "product": "Canara Budget",
+      "requires_salary_account": true,
+      "salary_account_note": "Lowest rates (Budget–Prime) are for confirmed government/PSU staff with salary credited to Canara Bank.",
+      "salary_account_note_hi": "सबसे कम दरें (बजट–प्राइम) उन स्थायी सरकारी/PSU कर्मचारियों के लिए हैं जिनका वेतन केनरा बैंक में आता है।",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried"
+        ],
+        "reliability": "official",
+        "source": "https://www.canarabank.bank.in/canara-budget"
+      },
+      "min_age": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_age": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_monthly_income": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_current_job_years": {
+        "value": 1,
+        "reliability": "official",
+        "source": "https://www.canarabank.bank.in/canara-budget",
+        "note": "Minimum 1 year of confirmed service.",
+        "note_hi": "कम से कम 1 वर्ष की स्थायी सेवा।"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_loan": {
+        "value": 5000000,
+        "reliability": "official",
+        "source": "https://www.canarabank.bank.in/canara-budget",
+        "note": "Up to 25 months' gross salary, max ₹50 lakh (Prime).",
+        "note_hi": "25 महीने के सकल वेतन तक, अधिकतम ₹50 लाख (प्राइम)।"
+      },
+      "max_tenure_months": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "interest_rate_from": {
+        "value": 10.4,
+        "reliability": "official",
+        "source": "https://www.canarabank.bank.in/pages/interest-for-retail-lending-schemes-linked-to-fixed-rate-of-interest",
+        "note": "10.40% with salary tie-up; Budget–Individual starts at 13.35%.",
+        "note_hi": "सैलरी टाई-अप के साथ 10.40%; बजट–इंडिविजुअल 13.35% से।"
+      },
+      "processing_fee": {
+        "text": "0.50% of loan amount (with a minimum)",
+        "text_hi": "ऋण राशि का 0.50% (न्यूनतम के साथ)",
+        "source": "https://www.canarabank.bank.in/canara-budget"
+      },
+      "official_page": "https://www.canarabank.bank.in/canara-budget"
+    },
+    {
+      "id": "union",
+      "name": "Union Bank of India",
+      "short_name": "Union Bank",
+      "type": "Bank",
+      "product": "Union Personal – Salaried (non-government)",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried"
+        ],
+        "reliability": "official",
+        "source": "https://www.unionbankofindia.bank.in/en/details/union-personal-salaried-individual-other-than-government-employee",
+        "note": "For confirmed employees of reputed private organisations.",
+        "note_hi": "प्रतिष्ठित निजी संगठनों के स्थायी कर्मचारियों के लिए।"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://www.unionbankofindia.bank.in/en/details/union-personal-salaried-individual-other-than-government-employee"
+      },
+      "max_age": {
         "value": 60,
         "reliability": "official",
-        "source": "https://www.axisbank.com/retail/loans/personal-loan"
+        "source": "https://www.unionbankofindia.bank.in/en/details/union-personal-salaried-individual-other-than-government-employee",
+        "at_loan_maturity": false
+      },
+      "min_monthly_income": {
+        "value": 15000,
+        "reliability": "official",
+        "source": "https://www.unionbankofindia.co.in/english/personal-loan.aspx",
+        "note": "Gross salary ₹15,000 (₹20,000 in Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Ahmedabad, Pune). Older page.",
+        "note_hi": "सकल वेतन ₹15,000 (बड़े शहरों में ₹20,000)। पुराना पृष्ठ।",
+        "existing_customer_value": null,
+        "needs_review": true
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_loan": {
+        "value": 5000000,
+        "reliability": "official",
+        "source": "https://www.unionbankofindia.bank.in/en/details/personal-loan"
+      },
+      "max_tenure_months": {
+        "value": 84,
+        "reliability": "official",
+        "source": "https://www.unionbankofindia.bank.in/en/details/personal-loan"
       },
       "interest_rate_from": {
         "value": null,
         "reliability": null,
-        "source": null
+        "source": null,
+        "note": "Rate depends on CIBIL score; see the bank's retail rate list.",
+        "note_hi": "दर CIBIL पर निर्भर; बैंक की खुदरा दर सूची देखें।"
       },
-      "official_page": "https://www.axisbank.com/personal-loan/index.html"
+      "official_page": "https://www.unionbankofindia.bank.in/en/details/union-personal-salaried-individual-other-than-government-employee"
+    },
+    {
+      "id": "indusind",
+      "name": "IndusInd Bank",
+      "short_name": "IndusInd",
+      "type": "Bank",
+      "product": "Personal Loan",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan.html",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan.html"
+      },
+      "max_age": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/iblogs/personal-loan/what-are-the-eligibility-criteria-for-taking-personal-loan-for-salaried-employees/",
+        "note": "60 at loan maturity or retirement age, whichever is earlier.",
+        "note_hi": "ऋण परिपक्वता पर 60 या सेवानिवृत्ति आयु, जो पहले हो।",
+        "at_loan_maturity": true
+      },
+      "min_monthly_income": {
+        "value": 25000,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan.html",
+        "existing_customer_value": null
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_cibil": {
+        "value": 730,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan/personal-loan-in-mumbai.html",
+        "note": "Stated for instant personal loans.",
+        "note_hi": "तुरंत पर्सनल लोन के लिए बताया गया।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": 30000,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan/personal-loan-in-mumbai.html"
+      },
+      "max_loan": {
+        "value": 5000000,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan/personal-loan-in-mumbai.html",
+        "note": "Instant online loans go up to ₹5 lakh.",
+        "note_hi": "तुरंत ऑनलाइन लोन ₹5 लाख तक।"
+      },
+      "max_tenure_months": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan/personal-loan-in-mumbai.html",
+        "note": "Online instant loans up to 48 months.",
+        "note_hi": "ऑनलाइन तुरंत लोन 48 महीने तक।"
+      },
+      "interest_rate_from": {
+        "value": 10.49,
+        "reliability": "official",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan-interest-rate.html"
+      },
+      "processing_fee": {
+        "text": "Up to 3.5% of loan amount",
+        "text_hi": "ऋण राशि का 3.5% तक",
+        "source": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan.html"
+      },
+      "official_page": "https://www.indusind.bank.in/in/en/personal/loans/personal-loan.html"
+    },
+    {
+      "id": "idfc",
+      "name": "IDFC FIRST Bank",
+      "short_name": "IDFC FIRST",
+      "type": "Bank",
+      "product": "FIRSTmoney Personal Loan",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
+      },
+      "min_age": {
+        "value": 21,
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges"
+      },
+      "max_age": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges",
+        "at_loan_maturity": false
+      },
+      "min_monthly_income": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "No fixed minimum published; the bank's table starts at ₹25,000 salary.",
+        "note_hi": "तय न्यूनतम प्रकाशित नहीं; बैंक की तालिका ₹25,000 वेतन से शुरू होती है।"
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_cibil": {
+        "value": 710,
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": 50000,
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges"
+      },
+      "max_loan": {
+        "value": 1500000,
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges"
+      },
+      "max_tenure_months": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges",
+        "note": "9 to 60 months.",
+        "note_hi": "9 से 60 महीने।"
+      },
+      "interest_rate_from": {
+        "value": 9.99,
+        "reliability": "official",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges"
+      },
+      "processing_fee": {
+        "text": "Zero processing fee",
+        "text_hi": "कोई प्रोसेसिंग शुल्क नहीं",
+        "source": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges"
+      },
+      "official_page": "https://www.idfcfirst.bank.in/personal-banking/loans/personal-loan/personal-loan-for-salaried"
+    },
+    {
+      "id": "federal",
+      "name": "Federal Bank",
+      "short_name": "Federal",
+      "type": "Bank",
+      "product": "FedPremia Personal Loan",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried"
+        ],
+        "reliability": "official",
+        "source": "https://www.federal.bank.in/fedpremia"
+      },
+      "min_age": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_age": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.federal.bank.in/fedpremia",
+        "at_loan_maturity": true
+      },
+      "min_monthly_income": {
+        "value": 25000,
+        "reliability": "official",
+        "source": "https://www.federal.bank.in/fedpremia",
+        "existing_customer_value": null
+      },
+      "min_current_job_years": {
+        "value": 3,
+        "reliability": "official",
+        "source": "https://www.federal.bank.in/fedpremia"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_loan": {
+        "value": 2500000,
+        "reliability": "official",
+        "source": "https://www.federal.bank.in/fedpremia"
+      },
+      "max_tenure_months": {
+        "value": 60,
+        "reliability": "official",
+        "source": "https://www.federal.bank.in/fedpremia"
+      },
+      "interest_rate_from": {
+        "value": 11.99,
+        "reliability": "official",
+        "source": "https://www.federal.bank.in/digital-personal-loans",
+        "note": "Digital Personal Loan rate (11.99%–17.49%); FedPremia rate not published.",
+        "note_hi": "डिजिटल पर्सनल लोन दर (11.99%–17.49%); FedPremia दर प्रकाशित नहीं।"
+      },
+      "interest_rate_to": {
+        "value": 17.49
+      },
+      "official_page": "https://www.federal.bank.in/personal-loans"
     },
     {
       "id": "bajaj",
@@ -313,65 +1072,81 @@
           "Self-employed"
         ],
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/kannada/personal-loan-eligibility-and-documents"
+        "source": "https://www.bajajfinserv.in/personal-loan",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
       },
       "min_age": {
         "value": 21,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator"
+        "source": "https://www.bajajfinserv.in/personal-loan"
       },
       "max_age": {
         "value": 80,
-        "at_loan_maturity": true,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator"
+        "source": "https://www.bajajfinserv.in/personal-loan",
+        "note": "Must be 80 or younger at the end of the loan.",
+        "note_hi": "ऋण के अंत में 80 वर्ष या कम होना चाहिए।",
+        "at_loan_maturity": true
       },
       "min_monthly_income": {
         "value": 25001,
-        "existing_customer_value": null,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator",
-        "note": "Starts at Rs 25,001/month depending on your city."
+        "source": "https://www.bajajfinserv.in/personal-loan-for-salaried-individuals",
+        "note": "Starts at ₹25,001; depends on your city.",
+        "note_hi": "₹25,001 से; आपके शहर पर निर्भर।",
+        "existing_customer_value": null
       },
       "min_current_job_years": {
         "value": null,
         "reliability": null,
-        "source": null
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_cibil": {
-        "value": 685,
+        "value": 650,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator",
-        "note": "Some Bajaj pages say 650; the stricter 685 is used here."
+        "source": "https://www.bajajfinserv.in/personal-loan"
       },
       "max_foir": {
         "value": null,
         "reliability": null,
         "source": null,
-        "note": "Not published."
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_loan": {
         "value": 40000,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/personal-loan-for-salaried-employees"
+        "source": "https://www.bajajfinserv.in/salaried-personal-loan"
       },
       "max_loan": {
-        "value": 5500000,
+        "value": 7500000,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/tamil/personal-loan-eligibility-and-documents"
+        "source": "https://www.bajajfinserv.in/personal-loan"
       },
       "max_tenure_months": {
         "value": 108,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/personal-loan-for-salaried-employees"
+        "source": "https://www.bajajfinserv.in/personal-loan"
       },
       "interest_rate_from": {
         "value": 10.0,
         "reliability": "official",
-        "source": "https://www.bajajfinserv.in/personal-loan-for-salaried-employees",
-        "note": "Range 10%-30.5% p.a."
+        "source": "https://www.bajajfinserv.in/all-fees-and-charges",
+        "note": "10%–30.5% per year.",
+        "note_hi": "10%–30.5% प्रति वर्ष।"
       },
-      "official_page": "https://www.bajajfinserv.in/personal-loan-eligibility-calculator"
+      "interest_rate_to": {
+        "value": 30.5
+      },
+      "processing_fee": {
+        "text": "Up to 4.13% of loan amount (incl. taxes)",
+        "text_hi": "ऋण राशि का 4.13% तक (कर सहित)",
+        "source": "https://www.bajajfinserv.in/all-fees-and-charges"
+      },
+      "official_page": "https://www.bajajfinserv.in/personal-loan"
     },
     {
       "id": "tata",
@@ -385,68 +1160,170 @@
           "Self-employed"
         ],
         "reliability": "official",
-        "source": "https://www.tatacapital.com/hindi/personal-loan/eligibility-calculator.html",
-        "note": "Only salaried rules are published in detail; self-employed income not checked."
+        "source": "https://www.tatacapital.com/personal-loan.html",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
       },
       "min_age": {
         "value": 21,
         "reliability": "official",
-        "source": "https://www.tatacapital.com/content/tata-capital-web/en/personal-loan/eligibility-calculator.html"
+        "source": "https://www.tatacapital.com/personal-loan/personal-loan-in-chennai.html"
       },
       "max_age": {
         "value": 58,
-        "at_loan_maturity": false,
         "reliability": "official",
-        "source": "https://www.tatacapital.com/content/tata-capital-web/en/personal-loan/eligibility-calculator.html"
+        "source": "https://www.tatacapital.com/personal-loan/personal-loan-in-chennai.html",
+        "at_loan_maturity": false
       },
       "min_monthly_income": {
         "value": 20000,
-        "existing_customer_value": null,
         "reliability": "official",
-        "source": "https://www.tatacapital.com/content/tata-capital-web/en/personal-loan/eligibility-calculator.html",
-        "note": "Some Tata Capital pages say Rs 15,000; the stricter Rs 20,000 is used here."
+        "source": "https://www.tatacapital.com/personal-loan.html",
+        "note": "Some Tata Capital pages say ₹15,000; the stricter ₹20,000 is used here.",
+        "note_hi": "Tata Capital के कुछ पृष्ठ ₹15,000 बताते हैं; यहाँ अधिक सख्त ₹20,000 लिया गया है।",
+        "existing_customer_value": null
       },
       "min_current_job_years": {
         "value": 1,
         "reliability": "official",
-        "source": "https://tatacapital.com/personal-loan.html",
-        "note": "Also 2 years of total work experience."
+        "source": "https://www.tatacapital.com/personal-loan/personal-loan-in-chennai.html",
+        "note": "At least 1 year of work experience.",
+        "note_hi": "कम से कम 1 वर्ष का कार्य अनुभव।"
       },
       "min_cibil": {
-        "value": 725,
-        "reliability": "official",
-        "source": "https://tatacapital.com/personal-loan.html",
-        "note": "Stated as preferred."
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "No fixed minimum; Tata Capital's guide says it generally prefers 750+.",
+        "note_hi": "तय न्यूनतम नहीं; Tata Capital की गाइड आमतौर पर 750+ पसंद बताती है।"
       },
       "max_foir": {
         "value": null,
         "reliability": null,
         "source": null,
-        "note": "Not published."
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
       },
       "min_loan": {
         "value": 40000,
         "reliability": "official",
-        "source": "https://www.tatacapital.com/personal-loan/application-process.html"
+        "source": "https://www.tatacapital.com/personal-loan.html"
       },
       "max_loan": {
         "value": 3500000,
         "reliability": "official",
-        "source": "https://www.tatacapital.com/personal-loan/application-process.html"
+        "source": "https://www.tatacapital.com/personal-loan.html"
       },
       "max_tenure_months": {
         "value": 72,
         "reliability": "official",
-        "source": "https://tatacapital.com/content/tata-capital/en/personal-loan.html"
+        "source": "https://www.tatacapital.com/personal-loan.html"
       },
       "interest_rate_from": {
         "value": 10.99,
         "reliability": "official",
-        "source": "https://www.tatacapital.com/covid.html",
-        "note": "May be outdated; check the current rate.",
-        "needs_review": true
+        "source": "https://www.tatacapital.com/personal-loan/rates-and-charges.html",
+        "note": "10.99%–33% per year.",
+        "note_hi": "10.99%–33% प्रति वर्ष।"
+      },
+      "interest_rate_to": {
+        "value": 33.0
+      },
+      "processing_fee": {
+        "text": "Up to 5% of loan amount + GST",
+        "text_hi": "ऋण राशि का 5% तक + GST",
+        "source": "https://www.tatacapital.com/personal-loan/rates-and-charges.html"
       },
       "official_page": "https://www.tatacapital.com/personal-loan.html"
+    },
+    {
+      "id": "abc",
+      "name": "Aditya Birla Capital",
+      "short_name": "Aditya Birla",
+      "type": "NBFC",
+      "product": "Personal Loan",
+      "employment_types_allowed": {
+        "value": [
+          "Salaried",
+          "Self-employed"
+        ],
+        "reliability": "official",
+        "source": "https://www.adityabirlacapital.com/loans/personal-finance/personal-loan",
+        "note": "Only salaried rules are published in detail; self-employed income not checked.",
+        "note_hi": "विस्तृत नियम केवल वेतनभोगियों के लिए प्रकाशित हैं; स्वरोज़गार की आय नहीं जाँची जाती।"
+      },
+      "min_age": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_age": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_monthly_income": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_current_job_years": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_cibil": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_foir": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "min_loan": {
+        "value": null,
+        "reliability": null,
+        "source": null,
+        "note": "Not published on the lender's website.",
+        "note_hi": "ऋणदाता की वेबसाइट पर प्रकाशित नहीं।"
+      },
+      "max_loan": {
+        "value": 5000000,
+        "reliability": "official",
+        "source": "https://www.adityabirlacapital.com/loans/personal-finance/personal-loan"
+      },
+      "max_tenure_months": {
+        "value": 84,
+        "reliability": "official",
+        "source": "https://www.adityabirlacapital.com/loans/personal-finance/personal-loan",
+        "note": "1 to 7 years.",
+        "note_hi": "1 से 7 वर्ष।"
+      },
+      "interest_rate_from": {
+        "value": 10.99,
+        "reliability": "official",
+        "source": "https://www.adityabirlacapital.com/loans/personal-finance/personal-loan/interest-rates"
+      },
+      "processing_fee": {
+        "text": "1.5% to 4% of loan amount",
+        "text_hi": "ऋण राशि का 1.5% से 4%",
+        "source": "https://www.adityabirlacapital.com/loans/personal-finance/personal-loan"
+      },
+      "official_page": "https://www.adityabirlacapital.com/loans/personal-finance/personal-loan"
     }
   ]
 }
