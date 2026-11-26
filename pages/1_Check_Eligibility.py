@@ -646,7 +646,41 @@ else:
                 unsafe_allow_html=True,
             )
 
-        # 4. NEW model card titled "Repayment habits check (US data)"
+        # 4. India repayment check (main ML card)
+        lang_code = "hi" if st.session_state.get("language") == "हिं" else "en"
+        india_res = assess_india_profile(values, lang=lang_code)
+        if india_res is not None:
+            band = india_res["band"]
+            band_color = {"lower": "#15803D", "typical": "#8A4B00", "higher": "#B63E32"}.get(band, "#8A4B00")
+            band_bg = {"lower": "#ECFCCB", "typical": "#FEF3C7", "higher": "#FEE2E2"}.get(band, "#FEF3C7")
+            band_label = t(f"india_band_{band}")
+            with st.container(border=True):
+                st.markdown(f'<div class="small-label">{t("india_card_title").upper()}</div>', unsafe_allow_html=True)
+                col_ititle, col_ibadge = st.columns([3, 2], vertical_alignment="center")
+                with col_ititle:
+                    st.markdown(f'<h3 style="font-size:20px;margin:2px 0 6px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("india_card_title")}</h3>', unsafe_allow_html=True)
+                with col_ibadge:
+                    st.markdown(f'<div style="text-align:right;"><span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;color:{band_color};background:{band_bg};">{band_label}</span></div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<p style="font-size:14px;color:#0F1B15;line-height:1.5;margin:6px 0 12px;">'
+                    f'{t("india_band_rate_desc", rate=india_res["band_test_rate"], avg=india_res["average"])}'
+                    f'</p>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(f'**{t("india_affecting_title")}**')
+                for r in india_res["reasons"]:
+                    dir_text = t("india_raises_risk") if r["direction"] == "raises" else t("india_lowers_risk")
+                    dir_color = "#B63E32" if r["direction"] == "raises" else "#15803D"
+                    assumed_html = f' <span style="font-size:11px;color:#6B7280;background:#F3F4F6;padding:1px 6px;border-radius:4px;">{t("india_assumed_tag")}</span>' if r.get("assumed") else ""
+                    st.markdown(
+                        f'<div style="font-size:13px;margin:4px 0;"><span style="color:{dir_color};font-weight:600;">{dir_text}</span> — {r["label"]}{assumed_html}</div>',
+                        unsafe_allow_html=True,
+                    )
+                if len(india_res.get("assumed", [])) >= 3:
+                    st.info(t("india_fill_details_note"), icon="ℹ️")
+                st.caption(t("india_card_caption"))
+
+        # 5. US model card inside collapsed expander ("Second opinion: US lending data")
         readiness_band = result.get("readiness_band", "fair")
         if readiness_band in ("good", "strong"):
             warning_label = t("warning_few")
@@ -658,31 +692,31 @@ else:
             warning_label = t("warning_several")
             warning_color = "#8A4B00"
 
-        with st.container(border=True):
-            st.markdown(f'<div class="small-label">HISTORICAL CHECK</div>', unsafe_allow_html=True)
-            col_mtitle, col_mbadge = st.columns([3, 2], vertical_alignment="center")
-            with col_mtitle:
-                st.markdown(f'<h3 style="font-size:20px;margin:2px 0 6px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("us_model_card_title")}</h3>', unsafe_allow_html=True)
-            with col_mbadge:
-                st.markdown(f'<div style="text-align:right;"><span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;color:{warning_color};background:#F3F4F6;">{warning_label}</span></div>', unsafe_allow_html=True)
-            st.caption(t("us_model_card_caption"))
-            st.markdown(f'<p style="font-size:13px;color:#4A554F;line-height:1.5;margin-bottom:12px;">{t("us_model_card_desc")}</p>', unsafe_allow_html=True)
+        with st.expander(t("us_second_opinion_expander"), expanded=False):
+            with st.container(border=True):
+                st.markdown(f'<div class="small-label">HISTORICAL CHECK</div>', unsafe_allow_html=True)
+                col_mtitle, col_mbadge = st.columns([3, 2], vertical_alignment="center")
+                with col_mtitle:
+                    st.markdown(f'<h3 style="font-size:20px;margin:2px 0 6px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("us_model_card_title")}</h3>', unsafe_allow_html=True)
+                with col_mbadge:
+                    st.markdown(f'<div style="text-align:right;"><span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;color:{warning_color};background:#F3F4F6;">{warning_label}</span></div>', unsafe_allow_html=True)
+                st.caption(t("us_model_card_caption"))
+                st.markdown(f'<p style="font-size:13px;color:#4A554F;line-height:1.5;margin-bottom:12px;">{t("us_model_card_desc")}</p>', unsafe_allow_html=True)
 
-            optional_credit_feature_map = {
-                "credit_year": "credit_history_years",
-                "open_acc": "open_acc",
-                "total_acc": "total_acc",
-                "mort_acc": "mort_acc",
-                "pub_rec": "pub_rec",
-                "bankruptcies": "pub_rec_bankruptcies",
-            }
-            assumed_fields = set()
-            for prof_key, feat_key in optional_credit_feature_map.items():
-                if values.get(prof_key) == DEFAULT_PROFILE[prof_key] or (prof_key == "credit_year" and values.get("credit_unknown")):
-                    assumed_fields.add(feat_key)
+                optional_credit_feature_map = {
+                    "credit_year": "credit_history_years",
+                    "open_acc": "open_acc",
+                    "total_acc": "total_acc",
+                    "mort_acc": "mort_acc",
+                    "pub_rec": "pub_rec",
+                    "bankruptcies": "pub_rec_bankruptcies",
+                }
+                assumed_fields = set()
+                for prof_key, feat_key in optional_credit_feature_map.items():
+                    if values.get(prof_key) == DEFAULT_PROFILE[prof_key] or (prof_key == "credit_year" and values.get("credit_unknown")):
+                        assumed_fields.add(feat_key)
 
-            # Move existing "See what influenced this" expander INSIDE this card
-            with st.expander(t("see_what_influenced")):
+                st.markdown(f"#### {t('see_what_influenced')}")
                 try:
                     contributions = explain(features)
                     reasons = explain_reasons(features, contributions, assumed_fields=assumed_fields)
@@ -696,15 +730,12 @@ else:
                 except Exception:
                     st.warning(t("explanation_error"))
 
-            # Move existing "Risk estimate details" expander INSIDE this card
-            with st.expander(t("risk_details")):
+                st.markdown(f"#### {t('risk_details')}")
                 risk_pct_str = format_risk_pct(result["risk"])
                 st.write(f"**{t('calibrated_risk')}:** {risk_pct_str}")
                 cutoff_threshold, cutoff_band = get_threshold_settings()
                 st.caption(t("cutoff_caption", threshold=cutoff_threshold, band=cutoff_band, class_name=t("outcome_charged_off")))
                 st.caption(t("model_warning"))
-
-        # TODO: Indian approval-pattern card goes here (Phase 3)
 
         if st.button(t("next_to_banks"), type="primary", use_container_width=True, key="btn_next_banks"):
             st.session_state.results_section = "banks"
