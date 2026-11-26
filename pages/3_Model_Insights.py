@@ -7,13 +7,14 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.bank_checker import load_bank_rules
-from src.translations import EN, t
+from src.india_model import FEATURE_LABELS
+from src.translations import EN, _request_language, t
 from src.ui import footer, header, page_setup, section_title
 
 page_setup()
 header("insights")
 section_title(t("insights_title"))
-st.warning(t("model_warning"))
+st.info(t("insights_header_info"))
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS_PATH = ROOT / "models" / "metrics.json"
@@ -68,16 +69,20 @@ with tab_india:
                 line_color="gray",
                 annotation_text=t("insights_india_avg_line", avg=im["base_rate"]),
             )
-            fig_band.update_layout(height=300, margin=dict(l=20, r=20, t=20, b=30), yaxis_title="%")
+            fig_band.update_layout(height=300, margin=dict(l=20, r=20, t=20, b=30), yaxis_title="%", yaxis=dict(range=[0, 35]))
             st.plotly_chart(fig_band, use_container_width=True)
 
             # Top feature importances
             st.markdown(f"#### {t('insights_india_importance')}")
             imp_items = list(im["feature_importance"].items())[:8]
             imp_items.reverse()
+            req_lang = _request_language.get()
+            cur_lang = req_lang if req_lang is not None else st.session_state.get("language", "EN")
+            lang_code = "hi" if cur_lang == "हिं" else "en"
+            labels_map = FEATURE_LABELS.get(lang_code, FEATURE_LABELS["en"])
             fig_imp = go.Figure(go.Bar(
                 x=[v for _, v in imp_items],
-                y=[k.replace("_", " ").title() for k, _ in imp_items],
+                y=[labels_map.get(k, k.replace("_", " ").title()) for k, _ in imp_items],
                 orientation="h",
                 marker_color="#2f6f4f",
             ))
@@ -92,6 +97,7 @@ with tab_india:
             st.error(t("insights_error"))
 
 with tab_us:
+    st.warning(t("model_warning"))
 
     if not METRICS_PATH.exists() or not IMPORTANCE_PATH.exists():
         st.error(t("model_not_available"))

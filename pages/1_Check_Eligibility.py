@@ -381,7 +381,7 @@ if st.session_state.view_mode == "wizard":
             v["cibil_unknown"] = v["cibil_index"] in (4, 5)
             st.caption(t("cibil_help"))
 
-            with st.expander(t("india_credit_details_expander"), expanded=False):
+            with st.expander(t("credit_details_expander"), expanded=False):
                 ic1, ic2 = st.columns(2)
                 with ic1:
                     v["missed_emi_last_6m"] = st.number_input(
@@ -410,7 +410,7 @@ if st.session_state.view_mode == "wizard":
                         key="num_india_loan_enquiries",
                     )
 
-            with st.expander(t("credit_details_expander")):
+                st.markdown("---")
                 st.caption("Pre-filled with typical defaults. You can adjust if you know your exact numbers.")
                 if v["cibil_index"] != 4:
                     col1, col2 = st.columns(2)
@@ -655,7 +655,7 @@ else:
             band_bg = {"lower": "#ECFCCB", "typical": "#FEF3C7", "higher": "#FEE2E2"}.get(band, "#FEF3C7")
             band_label = t(f"india_band_{band}")
             with st.container(border=True):
-                st.markdown(f'<div class="small-label">{t("india_card_title").upper()}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="small-label">{t("india_card_top_label")}</div>', unsafe_allow_html=True)
                 col_ititle, col_ibadge = st.columns([3, 2], vertical_alignment="center")
                 with col_ititle:
                     st.markdown(f'<h3 style="font-size:20px;margin:2px 0 6px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("india_card_title")}</h3>', unsafe_allow_html=True)
@@ -693,6 +693,7 @@ else:
             warning_color = "#8A4B00"
 
         with st.expander(t("us_second_opinion_expander"), expanded=False):
+            st.markdown(f'<p style="font-size:13px;color:#4A554F;line-height:1.5;margin-bottom:12px;">{t("us_second_opinion_note")}</p>', unsafe_allow_html=True)
             with st.container(border=True):
                 st.markdown(f'<div class="small-label">HISTORICAL CHECK</div>', unsafe_allow_html=True)
                 col_mtitle, col_mbadge = st.columns([3, 2], vertical_alignment="center")
