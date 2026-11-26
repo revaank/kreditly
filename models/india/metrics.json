@@ -1,0 +1,106 @@
+{
+  "dataset": {
+    "name": "L&T Vehicle Loan Default Prediction (L&T Financial Services / Analytics Vidhya FinHack)",
+    "source_url": "https://www.kaggle.com/datasets/mamtadhaker/lt-vehicle-loan-default-prediction",
+    "rows": 233154,
+    "default_rate": 0.2171,
+    "loan_type": "Two-wheeler / vehicle loans, India",
+    "disbursal_period": "Aug-Oct 2018",
+    "target": "Payment default in the first EMI on due date",
+    "limitations": [
+      "Vehicle loans (mostly two-wheelers, median about Rs 54,000), not personal loans.",
+      "Predicts first-EMI default, not loan approval.",
+      "No income column, so loan-to-income cannot be used.",
+      "Only features a user can answer are used; lender-only data (branch, dealer, asset cost, LTV) is excluded, which lowers accuracy.",
+      "About half of borrowers have no credit history (score 0)."
+    ]
+  },
+  "features": [
+    "bureau_score",
+    "no_credit_history",
+    "age",
+    "self_employed",
+    "employment_missing",
+    "credit_history_months",
+    "active_loans",
+    "overdue_loans",
+    "missed_emi_last_6m",
+    "new_loans_last_6m",
+    "loan_enquiries",
+    "existing_emi"
+  ],
+  "split": {
+    "train": 163207,
+    "validation": 34973,
+    "test": 34974,
+    "random_state": 42
+  },
+  "comparison": [
+    {
+      "model": "Logistic Regression",
+      "validation_roc_auc": 0.5731,
+      "test_roc_auc": 0.5776
+    },
+    {
+      "model": "Random Forest",
+      "validation_roc_auc": 0.5945,
+      "test_roc_auc": 0.5995
+    },
+    {
+      "model": "XGBoost",
+      "validation_roc_auc": 0.5931,
+      "test_roc_auc": 0.5969
+    }
+  ],
+  "best_model": "XGBoost",
+  "test_calibrated": {
+    "roc_auc": 0.5968,
+    "brier": 0.1662,
+    "accuracy": 0.402,
+    "precision": 0.2447,
+    "recall": 0.8406,
+    "f1": 0.379,
+    "threshold": 0.1875
+  },
+  "base_rate": 0.2171,
+  "bands": {
+    "on": "raw_model_score",
+    "lower_max": 0.475492,
+    "higher_min": 0.533616
+  },
+  "monotone_constraints": {
+    "overdue_loans": 1,
+    "missed_emi_last_6m": 1,
+    "loan_enquiries": 1,
+    "new_loans_last_6m": 1
+  },
+  "test_default_rate_by_band": {
+    "higher": {
+      "default_rate": 0.2819,
+      "count": 10231
+    },
+    "lower": {
+      "default_rate": 0.1475,
+      "count": 10724
+    },
+    "typical": {
+      "default_rate": 0.223,
+      "count": 14019
+    }
+  },
+  "feature_importance": {
+    "no_credit_history": 0.1809,
+    "loan_enquiries": 0.1515,
+    "overdue_loans": 0.1179,
+    "bureau_score": 0.0931,
+    "missed_emi_last_6m": 0.0793,
+    "self_employed": 0.0639,
+    "active_loans": 0.0626,
+    "credit_history_months": 0.0623,
+    "existing_emi": 0.0519,
+    "age": 0.0519,
+    "employment_missing": 0.0451,
+    "new_loans_last_6m": 0.0394
+  },
+  "benchmark_all_lender_columns_test_auc": 0.663
+}

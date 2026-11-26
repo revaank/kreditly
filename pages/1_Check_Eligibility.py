@@ -73,6 +73,44 @@ def _scroll_top_if_changed(target: str):
             height=0,
         )
 
+def india_profile(values: dict) -> dict:
+    """Map Kreditly form values to the src.india_model.assess() profile dict."""
+    from datetime import date
+    band_map = {0: "excellent", 1: "good", 2: "average", 3: "low", 4: "no_history", 5: "dont_know"}
+    cibil_idx = values.get("cibil_index")
+    cibil_band = band_map.get(cibil_idx, "dont_know")
+
+    if cibil_idx == 4 or values.get("credit_unknown") or values.get("credit_year") is None:
+        credit_years = None
+    else:
+        credit_years = max(0, date.today().year - int(values["credit_year"]))
+
+    active_loans = None if (cibil_idx == 4 or values.get("open_acc") is None) else int(values["open_acc"])
+    emp = "self_employed" if values.get("employment") == "Self-employed" else "salaried"
+
+    return {
+        "age": float(values.get("age", 30)),
+        "employment": emp,
+        "cibil_band": cibil_band,
+        "credit_years": credit_years,
+        "active_loans": active_loans,
+        "existing_emi": float(values.get("existing_emi", 0)),
+        "missed_emi_last_6m": values.get("missed_emi_last_6m"),
+        "overdue_loans": values.get("overdue_loans"),
+        "new_loans_last_6m": values.get("new_loans_last_6m"),
+        "loan_enquiries": values.get("loan_enquiries"),
+    }
+
+
+def assess_india_profile(values: dict, lang: str = "en") -> dict | None:
+    """Safely run India repayment check; returns None if model files are missing."""
+    try:
+        from src.india_model import assess
+        return assess(india_profile(values), lang=lang)
+    except Exception:
+        return None
+
+
 def reset_whatif():
     p = st.session_state.get("estimate", {}).get("values") or st.session_state.get("profile", DEFAULT_PROFILE)
     st.session_state["whatif_monthly_income"] = int(p.get("monthly_income", 65000))
@@ -107,6 +145,10 @@ DEFAULT_PROFILE = {
     "tenure_months": 36,
     "purpose": "debt_consolidation",
     "rate": 11.0,
+    "missed_emi_last_6m": None,
+    "overdue_loans": None,
+    "new_loans_last_6m": None,
+    "loan_enquiries": None,
 }
 
 if "profile" not in st.session_state:
@@ -331,22 +373,52 @@ if st.session_state.view_mode == "wizard":
             st.markdown(f"### {t('q_credit')}")
             st.caption(f"💡 {t('why_credit')}")
 
-            cibil_chips = [t("excellent"), t("good"), t("average"), t("low"), t("dont_know")]
-            cibil_idx = int(v.get("cibil_index", 1))
+            cibil_chips = [t("excellent"), t("good"), t("average"), t("low"), t("no_history"), t("dont_know")]
+            cibil_idx = min(int(v.get("cibil_index", 1)), len(cibil_chips) - 1)
             selected_cibil = chip_selector(t("cibil"), cibil_chips, cibil_chips[cibil_idx], key="chip_cibil")
             v["cibil"] = selected_cibil
             v["cibil_index"] = cibil_chips.index(selected_cibil)
-            v["cibil_unknown"] = v["cibil_index"] == 4
+            v["cibil_unknown"] = v["cibil_index"] in (4, 5)
             st.caption(t("cibil_help"))
+
+            with st.expander(t("india_credit_details_expander"), expanded=False):
+                ic1, ic2 = st.columns(2)
+                with ic1:
+                    v["missed_emi_last_6m"] = st.number_input(
+                        t("india_missed_emi"), min_value=0, max_value=20,
+                        value=v.get("missed_emi_last_6m"), step=1,
+                        placeholder=t("not_sure"), help=t("india_missed_emi_help"),
+                        key="num_india_missed_emi",
+                    )
+                    v["new_loans_last_6m"] = st.number_input(
+                        t("india_new_loans"), min_value=0, max_value=20,
+                        value=v.get("new_loans_last_6m"), step=1,
+                        placeholder=t("not_sure"), help=t("india_new_loans_help"),
+                        key="num_india_new_loans",
+                    )
+                with ic2:
+                    v["overdue_loans"] = st.number_input(
+                        t("india_overdue_loans"), min_value=0, max_value=20,
+                        value=v.get("overdue_loans"), step=1,
+                        placeholder=t("not_sure"), help=t("india_overdue_loans_help"),
+                        key="num_india_overdue_loans",
+                    )
+                    v["loan_enquiries"] = st.number_input(
+                        t("india_loan_enquiries"), min_value=0, max_value=20,
+                        value=v.get("loan_enquiries"), step=1,
+                        placeholder=t("not_sure"), help=t("india_loan_enquiries_help"),
+                        key="num_india_loan_enquiries",
+                    )
 
             with st.expander(t("credit_details_expander")):
                 st.caption("Pre-filled with typical defaults. You can adjust if you know your exact numbers.")
-                col1, col2 = st.columns(2)
-                with col1:
-                    v["credit_year"] = st.number_input(t("credit_year"), 1980, 2026, int(v["credit_year"]), key="num_credit_year")
-                    v["credit_unknown"] = st.checkbox(t("dont_know"), value=bool(v.get("credit_unknown", False)), key="chk_credit_unknown")
-                with col2:
-                    v["open_acc"] = st.number_input(t("open_accounts"), min_value=0, max_value=100, value=int(v["open_acc"]), key="num_open_acc")
+                if v["cibil_index"] != 4:
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        v["credit_year"] = st.number_input(t("credit_year"), 1980, 2026, int(v["credit_year"]), key="num_credit_year")
+                        v["credit_unknown"] = st.checkbox(t("dont_know"), value=bool(v.get("credit_unknown", False)), key="chk_credit_unknown")
+                    with col2:
+                        v["open_acc"] = st.number_input(t("open_accounts"), min_value=0, max_value=100, value=int(v["open_acc"]), key="num_open_acc")
                 col3, col4 = st.columns(2)
                 with col3:
                     v["total_acc"] = st.number_input(t("total_accounts"), min_value=0, max_value=150, value=int(v["total_acc"]), key="num_total_acc")

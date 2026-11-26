@@ -49,7 +49,7 @@ def _value(rule: dict | None):
 
 
 def _cibil_band(user: dict):
-    if user.get("cibil_unknown") or user.get("cibil_index") == 4:
+    if user.get("cibil_unknown") or user.get("cibil_index") in (4, 5):
         return None
     band_index = user.get("cibil_index")
     if isinstance(band_index, int) and 0 <= band_index <= 3:

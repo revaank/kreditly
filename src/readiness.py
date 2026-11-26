@@ -34,13 +34,15 @@ STANDING_RULES = {
 
 
 def normalize_cibil(cibil_band: str | int | None) -> str:
-    """Normalize user CIBIL band to 'excellent', 'good', 'average', 'low', or 'dont_know'."""
+    """Normalize user CIBIL band to 'excellent', 'good', 'average', 'low', 'no_history', or 'dont_know'."""
     if cibil_band is None:
         return "dont_know"
     if isinstance(cibil_band, int):
-        mapping = {0: "excellent", 1: "good", 2: "average", 3: "low", 4: "dont_know"}
+        mapping = {0: "excellent", 1: "good", 2: "average", 3: "low", 4: "no_history", 5: "dont_know"}
         return mapping.get(cibil_band, "dont_know")
     s = str(cibil_band).strip().lower()
+    if any(k in s for k in ("no credit history", "no_history", "कोई क्रेडिट इतिहास नहीं")):
+        return "no_history"
     if any(k in s for k in ("dont know", "don't know", "पता नहीं")):
         return "dont_know"
     if any(k in s for k in ("low", "below", "कम")):
@@ -125,6 +127,8 @@ def standing_reasons(
         reasons.append(t("standing_reason_cibil_average"))
     elif cibil_norm == "low":
         reasons.append(t("standing_reason_cibil_low"))
+    elif cibil_norm == "no_history":
+        reasons.append(t("standing_reason_cibil_no_history"))
     else:
         reasons.append(t("standing_reason_cibil_unknown"))
 
