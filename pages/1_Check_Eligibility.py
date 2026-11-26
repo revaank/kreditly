@@ -3,6 +3,7 @@ from __future__ import annotations
 # Five-screen guided wizard and progressive educational results.
 from urllib.parse import quote
 import streamlit as st
+import streamlit.components.v1 as components
 
 from src.bank_checker import check_all, count_meets, load_bank_rules
 try:
@@ -29,7 +30,7 @@ from src.counterfactual import apply_change, find_improvements
 from src.explainer import explain_reasons, suggestion_text
 from src.features import build_features
 from src.finance import foir, format_inr, loan_summary
-from src.predictor import explain, predict
+from src.predictor import explain, get_threshold_settings, predict
 from src.translations import t
 from src.ui import (
     build_download_report,
@@ -60,8 +61,38 @@ for k, def_v in [
     if k not in st.session_state:
         st.session_state[k] = def_v
 
+def _scroll_top_if_changed(target: str):
+    """Scroll to top when wizard step or results section changes."""
+    prev = st.session_state.get("last_scroll_target")
+    st.session_state["last_scroll_target"] = target
+    if prev is not None and prev != target:
+        components.html(
+            f"""<!-- {target} -->
+            <script>
+            (function() {{
+                function doScroll() {{
+                    try {{
+                        window.parent.scrollTo(0, 0);
+                        var doc = window.parent.document;
+                        doc.documentElement.scrollTop = 0;
+                        doc.body.scrollTop = 0;
+                        var selectors = ['section.stMain', 'section.main', '[data-testid="stMain"]', '[data-testid="stAppViewContainer"]'];
+                        selectors.forEach(function(sel) {{
+                            var el = doc.querySelector(sel);
+                            if (el) el.scrollTo(0, 0);
+                        }});
+                    }} catch (e) {{}}
+                }}
+                doScroll();
+                requestAnimationFrame(doScroll);
+                setTimeout(doScroll, 80);
+            }})();
+            </script>""",
+            height=0,
+        )
+
 def reset_whatif():
-    p = st.session_state.get("profile", DEFAULT_PROFILE)
+    p = st.session_state.get("estimate", {}).get("values") or st.session_state.get("profile", DEFAULT_PROFILE)
     st.session_state["whatif_monthly_income"] = int(p.get("monthly_income", 65000))
     st.session_state["whatif_loan"] = int(p.get("loan_amount", 300000))
     st.session_state["whatif_emi"] = int(p.get("existing_emi", 5000))
@@ -127,6 +158,7 @@ if "view_mode" not in st.session_state:
 # -------------------------------------------------------------
 if st.session_state.view_mode == "wizard":
     step = int(st.session_state.wizard_step)
+    _scroll_top_if_changed(f"wizard_{step}")
     st.progress(step / 5, text=t("step_of", step=step, total=5, name=STEP_NAMES[step - 1]))
 
     with st.container(border=True):
@@ -453,6 +485,8 @@ else:
             cur_sec = k
             break
 
+    _scroll_top_if_changed(f"results_{cur_sec}")
+
     # ==================== Section 1: Your Result ====================
     if cur_sec == "result":
         band = result.get("readiness_band", "fair")
@@ -506,11 +540,27 @@ else:
             )
 
         # SHAP and reasons expander
+        optional_credit_feature_map = {
+            "credit_year": "credit_history_years",
+            "open_acc": "open_acc",
+            "total_acc": "total_acc",
+            "mort_acc": "mort_acc",
+            "pub_rec": "pub_rec",
+            "bankruptcies": "pub_rec_bankruptcies",
+        }
+        assumed_fields = set()
+        for prof_key, feat_key in optional_credit_feature_map.items():
+            if values.get(prof_key) == DEFAULT_PROFILE[prof_key] or (prof_key == "credit_year" and values.get("credit_unknown")):
+                assumed_fields.add(feat_key)
+
         with st.expander(t("see_what_influenced")):
             try:
                 contributions = explain(features)
-                for reason in explain_reasons(features, contributions):
+                reasons = explain_reasons(features, contributions, assumed_fields=assumed_fields)
+                for reason in reasons:
                     st.markdown(("✅ " if reason["helpful"] else "⚠️ ") + reason["text"])
+                if assumed_fields:
+                    st.caption(t("assumed_values_note"))
                 st.markdown("---")
                 contribution_chart(contributions)
             except Exception:
@@ -520,7 +570,8 @@ else:
         with st.expander(t("risk_details")):
             risk_pct_str = format_risk_pct(result["risk"])
             st.write(f"**{t('calibrated_risk')}:** {risk_pct_str}")
-            st.caption(t("cutoff_caption", threshold=0.324, band=0.10, class_name=t("outcome_charged_off")))
+            cutoff_threshold, cutoff_band = get_threshold_settings()
+            st.caption(t("cutoff_caption", threshold=cutoff_threshold, band=cutoff_band, class_name=t("outcome_charged_off")))
             st.caption(t("model_warning"))
 
         st.caption(t("dummy_notice"))
@@ -545,33 +596,21 @@ else:
     # ==================== Section 3: Fixes ====================
     elif cur_sec == "fixes":
         st.markdown(f"### {t('improve')}")
-        st.caption("Here are practical adjustments to improve affordability and lender matching.")
+        st.caption(t("fixes_subtitle"))
 
         # Action formatting helper
         def _format_action_title(change: dict, current_vals: dict) -> str:
             key = change["field"]
             val = change["value"]
-            lang = st.session_state.get("language", "EN")
-            is_hi = lang == "हिं"
             if key == "revol_util":
-                pct = int(round(val))
-                if is_hi:
-                    return f"कार्ड उपयोग {pct}% से कम लाएं" if pct <= 10 else f"कार्ड उपयोग घटाकर {pct}% करें"
-                return f"Bring your card usage under {pct}%" if pct <= 10 else f"Bring your card usage down to {pct}%"
-            elif key == "loan_amount":
+                return t("action_card_usage_down", pct=int(round(val)))
+            if key == "loan_amount":
                 cur_amt = current_vals.get("loan_amount", 300000)
-                if is_hi:
-                    return f"{format_inr(cur_amt)} के बजाय {format_inr(val)} का ऋण लें"
-                return f"Borrow {format_inr(val)} instead of {format_inr(cur_amt)}"
-            elif key == "existing_emi":
-                if is_hi:
-                    return f"मौजूदा किस्तों को घटाकर लगभग {format_inr(val)} करें"
-                return f"Reduce existing EMIs to about {format_inr(val)}"
-            elif key == "tenure_months":
-                t_m = int(round(val))
-                if is_hi:
-                    return f"ऋण अवधि बढ़ाकर {t_m} महीने करें"
-                return f"Extend loan repayment term to {t_m} months"
+                return t("action_borrow_instead", val=format_inr(val), cur=format_inr(cur_amt))
+            if key == "existing_emi":
+                return t("action_emi_down", amount=format_inr(val))
+            if key == "tenure_months":
+                return t("action_extend_term", months=int(round(val)))
             return suggestion_text(change)
 
         # Top numbered action cards
@@ -584,31 +623,35 @@ else:
         for sug in suggestions:
             changes_text = " + ".join(_format_action_title(c, values) for c in sug["changes"])
             pts = round(sug["risk_reduction"] * 100)
-            reduction_text = f"अनुमानित जोखिम में कमी: ~{pts} अंक" if st.session_state.get("language") == "हिं" else f"Estimated risk reduction: ~{pts} points"
             action_items.append({
                 "text": changes_text,
-                "note": reduction_text,
+                "note": t("estimated_risk_reduction", pts=pts),
                 "is_top": True,
             })
 
-        # Merge lender qualification fixes (no duplicates)
-        overall_fixes = aggregate_next_steps(bank_results)
+        # Merge lender qualification fixes prefixed with lender name (no duplicates)
+        status_rank = {"meets": 0, "close": 1, "not_yet": 2}
         seen_texts = {item["text"].lower() for item in action_items}
-        for fix in overall_fixes:
-            if fix and fix.lower() not in seen_texts:
-                seen_texts.add(fix.lower())
-                lender_note = "ऋणदाता पात्रता आवश्यकता" if st.session_state.get("language") == "हिं" else "Lender qualification criterion"
-                action_items.append({
-                    "text": fix,
-                    "note": lender_note,
-                    "is_top": False,
-                })
+        for lender in sorted(bank_results, key=lambda item: status_rank.get(item.get("status"), 3)):
+            if lender.get("status") in ("close", "not_yet"):
+                for fix in lender.get("fixes", []):
+                    if not fix:
+                        continue
+                    display_fix = fix[0].lower() + fix[1:] if fix.startswith("Your ") else fix
+                    labeled_fix = f"{lender['name']}: {display_fix}"
+                    if labeled_fix.lower() not in seen_texts:
+                        seen_texts.add(labeled_fix.lower())
+                        action_items.append({
+                            "text": labeled_fix,
+                            "note": t("lender_criterion_note"),
+                            "is_top": False,
+                        })
 
         if action_items:
             for idx, item in enumerate(action_items, start=1):
                 is_first = (idx == 1)
                 bg_style = "background:#F1F9DF;border:2px solid #0F1B15;" if is_first else "background:#fff;border:1px solid #E2E5DC;"
-                tag_badge = '<span style="background:#0F1B15;color:#C6F24E;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">Top action</span>' if is_first else ''
+                tag_badge = f'<span style="background:#0F1B15;color:#C6F24E;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">{t("top_action_badge")}</span>' if is_first else ''
                 st.markdown(
                     f'<div style="{bg_style} border-radius:16px;padding:18px;margin-bottom:12px;">'
                     f'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
@@ -621,7 +664,7 @@ else:
                     unsafe_allow_html=True,
                 )
         else:
-            st.info("Your profile already meets standard readiness criteria.")
+            st.info(t("no_fixes_needed"))
 
         if st.button(t("next_to_plan"), type="primary", use_container_width=True, key="btn_next_plan"):
             st.session_state.results_section = "plan"
@@ -637,27 +680,39 @@ else:
             reset_whatif()
             st.session_state.whatif_signature = signature
 
+        m_min = min(15000, int(values.get("monthly_income", 65000)))
+        m_max = max(250000, int(values.get("monthly_income", 65000)) * 2)
+        l_min = max(1, min(50000, int(values["loan_amount"] * 0.5)))
+        l_max = max(5000000, int(values["loan_amount"] * 1.5))
+        e_min = 0
+        e_max = max(100000, int(values["existing_emi"] * 2 + 1000))
+        tenure_options = [12, 24, 36, 48, 60]
+
+        st.session_state["whatif_monthly_income"] = max(m_min, min(m_max, int(st.session_state.get("whatif_monthly_income", values.get("monthly_income", 65000)))))
+        st.session_state["whatif_loan"] = max(l_min, min(l_max, int(st.session_state.get("whatif_loan", values["loan_amount"]))))
+        st.session_state["whatif_emi"] = max(e_min, min(e_max, int(st.session_state.get("whatif_emi", values["existing_emi"]))))
+        st.session_state["whatif_util"] = max(0, min(100, int(st.session_state.get("whatif_util", values["revol_util"]))))
+        if int(st.session_state.get("whatif_tenure", values["tenure_months"])) not in tenure_options:
+            st.session_state["whatif_tenure"] = 36
+
         with st.container(border=True):
             col1, col2 = st.columns(2)
             with col1:
-                cur_m_inc = int(values.get("monthly_income", 65000))
                 monthly_salary = st.slider(
                     t("monthly_salary") + " (₹)",
-                    min_value=15000,
-                    max_value=250000,
-                    value=cur_m_inc,
+                    min_value=m_min,
+                    max_value=m_max,
                     step=2500,
                     key="whatif_monthly_income",
                     format="₹%d",
                 )
                 annual_income_equiv = monthly_salary * 12
-                st.caption(f"{format_inr(monthly_salary)} / month ({format_inr(annual_income_equiv)} / year)")
+                st.caption(f"{format_inr(monthly_salary)} {t('per_month')} ({format_inr(annual_income_equiv)} / {t('years')})")
             with col2:
                 loan = st.slider(
                     t("loan_amount") + " (₹)",
-                    min_value=max(1, min(50000, int(values["loan_amount"] * 0.5))),
-                    max_value=max(5000000, int(values["loan_amount"] * 1.5)),
-                    value=int(values["loan_amount"]),
+                    min_value=l_min,
+                    max_value=l_max,
                     step=25000,
                     key="whatif_loan",
                     format="₹%d",
@@ -668,22 +723,20 @@ else:
             with col3:
                 emi_old = st.slider(
                     t("existing_emi") + " (₹)",
-                    0,
-                    max(100000, int(values["existing_emi"] * 2 + 1000)),
-                    int(values["existing_emi"]),
+                    min_value=e_min,
+                    max_value=e_max,
                     step=1000,
                     key="whatif_emi",
                     format="₹%d",
                 )
                 st.caption(format_inr(emi_old))
             with col4:
-                util = st.slider(t("card_usage"), 0, 100, int(values["revol_util"]), step=5, key="whatif_util")
+                util = st.slider(t("card_usage"), min_value=0, max_value=100, step=5, key="whatif_util")
                 st.caption(f"{util}%")
 
             tenure = st.select_slider(
                 t("slider_tenure"),
-                options=[12, 24, 36, 48, 60],
-                value=int(values["tenure_months"]),
+                options=tenure_options,
                 format_func=lambda n: f"{n} {t('months')}",
                 key="whatif_tenure",
             )

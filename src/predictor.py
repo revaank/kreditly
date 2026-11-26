@@ -62,6 +62,11 @@ def _settings():
     return threshold, band
 
 
+def get_threshold_settings():
+    """Return the validation-tuned cutoff threshold and borderline band."""
+    return _settings()
+
+
 def _readiness_settings():
     _, _, good_max, fair_max = _threshold_settings()
     return good_max, fair_max

@@ -47,10 +47,21 @@ def _format_feature_value(key, value):
         return t("dont_know")
 
 
-def explain_reasons(features: dict, contributions: list | None = None):
+ASSUMED_FEATURE_LABELS = {
+    "open_acc": "open_accounts",
+    "total_acc": "total_accounts",
+    "mort_acc": "mort_accounts",
+    "pub_rec": "public_records",
+    "pub_rec_bankruptcies": "bankruptcies",
+    "credit_history_years": "feature_history",
+}
+
+
+def explain_reasons(features: dict, contributions: list | None = None, assumed_fields: set | None = None):
     """Turn highest-magnitude grouped SHAP values into value-specific reasons."""
     if not contributions:
         return []
+    assumed = set(assumed_fields or ())
     sentences = []
     for item in sorted(contributions, key=lambda row: abs(row.get("contribution", 0)), reverse=True)[:5]:
         feature = item["feature"]
@@ -59,12 +70,19 @@ def explain_reasons(features: dict, contributions: list | None = None):
         detail = _format_feature_value(feature, features[feature])
         moved_up = float(item.get("contribution", 0)) >= 0
         direction = "higher" if moved_up else "lower"
-        template = EXPLANATION_TEMPLATES.get(feature, {}).get(direction, "explain_generic_" + direction)
+        is_assumed = feature in assumed
+        if is_assumed:
+            feature_label = t(ASSUMED_FEATURE_LABELS.get(feature, feature))
+            text = t("explain_assumed", feature=feature_label, x=detail)
+        else:
+            template = EXPLANATION_TEMPLATES.get(feature, {}).get(direction, "explain_generic_" + direction)
+            text = t(template, x=detail)
         sentences.append({
             "feature": feature,
             "helpful": not moved_up,
+            "assumed": is_assumed,
             "contribution": float(item.get("contribution", 0)),
-            "text": t(template, x=detail),
+            "text": text,
         })
     return sentences
 

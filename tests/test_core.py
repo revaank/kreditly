@@ -277,6 +277,42 @@ class TestCore(unittest.TestCase):
     self.assertEqual(new_res["readiness_band"], "fair")
 
 
+ def test_counterfactual_respects_card_and_emi_floors(self):
+    suggestions = find_improvements(PROFILE, max_suggestions=5)
+    for sug in suggestions:
+        if sug["field"] == "revol_util":
+            self.assertGreaterEqual(sug["value"], 10)
+        if sug["field"] == "existing_emi":
+            self.assertGreaterEqual(sug["value"], round(PROFILE["existing_emi"] * 0.5 / 1000) * 1000)
+
+
+ def test_get_threshold_settings_matches_threshold_json(self):
+    from src.predictor import get_threshold_settings
+    threshold, band = get_threshold_settings()
+    self.assertAlmostEqual(threshold, 0.224, places=3)
+    self.assertAlmostEqual(band, 0.1, places=3)
+
+
+ def test_explain_reasons_assumed_fields_and_dti_wording(self):
+    from src.explainer import explain_reasons
+    token = set_language("EN")
+    try:
+        features = build_features(PROFILE)
+        contributions = [
+            {"feature": "open_acc", "contribution": 0.25},
+            {"feature": "dti", "contribution": -0.15},
+        ]
+        reasons = explain_reasons(features, contributions, assumed_fields={"open_acc"})
+        open_acc_reason = next(r for r in reasons if r["feature"] == "open_acc")
+        dti_reason = next(r for r in reasons if r["feature"] == "dti")
+        self.assertTrue(open_acc_reason["assumed"])
+        self.assertIn("typical value", open_acc_reason["text"])
+        self.assertNotIn("you report", open_acc_reason["text"])
+        self.assertIn("before this new loan", dti_reason["text"])
+    finally:
+        reset_language(token)
+
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -31,8 +31,8 @@ def find_improvements(values: dict, max_suggestions=3):
     current_term = int(values.get("tenure_months", 36))
     choices = {
         "loan_amount": _unique([round(loan * ratio / 1000) * 1000 for ratio in (0.95, 0.9, 0.8, 0.7, 0.6, 0.5)]),
-        "existing_emi": _unique([round(emi * ratio / 1000) * 1000 for ratio in (0.9, 0.75, 0.5, 0.25, 0)]),
-        "revol_util": _unique([max(0, usage - amount) for amount in (5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100)]),
+        "existing_emi": _unique([round(emi * ratio / 1000) * 1000 for ratio in (0.9, 0.75, 0.5)]),
+        "revol_util": _unique([max(10, usage - amount) for amount in (5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100)]),
         "tenure_months": [months for months in (48, 60) if months > current_term],
     }
     current = {"loan_amount": loan, "existing_emi": emi, "revol_util": usage, "tenure_months": current_term}
