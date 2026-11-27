@@ -185,90 +185,108 @@ def get_lender_key_reason(lender: dict) -> str:
 
 
 def render_lender_cards(results: list[dict]):
-    """Render six sorted lender cards with badge, key reason and full criteria in an expander."""
-    st.caption(t("rate_hint_guide_caption"))
-    for lender in sorted(results, key=lambda item: STATUS_RANK[item["status"]]):
+    """Render 15 lenders as clean rows with summary header and expand/collapse, matching design tokens."""
+    rules_meta = load_bank_rules()
+    last_checked = rules_meta.get("last_checked", "")
+
+    # Count breakdown
+    meets_c = sum(1 for x in results if x.get("status") == "meets")
+    close_c = sum(1 for x in results if x.get("status") == "close")
+    limited_c = sum(1 for x in results if x.get("status") == "limited")
+    not_yet_c = sum(1 for x in results if x.get("status") == "not_yet")
+
+    col_h_title, col_h_sum = st.columns([1, 1], vertical_alignment="center")
+    with col_h_title:
+        st.markdown('<div class="wizard-card-title" style="font-size: 24px !important; margin: 0 !important;">Lenders</div>', unsafe_allow_html=True)
+    with col_h_sum:
+        st.markdown(
+            f'<div style="text-align: right; font-size: 13px; color: var(--muted);">'
+            f'<strong style="color: #1F7A4D;">{meets_c} meet</strong> · '
+            f'<span>{close_c} close</span> · '
+            f'<span>{limited_c + not_yet_c} few rules published</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown('<div style="height: 12px;"></div>', unsafe_allow_html=True)
+
+    sorted_results = sorted(results, key=lambda item: STATUS_RANK.get(item.get("status"), 3))
+
+    show_all_key = "show_all_lenders_expanded"
+    if show_all_key not in st.session_state:
+        st.session_state[show_all_key] = False
+
+    displayed_results = sorted_results if st.session_state[show_all_key] else sorted_results[:5]
+
+    status_dot_color = {
+        "meets": "#1F7A4D",
+        "close": "#B7791F",
+        "limited": "#9CA3AF",
+        "not_yet": "#B5523B",
+    }
+
+    cibil_idx = st.session_state.get("profile", {}).get("cibil_index", 1)
+    if cibil_idx == 0:
+        rate_hint = t("rate_hint_excellent")
+    elif cibil_idx == 1:
+        rate_hint = t("rate_hint_good")
+    elif cibil_idx == 2:
+        rate_hint = t("rate_hint_average")
+    elif cibil_idx == 3:
+        rate_hint = t("rate_hint_low")
+    else:
+        rate_hint = t("rate_hint_none")
+
+    for lender in displayed_results:
+        dot_color = status_dot_color.get(lender.get("status"), "#9CA3AF")
+        rate_from = lender.get("interest_rate_from")
+        rate_to = lender.get("interest_rate_to")
+        if rate_from is not None:
+            rate_str = f"{rate_from:.1f}%–{rate_to:.1f}%" if rate_to is not None else f"from {rate_from:.1f}%"
+        else:
+            rate_str = t("bank_interest_not_published")
+
+        key_reason = get_lender_key_reason(lender)
+
         with st.container(border=True):
-            col_name, col_status = st.columns([3, 2], vertical_alignment="center")
-            with col_name:
-                st.markdown(f"### {lender['name']}")
-                badge_key = "bank_type_nbfc" if lender["type"] == "NBFC" else "bank_type_bank"
-                st.caption(f"{t(badge_key)} · {lender['product']}")
-            with col_status:
-                status = lender["status"]
-                if status == "meets":
-                    badge_text = t("qualify_badge_meets")
-                elif status == "close":
-                    badge_text = t("qualify_badge_close")
-                elif status == "limited":
-                    badge_text = t("qualify_badge_limited")
-                else:
-                    badge_text = t("qualify_badge_not_yet")
+            col_dot, col_info, col_rate = st.columns([0.4, 6.6, 3.0], vertical_alignment="center")
+            with col_dot:
                 st.markdown(
-                    f'<span class="bank-status {status}">{badge_text}</span>',
+                    f'<div style="width: 10px; height: 10px; border-radius: 50%; background: {dot_color}; margin-top: 4px;"></div>',
+                    unsafe_allow_html=True,
+                )
+            with col_info:
+                badge_type = t("bank_type_nbfc") if lender.get("type") == "NBFC" else t("bank_type_bank")
+                st.markdown(
+                    f'<div style="line-height: 1.3;">'
+                    f'<span style="font-weight: 700; font-size: 15px; color: var(--ink); margin-right: 8px;">{lender["name"]}</span>'
+                    f'<span style="font-size: 12px; color: var(--muted);">{badge_type}</span>'
+                    f'<div style="font-size: 13px; color: var(--muted); margin-top: 2px;">{key_reason}</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            with col_rate:
+                st.markdown(
+                    f'<div style="text-align: right; line-height: 1.3;">'
+                    f'<div style="font-weight: 600; font-size: 14px; color: var(--ink);">{rate_str}</div>'
+                    f'</div>',
                     unsafe_allow_html=True,
                 )
 
-            # Details on the card
-            rate_from = lender.get("interest_rate_from")
-            rate_to = lender.get("interest_rate_to")
-            if rate_from is not None:
-                if rate_to is not None:
-                    st.markdown(t("bank_interest_range", rate_from=rate_from, rate_to=rate_to))
-                else:
-                    st.markdown(t("bank_interest_from", rate=rate_from))
-
-                cibil_idx = st.session_state.get("profile", {}).get("cibil_index", 1)
-                if cibil_idx == 0:
-                    rate_hint = t("rate_hint_excellent")
-                elif cibil_idx == 1:
-                    rate_hint = t("rate_hint_good")
-                elif cibil_idx == 2:
-                    rate_hint = t("rate_hint_average")
-                elif cibil_idx == 3:
-                    rate_hint = t("rate_hint_low")
-                else:
-                    rate_hint = t("rate_hint_none")
-                st.caption(f"💡 {rate_hint}")
-            else:
-                st.markdown(t("bank_interest_not_published"))
-
-            fee = lender.get("processing_fee")
-            if fee and isinstance(fee, dict):
-                fee_text = fee.get("text_hi") if st.session_state.get("language") == "हिं" and fee.get("text_hi") else fee.get("text")
-                if fee_text:
-                    st.markdown(f'<div style="font-size:13px;color:#4A554F;"><b>{t("bank_processing_fee")}:</b> {fee_text}</div>', unsafe_allow_html=True)
-
-            if lender.get("requires_salary_account"):
-                sal_note = lender.get("salary_account_note_hi") if st.session_state.get("language") == "हिं" and lender.get("salary_account_note_hi") else lender.get("salary_account_note")
-                if sal_note:
-                    st.markdown(f'<div style="font-size:12px;color:#854D0E;background:#FEF3C7;padding:4px 8px;border-radius:6px;margin:4px 0;">ℹ️ {sal_note}</div>', unsafe_allow_html=True)
-
-            key_reason = get_lender_key_reason(lender)
-            st.markdown(f'<p style="font-size:14px;color:#34433A;margin:8px 0 10px;"><b>{t("key_reason")}:</b> {key_reason}</p>', unsafe_allow_html=True)
-
-            if lender.get("official_page"):
-                st.markdown(f'<a href="{lender["official_page"]}" target="_blank" rel="noopener noreferrer">{t("visit_official_page")} ↗</a>', unsafe_allow_html=True)
-
-            rules_meta = load_bank_rules()
-            last_checked = rules_meta.get("last_checked", "")
-            if last_checked:
-                st.caption(t("bank_checked_date", date=last_checked))
-
             with st.expander(t("see_all_rules")):
-                if lender.get("interest_rate_from") is not None:
-                    if rate_to is not None:
-                        st.markdown(t("bank_interest_range", rate_from=rate_from, rate_to=rate_to))
-                    else:
-                        st.markdown(t("bank_interest_from", rate=rate_from))
-                    rate_rule = lender["interest_rate_rule"]
-                    rate_reliability = "bank_official" if rate_rule.get("reliability") == "official" else "bank_typical"
-                    st.caption(t(rate_reliability))
-                    note = _translate_note(lender["id"], "interest_rate_from", lender["interest_rate_rule"].get("note"), lender["interest_rate_rule"].get("note_hi"))
-                    if note:
-                        st.caption(note)
-                    if rate_rule.get("source"):
-                        st.markdown(f"[{t('bank_view_source')}]({rate_rule['source']})")
+                if lender.get("requires_salary_account"):
+                    sal_note = lender.get("salary_account_note_hi") if st.session_state.get("language") == "हिं" and lender.get("salary_account_note_hi") else lender.get("salary_account_note")
+                    if sal_note:
+                        st.markdown(f'<div style="font-size:12px;color:#854D0E;background:#FEF3C7;padding:6px 10px;border-radius:8px;margin-bottom:8px;">ℹ️ {sal_note}</div>', unsafe_allow_html=True)
+
+                fee = lender.get("processing_fee")
+                if fee and isinstance(fee, dict):
+                    fee_text = fee.get("text_hi") if st.session_state.get("language") == "हिं" and fee.get("text_hi") else fee.get("text")
+                    if fee_text:
+                        st.markdown(f'<div style="font-size:13px;color:#4A554F;margin-bottom:8px;"><b>{t("bank_processing_fee")}:</b> {fee_text}</div>', unsafe_allow_html=True)
+
+                st.caption(f"💡 {rate_hint}")
+
                 for row in lender["rules"]:
                     cols = st.columns([3, 6, 1], vertical_alignment="center")
                     with cols[0]:
@@ -283,8 +301,19 @@ def render_lender_cards(results: list[dict]):
                     note = _translate_note(lender["id"], row["key"], row.get("note"), row.get("note_hi"))
                     if note:
                         st.caption(f"{t('bank_note_label')}: {note}")
-                    if row.get("source"):
-                        st.markdown(f"[{t('bank_view_source')}]({row['source']})")
+
                 if lender.get("official_page"):
-                    st.markdown(f"[{t('lender_information_page')}]({lender['official_page']})")
+                    st.markdown(f'<a href="{lender["official_page"]}" target="_blank" rel="noopener noreferrer" style="color:var(--ink);text-decoration:underline;">{t("visit_official_page")} ↗</a>', unsafe_allow_html=True)
+                if last_checked:
+                    st.caption(t("bank_checked_date", date=last_checked))
+
+    if len(sorted_results) > 5:
+        if not st.session_state[show_all_key]:
+            if st.button(f"{t('show_all_lenders')} ({len(sorted_results)}) ↓", use_container_width=True, key="btn_show_more_lenders"):
+                st.session_state[show_all_key] = True
+                st.rerun()
+        else:
+            if st.button(t("show_less_lenders"), use_container_width=True, key="btn_show_less_lenders"):
+                st.session_state[show_all_key] = False
+                st.rerun()
 

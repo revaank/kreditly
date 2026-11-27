@@ -21,6 +21,9 @@ CSS="""
   --good: #1F7A4D;
   --warn: #B7791F;
   --bad: #B5523B;
+  --tint-good: #E7F4DD;
+  --tint-warn: #FDF1DC;
+  --tint-bad: #FBE7E2;
   --navy: var(--ink);
   --lime: var(--accent);
   --emerald: var(--good);
@@ -251,11 +254,213 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock
   line-height: 1 !important;
 }
 
+/* Buttons */
+button[data-testid="baseButton-primary"] {
+  background-color: var(--accent) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+  font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: 14px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  box-shadow: 0 4px 14px rgba(198, 242, 78, 0.4) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+button[data-testid="baseButton-primary"]:hover {
+  background-color: #BBEB44 !important;
+  border-color: #BBEB44 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(198, 242, 78, 0.5) !important;
+}
+button[data-testid="baseButton-secondary"] {
+  background-color: #FFFFFF !important;
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  font-family: 'Inter', 'Mukta', sans-serif !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  box-shadow: none !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+button[data-testid="baseButton-secondary"]:hover {
+  background-color: #F8F9F6 !important;
+  border-color: #CBD0C5 !important;
+}
+
+/* Pills / Segmented Controls / Chips */
+div[data-testid="stSegmentedControl"] button,
+div[data-testid="stPills"] button {
+  border-radius: 999px !important;
+  border: 1px solid var(--line) !important;
+  background-color: #FFFFFF !important;
+  color: var(--muted) !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  padding: 0 16px !important;
+  transition: all 0.15s ease !important;
+}
+div[data-testid="stSegmentedControl"] button:hover,
+div[data-testid="stPills"] button:hover {
+  border-color: #CBD0C5 !important;
+  color: var(--ink) !important;
+}
+div[data-testid="stSegmentedControl"] button[aria-selected="true"],
+div[data-testid="stPills"] button[aria-selected="true"] {
+  background-color: #F1F9DF !important;
+  border: 2px solid var(--ink) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+}
+
+/* Results section switcher pill styling: ink pill with white text when selected */
+.results-nav-wrapper div[data-testid="stSegmentedControl"] button[aria-selected="true"],
+.results-nav-wrapper div[data-testid="stPills"] button[aria-selected="true"] {
+  background-color: #0F1B15 !important;
+  border: 1px solid #0F1B15 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+
+/* Wizard container and max widths */
+.wizard-outer-wrapper {
+  max-width: 760px;
+  margin: 0 auto 32px;
+}
+.results-outer-wrapper {
+  max-width: 1040px;
+  margin: 0 auto 32px;
+}
+
+div[data-testid="stVerticalBlock"]:has(> div > [data-testid="stVerticalBlockBorderWrapper"].wizard-card-anchor),
+div:has(> .wizard-card-anchor) {
+  max-width: 760px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.wizard-card-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+  line-height: 1.25 !important;
+  margin: 0 0 6px 0 !important;
+}
+.wizard-card-hint {
+  font-size: 15px !important;
+  color: var(--muted) !important;
+  line-height: 1.5 !important;
+  margin: 0 0 20px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+/* Where you stand hero card */
+.where-you-stand-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 20px !important;
+  padding: 28px !important;
+  margin-bottom: 24px !important;
+  box-shadow: 0 4px 20px rgba(15,27,21,0.04) !important;
+}
+.where-you-stand-card.good {
+  border-left: 6px solid #1F7A4D !important;
+}
+.where-you-stand-card.almost {
+  border-left: 6px solid #B7791F !important;
+}
+.where-you-stand-card.work {
+  border-left: 6px solid #B5523B !important;
+}
+
+.eyebrow-label {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: var(--muted) !important;
+  margin-bottom: 6px !important;
+}
+
+.where-you-stand-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif !important;
+  font-size: 40px !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+  line-height: 1.15 !important;
+  margin: 0 0 16px 0 !important;
+}
+
+/* Stat cards in a row */
+.stat-box-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 20px !important;
+  padding: 20px !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+.stat-box-num {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin: 4px 0 6px 0 !important;
+}
+
+/* Next step banner */
+.next-step-banner {
+  background: #0F1B15 !important;
+  color: #FFFFFF !important;
+  border-radius: 20px !important;
+  padding: 24px 28px !important;
+  margin: 28px 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+}
+
+/* Lender row */
+.lender-row-item {
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: border-color 0.15s ease;
+}
+.lender-row-item:hover {
+  border-color: #CBD0C5;
+}
+
+/* Number input clean label */
+.clean-num-input div[data-testid="stWidgetLabel"] label p {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+}
+
 /* Cards & Containers */
 div[data-testid="stVerticalBlockBorderWrapper"][style*="border"], .feature-card, .step-card, .panel, .result-card, .case-card {
   background: #FFFFFF !important;
   border: 1px solid #E2E5DC !important;
   border-radius: 20px !important;
+  padding: 24px 28px !important;
 }
 a.card {
   transition: transform .15s, box-shadow .15s;
@@ -362,6 +567,43 @@ def header(active=""):
         if st.button(btn_label, key="toggle_language", on_click=_toggle_language):
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
+
+def render_wizard_step_bar(current_step: int, total_steps: int = 5):
+    """Render the 5 step names with checkmarks for completed, bold ink for current, muted for future, plus thin progress line."""
+    step_keys = ["step_loan", "step_income", "step_emis", "step_credit", "step_about"]
+    names = [t(k) for k in step_keys]
+    
+    items_html = []
+    for idx, name in enumerate(names, start=1):
+        if idx < current_step:
+            cls = "step-done"
+            label = f'<span style="color:#1F7A4D;font-weight:700;margin-right:3px;">✓</span> {name}'
+        elif idx == current_step:
+            cls = "step-current"
+            label = f'<strong style="color:#0F1B15;font-weight:700;">{name}</strong>'
+        else:
+            cls = "step-future"
+            label = f'<span style="color:#4A554F;font-weight:500;">{name}</span>'
+        items_html.append(f'<span class="wizard-step-item {cls}">{label}</span>')
+
+    pct = int(round((current_step / total_steps) * 100))
+    steps_joined = " · ".join(items_html)
+
+    st.markdown(
+        f'<div class="wizard-step-header" style="margin-bottom:24px;">'
+        f'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;margin-bottom:10px;">'
+        f'{steps_joined}'
+        f'</div>'
+        f'<div style="height:4px;background:#E9ECE4;border-radius:999px;overflow:hidden;width:100%;">'
+        f'<div style="height:100%;width:{pct}%;background:#C6F24E;border-radius:999px;transition:width 0.3s ease;"></div>'
+        f'</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+def card(key: str | None = None):
+    """Return a styled white container matching the design tokens."""
+    return st.container(border=True)
 
 def chip_selector(label: str, options: list[str], default_value: str, key: str) -> str:
     """Render modern tap-to-answer chips with fallback across Streamlit versions."""
