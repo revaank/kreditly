@@ -4,10 +4,12 @@ from pathlib import Path
 import streamlit as st
 from json import JSONDecodeError
 from src.features import build_features
+from src.india_model import assess
 from src.predictor import predict, explain
 from src.explainer import explain_reasons, suggestion_text
 from src.finance import loan_summary, foir, format_inr
 from src.counterfactual import apply_change, find_improvements
+from src.profiles import DEFAULT_PROFILE, map_cibil_to_index
 from src.translations import t
 from src.ui import contribution_chart, footer, header, page_setup, render_whatif_result, result_card, section_title
 
@@ -33,9 +35,57 @@ for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky
             cols=st.columns(2)
             for col,case in zip(cols,rows[start:start+2]):
                 with col:
-                    st.markdown(f'<div class="case-card"><div class="small-label">{t("sample_only")}</div><h3>{t(case["title_key"])}</h3></div>',unsafe_allow_html=True)
+                    details = case["values"]
+                    full_profile = {**DEFAULT_PROFILE, **details}
+                    full_profile["cibil_index"] = map_cibil_to_index(full_profile.get("cibil"))
+                    band_map = {0: "excellent", 1: "good", 2: "average", 3: "low", 4: "no_history", 5: "dont_know"}
+                    india_p = {
+                        "cibil_band": band_map.get(full_profile["cibil_index"], "dont_know"),
+                        "age": full_profile.get("age", 30),
+                        "employment": "self_employed" if full_profile.get("employment") == "Self-employed" else "salaried",
+                        "credit_history_years": max(0, 2026 - full_profile.get("credit_year", 2015)) if full_profile.get("credit_year") else None,
+                        "active_loans": full_profile.get("open_acc"),
+                        "overdue_loans": full_profile.get("overdue_loans"),
+                        "missed_emi_last_6m": full_profile.get("missed_emi_last_6m"),
+                        "new_loans_last_6m": full_profile.get("new_loans_last_6m"),
+                        "loan_enquiries": full_profile.get("loan_enquiries"),
+                        "existing_emi": full_profile.get("existing_emi"),
+                    }
+                    try:
+                        ia = assess(india_p)
+                        band = ia["band"]
+                        band_label = t(f"india_band_{band}")
+                        band_bg = {"lower": "#ECFCCB", "typical": "#FEF3C7", "higher": "#FEE2E2"}.get(band, "#FEF3C7")
+                        band_color = {"lower": "#365314", "typical": "#854D0E", "higher": "#991B1B"}.get(band, "#854D0E")
+                        band_pill = f'<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:{band_bg};color:{band_color};">{band_label}</span>'
+                    except Exception:
+                        band_pill = ""
+
+                    with st.container(border=True):
+                        st.markdown(
+                            f'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+                            f'<div class="small-label">{t("sample_only")}</div>'
+                            f'{band_pill}'
+                            f'</div>'
+                            f'<h3 style="margin:4px 0 14px;">{t(case["title_key"])}</h3>',
+                            unsafe_allow_html=True,
+                        )
+                        if st.button(t("btn_try_profile"), key=f"btn_try_{case['id']}", type="primary", use_container_width=True):
+                            st.session_state.profile = dict(full_profile)
+                            st.session_state.pop("estimate", None)
+                            st.session_state.view_mode = "wizard"
+                            st.session_state.wizard_step = 1
+                            for k, v in [
+                                ("whatif_income", int(full_profile.get("annual_income", 800000))),
+                                ("whatif_loan", int(full_profile.get("loan_amount", 300000))),
+                                ("whatif_emi", int(full_profile.get("existing_emi", 5000))),
+                                ("whatif_util", int(full_profile.get("revol_util", 30))),
+                                ("whatif_tenure", int(full_profile.get("tenure_months", 36))),
+                            ]:
+                                st.session_state[k] = v
+                            st.switch_page("pages/1_Check_Eligibility.py")
+
                     with st.expander(t("view_explanation")):
-                        details=case["values"]
                         try:
                             features=build_features(details); result=predict(features)
                         except Exception:

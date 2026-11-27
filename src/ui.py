@@ -47,7 +47,7 @@ def header(active=""):
     a,b=st.columns([2.0,8.0])
     with a: st.markdown('<a class="brand" href="/"><span class="brand-mark">k</span><span>kreditly</span></a>',unsafe_allow_html=True)
     with b:
-        x,y,z,w,i,l=st.columns([1.0,1.0,1.1,1.0,1.3,1.2],gap="small")
+        x,y,z,w,g,i,l=st.columns([1.0,1.0,1.1,1.0,1.0,1.3,1.2],gap="small")
         def _safe_link(page, label):
             try:
                 st.page_link(page, label=label)
@@ -57,6 +57,7 @@ def header(active=""):
         with y: _safe_link("pages/1_Check_Eligibility.py", t("nav_check"))
         with z: _safe_link("pages/2_Sample_Cases.py", t("nav_samples"))
         with w: _safe_link("pages/4_Tools.py", t("nav_tools"))
+        with g: _safe_link("pages/5_Guide.py", t("nav_guide"))
         with i: _safe_link("pages/3_Model_Insights.py", t("nav_insights"))
         with l:
             if st.button(toggle_label,key="toggle_language",use_container_width=True,on_click=_toggle_language):
@@ -86,7 +87,47 @@ def render_running_emi(loan_amount: float, rate: float, tenure_months: int):
         f'</div>',
         unsafe_allow_html=True,
     )
-def footer(): st.markdown(f'<div class="footer">{t("footer")}</div>',unsafe_allow_html=True)
+def footer():
+    st.markdown(
+        f'<div class="footer">{t("footer")} · <a href="/About" target="_self" style="color:var(--muted);text-decoration:underline;">{t("nav_about")}</a></div>',
+        unsafe_allow_html=True,
+    )
+
+def render_feedback(key: str):
+    """Render a lightweight 'Was this helpful?' feedback widget with no tracking."""
+    st.markdown('<div style="margin-top:24px;padding-top:14px;border-top:1px solid var(--line);"></div>', unsafe_allow_html=True)
+    feedback_key = f"fb_{key}"
+    answered_key = f"fb_answered_{key}"
+
+    if st.session_state.get(answered_key):
+        st.markdown(
+            f'<div style="font-size:13px;color:#1F7A4D;padding:6px 0;">'
+            f'✅ {t("feedback_thanks")} <a href="https://github.com/revaank/kreditly/issues/new" target="_blank" rel="noopener noreferrer" style="color:#1F7A4D;text-decoration:underline;font-weight:600;">GitHub Issues ↗</a>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    col_q, col_w = st.columns([2.5, 4.5], vertical_alignment="center")
+    with col_q:
+        st.markdown(f'<span style="font-size:14px;color:#4A554F;font-weight:600;">{t("feedback_helpful_q")}</span>', unsafe_allow_html=True)
+    with col_w:
+        is_testing = "$$STREAMLIT_INTERNAL_KEY_TESTING" in st.session_state
+        if not is_testing and hasattr(st, "feedback"):
+            val = st.feedback("thumbs", key=feedback_key)
+            if val is not None:
+                st.session_state[answered_key] = True
+                st.rerun()
+        else:
+            b1, b2, _ = st.columns([1, 1, 8])
+            with b1:
+                if st.button("👍", key=f"btn_up_{key}"):
+                    st.session_state[answered_key] = True
+                    st.rerun()
+            with b2:
+                if st.button("👎", key=f"btn_down_{key}"):
+                    st.session_state[answered_key] = True
+                    st.rerun()
 def section_title(title,subtitle=None):
     st.markdown(f"## {title}")
     if subtitle: st.caption(subtitle)

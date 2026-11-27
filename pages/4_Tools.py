@@ -7,7 +7,7 @@ import streamlit as st
 from src.finance import format_inr
 from src.tools import SAFETY_QUESTIONS, app_safety_result, compare_offer, prepay
 from src.translations import t
-from src.ui import chip_selector, footer, header, page_setup, section_title
+from src.ui import chip_selector, footer, header, page_setup, render_feedback, section_title
 
 page_setup()
 header("tools")
@@ -192,6 +192,7 @@ with tab_compare:
 
     st.markdown(f'<p style="font-size:15px;color:#1F7A4D;font-weight:600;margin:16px 0 10px;">{summary_sentence}</p>', unsafe_allow_html=True)
     st.info(f"💡 **Key Fact Statement (KFS):** {t('kfs_tip_box')}")
+    render_feedback("tools_compare")
 
 
 # ==============================================================================
@@ -267,6 +268,7 @@ with tab_prepay:
     st.plotly_chart(fig_prepay, use_container_width=True, config={"displayModeBar": False})
 
     st.caption(t("prepay_rbi_rule_note"))
+    render_feedback("tools_prepay")
 
 
 # ==============================================================================
@@ -310,6 +312,7 @@ with tab_safety:
         st.markdown(f"- 🚨 [{t('safety_link_cybercrime')}](https://cybercrime.gov.in)")
 
     st.caption(t("safety_facts_line"))
+    render_feedback("tools_safety")
 
 
 # ==============================================================================
@@ -348,5 +351,7 @@ with tab_rejection:
 
     if st.button(t("rej_btn_check"), type="primary", key="btn_rej_to_check"):
         st.switch_page("pages/1_Check_Eligibility.py")
+
+    render_feedback("tools_rejection")
 
 footer()

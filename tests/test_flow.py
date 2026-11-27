@@ -40,6 +40,16 @@ class TestFlow(unittest.TestCase):
         at.run()
         self.assertFalse(at.exception)
 
+    def test_guide_page_loads_and_has_no_errors(self):
+        at = AppTest.from_file("pages/5_Guide.py", default_timeout=25)
+        at.run()
+        self.assertFalse(at.exception)
+
+    def test_about_page_loads_and_has_no_errors(self):
+        at = AppTest.from_file("pages/6_About.py", default_timeout=25)
+        at.run()
+        self.assertFalse(at.exception)
+
     def test_check_wizard_flow_and_results_sections(self):
         at = AppTest.from_file("pages/1_Check_Eligibility.py", default_timeout=25)
         at.run()

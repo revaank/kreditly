@@ -186,6 +186,7 @@ def get_lender_key_reason(lender: dict) -> str:
 
 def render_lender_cards(results: list[dict]):
     """Render six sorted lender cards with badge, key reason and full criteria in an expander."""
+    st.caption(t("rate_hint_guide_caption"))
     for lender in sorted(results, key=lambda item: STATUS_RANK[item["status"]]):
         with st.container(border=True):
             col_name, col_status = st.columns([3, 2], vertical_alignment="center")
@@ -216,6 +217,19 @@ def render_lender_cards(results: list[dict]):
                     st.markdown(t("bank_interest_range", rate_from=rate_from, rate_to=rate_to))
                 else:
                     st.markdown(t("bank_interest_from", rate=rate_from))
+
+                cibil_idx = st.session_state.get("profile", {}).get("cibil_index", 1)
+                if cibil_idx == 0:
+                    rate_hint = t("rate_hint_excellent")
+                elif cibil_idx == 1:
+                    rate_hint = t("rate_hint_good")
+                elif cibil_idx == 2:
+                    rate_hint = t("rate_hint_average")
+                elif cibil_idx == 3:
+                    rate_hint = t("rate_hint_low")
+                else:
+                    rate_hint = t("rate_hint_none")
+                st.caption(f"💡 {rate_hint}")
             else:
                 st.markdown(t("bank_interest_not_published"))
 

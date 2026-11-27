@@ -18,11 +18,20 @@
       "mort_acc": 8,
       "pub_rec": 0,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Good · 700–749",
       "loan_amount": 48000,
       "tenure_months": 36,
       "purpose": "major_purchase",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 158333,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 1,
+      "missed_emi_last_6m": 0,
+      "overdue_loans": 0,
+      "new_loans_last_6m": 0,
+      "loan_enquiries": 0
     }
   },
   {
@@ -44,11 +53,20 @@
       "mort_acc": 4,
       "pub_rec": 0,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Excellent · 750+",
       "loan_amount": 43500,
       "tenure_months": 36,
       "purpose": "major_purchase",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 208333,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 0,
+      "missed_emi_last_6m": 0,
+      "overdue_loans": 0,
+      "new_loans_last_6m": 0,
+      "loan_enquiries": 0
     }
   },
   {
@@ -70,11 +88,20 @@
       "mort_acc": 5,
       "pub_rec": 0,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Good · 700–749",
       "loan_amount": 70000,
       "tenure_months": 36,
       "purpose": "credit_card",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 116667,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 1,
+      "missed_emi_last_6m": 0,
+      "overdue_loans": 0,
+      "new_loans_last_6m": 0,
+      "loan_enquiries": 0
     }
   },
   {
@@ -96,11 +123,20 @@
       "mort_acc": 6,
       "pub_rec": 0,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Excellent · 750+",
       "loan_amount": 320000,
       "tenure_months": 36,
       "purpose": "debt_consolidation",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 241667,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 0,
+      "missed_emi_last_6m": 0,
+      "overdue_loans": 0,
+      "new_loans_last_6m": 0,
+      "loan_enquiries": 0
     }
   },
   {
@@ -122,11 +158,20 @@
       "mort_acc": 1,
       "pub_rec": 0,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Average · 650–699",
       "loan_amount": 554500,
       "tenure_months": 60,
       "purpose": "debt_consolidation",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 121667,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 2,
+      "missed_emi_last_6m": 1,
+      "overdue_loans": 1,
+      "new_loans_last_6m": 1,
+      "loan_enquiries": 2
     }
   },
   {
@@ -148,11 +193,20 @@
       "mort_acc": 0,
       "pub_rec": 0,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Average · 650–699",
       "loan_amount": 200000,
       "tenure_months": 60,
       "purpose": "debt_consolidation",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 41667,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 2,
+      "missed_emi_last_6m": 0,
+      "overdue_loans": 0,
+      "new_loans_last_6m": 1,
+      "loan_enquiries": 2
     }
   },
   {
@@ -174,11 +228,20 @@
       "mort_acc": 0,
       "pub_rec": 1,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Low · below 650",
       "loan_amount": 280000,
       "tenure_months": 60,
       "purpose": "home_improvement",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 75000,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 3,
+      "missed_emi_last_6m": 2,
+      "overdue_loans": 1,
+      "new_loans_last_6m": 2,
+      "loan_enquiries": 3
     }
   },
   {
@@ -200,11 +263,20 @@
       "mort_acc": 0,
       "pub_rec": 0,
       "bankruptcies": 0,
-      "cibil": "Don't know",
+      "cibil": "Low · below 650",
       "loan_amount": 263500,
       "tenure_months": 60,
       "purpose": "debt_consolidation",
-      "rate": 11.0
+      "rate": 11.0,
+      "monthly_income": 61000,
+      "employment_index": 0,
+      "credit_unknown": false,
+      "cibil_unknown": false,
+      "cibil_index": 3,
+      "missed_emi_last_6m": 1,
+      "overdue_loans": 0,
+      "new_loans_last_6m": 1,
+      "loan_enquiries": 2
     }
   }
 ]

@@ -24,6 +24,7 @@ from src.ui import (
     money_input,
     page_setup,
     render_emi_planner,
+    render_feedback,
     render_running_emi,
     render_whatif_result,
     result_card,
@@ -411,7 +412,7 @@ if st.session_state.view_mode == "wizard":
                     )
 
                 st.markdown("---")
-                st.caption("Pre-filled with typical defaults. You can adjust if you know your exact numbers.")
+                st.caption(t("credit_defaults_caption"))
                 if v["cibil_index"] != 4:
                     col1, col2 = st.columns(2)
                     with col1:
@@ -695,7 +696,7 @@ else:
         with st.expander(t("us_second_opinion_expander"), expanded=False):
             st.markdown(f'<p style="font-size:13px;color:#4A554F;line-height:1.5;margin-bottom:12px;">{t("us_second_opinion_note")}</p>', unsafe_allow_html=True)
             with st.container(border=True):
-                st.markdown(f'<div class="small-label">HISTORICAL CHECK</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="small-label">{t("us_data_label")}</div>', unsafe_allow_html=True)
                 col_mtitle, col_mbadge = st.columns([3, 2], vertical_alignment="center")
                 with col_mtitle:
                     st.markdown(f'<h3 style="font-size:20px;margin:2px 0 6px;font-family:\'Space Grotesk\',sans-serif;color:#0F1B15;">{t("us_model_card_title")}</h3>', unsafe_allow_html=True)
@@ -949,7 +950,7 @@ else:
     # ==================== Section 5: Save ====================
     elif cur_sec == "save":
         st.markdown(f"### {t('download')}")
-        st.caption("Save a copy of your educational readiness report or share it.")
+        st.caption(t("save_report_caption"))
 
         report = build_download_report(result, summary, ratio, bank_results)
 
@@ -1004,4 +1005,5 @@ else:
 
         st.info(f"🛡️ **RBI Safety Reminder:** {t('bank_footer')}")
 
+    render_feedback("results")
     footer()
