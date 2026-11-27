@@ -13,6 +13,7 @@ os.environ.setdefault("MPLCONFIGDIR", os.path.join(tempfile.gettempdir(), "matpl
 from streamlit.testing.v1 import AppTest
 from src.bank_checker import check_all, count_meets
 from src.counterfactual import apply_change
+from src.features import build_features
 from src.finance import emi, foir, loan_summary
 from src.predictor import predict, readiness_band
 from src.translations import set_language, reset_language, t
@@ -116,6 +117,42 @@ class TestFlow(unittest.TestCase):
         self.assertEqual(at.session_state["wizard_step"], 1)
         self.assertEqual(at.session_state["profile"]["loan_amount"], 300000)
         self.assertEqual(at.session_state["profile"]["monthly_income"], 65000)
+
+    def test_results_pills_navigation(self):
+        """Test that results section chips switch on the first click, stay on re-click, and survive language toggle."""
+        at = AppTest.from_file("pages/1_Check_Eligibility.py", default_timeout=25)
+        at.run()
+        v = dict(at.session_state["profile"])
+        feats = build_features(v)
+        pred = predict(feats)
+        at.session_state["estimate"] = {"features": feats, "result": pred, "values": v}
+        at.session_state["view_mode"] = "results"
+        at.run()
+        self.assertEqual(at.session_state["results_section"], "result")
+
+        # Click Fixes chip ONCE -> switches immediately
+        at.button_group(key="results_section_nav").select("Fixes").run()
+        self.assertFalse(at.exception)
+        self.assertEqual(at.session_state["results_section"], "fixes")
+
+        # Click active chip Fixes again (deselection) -> stays on fixes
+        at.button_group(key="results_section_nav").unselect("Fixes").run()
+        self.assertFalse(at.exception)
+        self.assertEqual(at.session_state["results_section"], "fixes")
+
+        # Toggle to Hindi -> section preserved
+        at.session_state["language"] = "हिं"
+        at.run()
+        self.assertFalse(at.exception)
+        self.assertEqual(at.session_state["results_section"], "fixes")
+        self.assertEqual(at.session_state["results_section_nav"], "सुधार")
+
+        # Toggle back to English -> section preserved
+        at.session_state["language"] = "EN"
+        at.run()
+        self.assertFalse(at.exception)
+        self.assertEqual(at.session_state["results_section"], "fixes")
+        self.assertEqual(at.session_state["results_section_nav"], "Fixes")
 
 if __name__ == "__main__":
     unittest.main()

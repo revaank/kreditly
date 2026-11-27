@@ -178,6 +178,12 @@ if "wizard_step" not in st.session_state:
 if "view_mode" not in st.session_state:
     st.session_state.view_mode = "wizard" if "estimate" not in st.session_state else "results"
 
+SECTION_KEYS = ["result", "banks", "fixes", "plan", "save"]
+
+def go_section(key: str):
+    st.session_state["_pending_section"] = key
+    st.rerun()
+
 # -------------------------------------------------------------
 # WIZARD MODE: 5 short screens, ONE screen visible at a time
 # -------------------------------------------------------------
@@ -497,12 +503,11 @@ if st.session_state.view_mode == "wizard":
                                     "result": prediction,
                                     "values": dict(v),
                                 }
-                                st.session_state.results_section = "result"
                                 st.session_state.view_mode = "results"
+                                go_section("result")
                             except Exception:
                                 st.error(t("model_error"))
                                 st.stop()
-                        st.rerun()
 
     footer()
 
@@ -538,18 +543,21 @@ else:
     sec_keys = [k for k, _ in sections]
     sec_labels = [label for _, label in sections]
 
-    cur_sec = st.session_state.get("results_section", "result")
-    cur_label = dict(sections).get(cur_sec, sec_labels[0])
-
+    label_of = dict(sections)                    # key -> label
+    key_of = {v: k for k, v in sections}         # label -> key
+    # apply a section change requested by a button on the previous run (must happen BEFORE the widget is created)
+    pending = st.session_state.pop("_pending_section", None)
+    if pending:
+        st.session_state["results_section_nav"] = label_of[pending]
+    if st.session_state.get("results_section_nav") not in key_of:
+        st.session_state["results_section_nav"] = label_of[st.session_state.get("results_section", "result")]
     st.markdown('<div class="results-nav-wrapper">', unsafe_allow_html=True)
-    selected_sec_label = chip_selector(t("section_label"), sec_labels, cur_label, key="results_section_nav")
+    st.pills(t("section_label"), sec_labels, key="results_section_nav", label_visibility="collapsed")
     st.markdown('</div>', unsafe_allow_html=True)
-    # Sync selected section key
-    for k, label in sections:
-        if label == selected_sec_label:
-            st.session_state.results_section = k
-            cur_sec = k
-            break
+    # pills can be deselected (value None) -> keep the last section
+    chosen = st.session_state.get("results_section_nav")
+    cur_sec = key_of.get(chosen, st.session_state.get("results_section", "result"))
+    st.session_state.results_section = cur_sec
 
     _scroll_top_if_changed(f"results_{cur_sec}")
 
@@ -780,12 +788,10 @@ else:
         )
         if not target_href:
             if st.button(banner_btn, type="primary", use_container_width=True, key="btn_next_action_step"):
-                st.session_state.results_section = "fixes"
-                st.rerun()
+                go_section("fixes")
 
         if st.button(t("next_to_banks"), type="secondary", use_container_width=True, key="btn_next_banks"):
-            st.session_state.results_section = "banks"
-            st.rerun()
+            go_section("banks")
 
     # ==================== Section 2: Banks ====================
     elif cur_sec == "banks":
@@ -799,8 +805,7 @@ else:
         render_lender_cards(bank_results)
 
         if st.button(t("next_to_fixes"), type="primary", use_container_width=True, key="btn_next_fixes"):
-            st.session_state.results_section = "fixes"
-            st.rerun()
+            go_section("fixes")
 
     # ==================== Section 3: Fixes ====================
     elif cur_sec == "fixes":
@@ -876,8 +881,7 @@ else:
             st.info(t("no_fixes_needed"))
 
         if st.button(t("next_to_plan"), type="primary", use_container_width=True, key="btn_next_plan"):
-            st.session_state.results_section = "plan"
-            st.rerun()
+            go_section("plan")
 
     # ==================== Section 4: Plan ====================
     elif cur_sec == "plan":
@@ -988,8 +992,7 @@ else:
             render_bank_results(new_values, compact=True)
 
         if st.button(t("next_to_save"), type="primary", use_container_width=True, key="btn_next_save"):
-            st.session_state.results_section = "save"
-            st.rerun()
+            go_section("save")
 
     # ==================== Section 5: Save ====================
     elif cur_sec == "save":
