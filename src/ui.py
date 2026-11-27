@@ -29,44 +29,63 @@ CSS="""
 }
 
 html, body, [class*="css"] {
-  font-family: 'Inter', 'Mukta', sans-serif;
+  font-family: 'Inter', 'Mukta', system-ui, sans-serif;
   color: var(--ink);
+  margin: 0;
 }
 
+body {
+  background: #F5F6F1;
+}
+
+/* Page background: soft glow + faint dot grid */
 .stApp {
   background:
-    radial-gradient(900px 520px at 82% 6%, rgba(198,242,78,.45), transparent 60%),
-    radial-gradient(700px 480px at 4% 36%, rgba(31,122,77,.12), transparent 62%),
-    radial-gradient(800px 600px at 96% 80%, rgba(198,242,78,.22), transparent 60%),
-    #F5F6F1;
-  background-attachment: fixed;
+    radial-gradient(900px 520px at 82% 8%, rgba(198,242,78,.28), transparent 60%),
+    radial-gradient(700px 480px at 4% 38%, rgba(31,122,77,.08), transparent 62%),
+    radial-gradient(800px 600px at 96% 78%, rgba(198,242,78,.14), transparent 60%),
+    #F5F6F1 !important;
+  background-attachment: fixed !important;
   color: var(--ink);
 }
 
 .stApp::before {
   content: "";
-  background-image: radial-gradient(rgba(15,27,21,.14) 1px, transparent 1.3px);
-  background-size: 22px 22px;
-  mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 30%, transparent 60%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 30%, transparent 60%);
   position: fixed;
   inset: 0;
   pointer-events: none;
+  background-image: radial-gradient(rgba(15,27,21,.10) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.55) 35%, transparent 70%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.55) 35%, transparent 70%);
   z-index: 0;
 }
 
+/* Make ALL Streamlit wrappers transparent */
 [data-testid="stAppViewContainer"],
-[data-testid="stHeader"],
+[data-testid="stMain"],
 .main,
-.block-container {
+.block-container,
+[data-testid="stHeader"],
+[data-testid="stVerticalBlock"],
+[data-testid="stMarkdownContainer"] {
   background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .block-container {
   position: relative;
   z-index: 1;
-  max-width: 1200px;
-  padding: 1.2rem 1.5rem 3.5rem;
+  max-width: 1264px !important;
+  padding-top: 0 !important;
+  padding-left: 32px !important;
+  padding-right: 32px !important;
+  padding-bottom: 72px !important;
+}
+
+div[data-testid="stMarkdownContainer"] > p {
+  margin: 0 !important;
 }
 
 #MainMenu, footer {
@@ -82,186 +101,93 @@ header[data-testid="stHeader"] {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, .sg {
   font-family: 'Space Grotesk', 'Mukta', sans-serif !important;
   color: var(--ink) !important;
   letter-spacing: -0.025em;
-}
-
-p, span, label, div {
-  font-family: 'Inter', 'Mukta', sans-serif;
 }
 
 small, .muted, [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
   color: var(--muted) !important;
 }
 
-/* Brand */
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none !important;
-  color: var(--ink) !important;
-  font-family: 'Space Grotesk', 'Mukta', sans-serif;
-  font-size: 22px;
-  letter-spacing: -0.03em;
-  font-weight: 700;
+/* Header */
+.hdr-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 22px 32px;
 }
-
-.brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--ink);
-  display: grid;
-  place-items: center;
-  color: var(--accent);
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 22px;
-  line-height: 1;
-  font-weight: 700;
-}
-
-.topline {
-  height: 1px;
-  background: var(--line);
-  margin: 14px 0 32px;
-}
-
-/* Cards */
-.feature-card, .step-card, .panel, .result-card, .case-card, [data-testid="stVerticalBlockBorderWrapper"] {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(15,27,21,.025);
-}
-
-.panel {
-  position: sticky;
-  top: 16px;
-  z-index: 1;
-}
-
-/* Navigation items in header */
-.header-container {
-  margin-bottom: 2px;
-}
-.header-nav-wrap {
+.hdr-nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 34px;
 }
-.nav-item div[data-testid="stPageLink-NavLink"] a,
-.nav-item a {
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: 6px 2px !important;
-  min-height: auto !important;
-  height: auto !important;
-  font-family: 'Inter', 'Mukta', sans-serif !important;
-  font-size: 15px !important;
-  display: inline-flex !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
+.hdr-nav a {
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none !important;
+  color: #4A554F !important;
+  transition: color 0.15s;
 }
-.nav-item.nav-link-idle div[data-testid="stPageLink-NavLink"] a,
-.nav-item.nav-link-idle a {
-  color: var(--muted) !important;
-  font-weight: 500 !important;
-  border-bottom: 2px solid transparent !important;
+.hdr-nav a:hover {
+  color: #0F1B15 !important;
 }
-.nav-item.nav-link-idle div[data-testid="stPageLink-NavLink"] a:hover,
-.nav-item.nav-link-idle a:hover {
-  color: var(--ink) !important;
-}
-.nav-item.nav-link-active div[data-testid="stPageLink-NavLink"] a,
-.nav-item.nav-link-active a {
-  color: var(--ink) !important;
+.hdr-nav a.active {
+  color: #0F1B15 !important;
   font-weight: 600 !important;
-  border-bottom: 2px solid var(--ink) !important;
+  border-bottom: 2px solid #0F1B15 !important;
+  padding-bottom: 4px !important;
 }
 
-/* Language switch */
-.header-lang-wrap {
-  display: flex;
-  justify-content: flex-end;
-}
-.header-lang-wrap button[key="toggle_language"],
-.header-lang-wrap button[data-testid="stBaseButton-secondary"] {
-  background: var(--soft) !important;
-  border: 1px solid var(--line) !important;
+/* Header Language pill */
+.hdr-lang-wrap button {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E5DC !important;
   border-radius: 999px !important;
-  padding: 3px 6px !important;
-  min-height: 36px !important;
-  height: 36px !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
+  padding: 3px !important;
+  min-height: 34px !important;
+  height: 34px !important;
   box-shadow: none !important;
-  color: var(--muted) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
 }
-.header-lang-wrap button[key="toggle_language"]:hover,
-.header-lang-wrap button[data-testid="stBaseButton-secondary"]:hover {
-  background: #E5E8E0 !important;
-  border-color: #D7DCCF !important;
+.hdr-lang-wrap button:hover {
+  border-color: #CBD0C5 !important;
+  background: #FFFFFF !important;
 }
-.header-lang-wrap.lang-en button p {
-  color: var(--muted) !important;
+.hdr-lang-wrap button p {
+  color: #4A554F !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
+  font-size: 13px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
 }
-.header-lang-wrap.lang-en button strong {
-  background: var(--ink) !important;
+.hdr-lang-wrap button strong {
+  background: #0F1B15 !important;
   color: #FFFFFF !important;
-  padding: 4px 10px !important;
   border-radius: 999px !important;
-  margin-right: 2px !important;
-  display: inline-block !important;
-}
-.header-lang-wrap.lang-hi button p {
-  color: var(--muted) !important;
-}
-.header-lang-wrap.lang-hi button strong {
-  background: var(--ink) !important;
-  color: #FFFFFF !important;
-  padding: 4px 10px !important;
-  border-radius: 999px !important;
-  margin-left: 2px !important;
+  padding: 6px 12px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
   display: inline-block !important;
 }
 
-/* Mobile header */
-@media (max-width: 640px) {
-  .header-container > div[data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-  }
-  .header-container div[data-testid="column"]:has(.header-brand-wrap) {
-    order: 1 !important;
-    flex: 1 1 auto !important;
-    width: auto !important;
-  }
-  .header-container div[data-testid="column"]:has(.header-lang-wrap) {
-    order: 2 !important;
-    flex: 0 0 auto !important;
-    width: auto !important;
-  }
-  .header-container div[data-testid="column"]:has(.header-nav-wrap) {
-    order: 3 !important;
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-    margin-top: 10px !important;
-    padding-bottom: 4px !important;
-  }
-  .header-nav-wrap {
-    justify-content: flex-start !important;
-    gap: 20px !important;
-    min-width: 290px !important;
-  }
+/* Cards & Components */
+.card, [data-testid="stVerticalBlockBorderWrapper"], .feature-card, .step-card, .panel, .result-card, .case-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E5DC;
+  border-radius: 20px;
+}
+a.card {
+  transition: transform .15s, box-shadow .15s;
+}
+a.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -18px rgba(15,27,21,.4);
 }
 
 /* Progress bars */
@@ -278,98 +204,22 @@ div[data-testid="stProgress"] > div > div > div {
   background-color: var(--good) !important;
 }
 
-/* Global button styling */
-.stButton>button, .stPageLink a, .stLinkButton a {
-  border-radius: 14px !important;
-  min-height: 46px;
-  padding: 0 20px !important;
-  font-weight: 600 !important;
-  font-family: 'Inter', 'Mukta', sans-serif !important;
-}
-.stButton>button[kind="primary"], .stButton>button[data-testid="stBaseButton-primary"] {
-  background: var(--ink) !important;
-  color: #FFFFFF !important;
-  border: 1px solid var(--ink) !important;
-}
-
-/* Hero CTA specific button */
-.st-key-hero_cta button, .st-key-hero_cta div[data-testid="stBaseButton-primary"] {
-  background: var(--accent) !important;
-  color: var(--ink) !important;
-  font-weight: 700 !important;
-  font-size: 17px !important;
-  padding: 18px 30px !important;
-  border-radius: 14px !important;
-  border: none !important;
-  box-shadow: 0 10px 24px -12px rgba(90,120,10,.55) !important;
-  min-height: 54px !important;
-  transition: all 0.2s ease !important;
-}
-.st-key-hero_cta button:hover, .st-key-hero_cta div[data-testid="stBaseButton-primary"]:hover {
-  background: #B8E63A !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 12px 28px -10px rgba(90,120,10,.6) !important;
-}
-.st-key-hero_cta button p, .st-key-hero_cta button span {
-  color: var(--ink) !important;
-  font-weight: 700 !important;
-}
-
-/* Result Cards and Badges */
-.bank-status {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 700;
-}
-.bank-status.meets { background: #ECFCCB; color: #365314; }
-.bank-status.close { background: #FEF3C7; color: #854D0E; }
-.bank-status.limited { background: #F3F4F6; color: #4B5563; }
-.bank-status.not_yet { background: #FEE2E2; color: #991B1B; }
-
 /* Sliders */
 .stSlider [data-testid="stSliderThumbValue"],.stSlider [data-testid="stSliderTickBarMin"],.stSlider [data-testid="stSliderTickBarMax"]{display:none!important}
 .stSlider:has([aria-label*="Repayment"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-label*="Repayment"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-label*="Repayment"]) [data-testid="stSliderThumbValue"],.stSlider:has([aria-label*="अवधि"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-label*="अवधि"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-label*="अवधि"]) [data-testid="stSliderThumbValue"],.stSlider:has([aria-valuetext*="month"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-valuetext*="month"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-valuetext*="month"]) [data-testid="stSliderThumbValue"],.stSlider:has([aria-valuetext*="महीने"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-valuetext*="महीने"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-valuetext*="महीने"]) [data-testid="stSliderThumbValue"]{display:block!important}
 
-/* Footer */
-.footer-wrap {
-  border-top: 1px solid var(--line);
-  margin-top: 64px;
-  padding-top: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--muted);
-}
-.footer-left {
-  color: var(--muted);
-}
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.footer-right a {
-  color: var(--muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 0.15s ease;
-}
-.footer-right a:hover {
-  color: var(--ink);
-}
-.footer-sep {
-  color: var(--line);
-}
-@media (max-width: 640px) {
-  .footer-wrap {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+/* Responsive */
+@media (max-width: 900px) {
+  .hdr-container > div[data-testid="stHorizontalBlock"] {
+    flex-wrap: wrap !important;
+    gap: 14px !important;
+  }
+  .hdr-nav {
+    order: 3 !important;
+    width: 100% !important;
+    gap: 24px !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
   }
 }
 </style>"""
@@ -390,50 +240,39 @@ def header(active=""):
         st.session_state.language = "EN"
     cur_lang = st.session_state.language
 
-    st.markdown('<div class="header-container">', unsafe_allow_html=True)
-    col_logo, col_nav, col_lang = st.columns([2.0, 6.2, 1.8], vertical_alignment="center")
+    st.markdown('<div class="hdr-container">', unsafe_allow_html=True)
+    col_logo, col_nav, col_lang = st.columns([2.5, 6.5, 1.5], vertical_alignment="center")
 
     with col_logo:
         st.markdown(
-            '<div class="header-brand-wrap">'
-            '<a class="brand" href="/" target="_self">'
-            '<span class="brand-mark">k</span>'
-            '<span>kreditly</span>'
-            '</a>'
-            '</div>',
+            '<a href="/" target="_self" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #0F1B15;">'
+            '<span style="width: 34px; height: 34px; border-radius: 10px; background: #0F1B15; display: grid; place-items: center; color: #C6F24E; font-family: \'Space Grotesk\', sans-serif; font-size: 20px; font-weight: 700; line-height: 1;">k</span>'
+            '<span class="sg" style="font-size: 20px; font-weight: 700; letter-spacing: -0.02em;">kreditly</span>'
+            '</a>',
             unsafe_allow_html=True,
         )
 
     with col_nav:
-        st.markdown('<div class="header-nav-wrap">', unsafe_allow_html=True)
-        c1, c2, c3, c4 = st.columns(4)
-
-        def _render_nav_item(col, page, label, is_act):
-            cls = "nav-link-active" if is_act else "nav-link-idle"
-            with col:
-                st.markdown(f'<div class="nav-item {cls}">', unsafe_allow_html=True)
-                try:
-                    st.page_link(page, label=label)
-                except Exception:
-                    href = "/" + page.split("/")[-1].replace(".py", "")
-                    st.markdown(f'<a href="{href}">{label}</a>', unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
-
-        _render_nav_item(c1, "pages/1_Check_Eligibility.py", t("nav_check"), active == "check")
-        _render_nav_item(c2, "pages/4_Tools.py", t("nav_tools"), active == "tools")
-        _render_nav_item(c3, "pages/5_Guide.py", t("nav_guide"), active == "guide")
-        _render_nav_item(c4, "pages/2_Sample_Cases.py", t("nav_samples"), active == "samples")
-        st.markdown('</div>', unsafe_allow_html=True)
+        def _act(k): return 'class="active"' if active == k else ''
+        st.markdown(
+            f'<nav class="hdr-nav">'
+            f'<a href="/Check_Eligibility" target="_self" {_act("check")}>{t("nav_check")}</a>'
+            f'<a href="/Tools" target="_self" {_act("tools")}>{t("nav_tools")}</a>'
+            f'<a href="/Guide" target="_self" {_act("guide")}>{t("nav_guide")}</a>'
+            f'<a href="/Sample_Cases" target="_self" {_act("samples")}>{t("nav_samples")}</a>'
+            f'</nav>',
+            unsafe_allow_html=True,
+        )
 
     with col_lang:
         cls_lang = "lang-en" if cur_lang == "EN" else "lang-hi"
-        st.markdown(f'<div class="header-lang-wrap lang-pill-wrap {cls_lang}">', unsafe_allow_html=True)
-        btn_label = "**EN** | हिं" if cur_lang == "EN" else "EN | **हिं**"
-        if st.button(btn_label, key="toggle_language", use_container_width=True, on_click=_toggle_language):
+        st.markdown(f'<div class="hdr-lang-wrap {cls_lang}">', unsafe_allow_html=True)
+        btn_label = "**EN** · हिं" if cur_lang == "EN" else "EN · **हिं**"
+        if st.button(btn_label, key="toggle_language", on_click=_toggle_language):
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('</div><div class="topline"></div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def chip_selector(label: str, options: list[str], default_value: str, key: str) -> str:
     """Render modern tap-to-answer chips with fallback across Streamlit versions."""
@@ -460,14 +299,13 @@ def render_running_emi(loan_amount: float, rate: float, tenure_months: int):
     )
 def footer():
     st.markdown(
-        f'<div class="footer-wrap">'
-        f'<div class="footer-left">{t("footer_built_by")}</div>'
-        f'<div class="footer-right">'
-        f'<a href="/Model_Insights" target="_self">{t("footer_how_models_work")}</a>'
-        f'<span class="footer-sep">·</span>'
-        f'<a href="/About" target="_self">{t("footer_about_privacy")}</a>'
+        f'<footer style="border-top: 1px solid #E2E5DC; max-width: 1200px; margin: 48px auto 0; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; font-size: 13px; color: #4A554F; background: transparent !important;">'
+        f'<div>{t("footer_built_by")}</div>'
+        f'<div style="display: flex; gap: 16px;">'
+        f'<a href="/Model_Insights" target="_self" style="color: #4A554F; text-decoration: underline; text-underline-offset: 2px;">{t("footer_how_models_work")}</a>'
+        f'<a href="/About" target="_self" style="color: #4A554F; text-decoration: underline; text-underline-offset: 2px;">{t("footer_about_privacy")}</a>'
         f'</div>'
-        f'</div>',
+        f'</footer>',
         unsafe_allow_html=True,
     )
 
