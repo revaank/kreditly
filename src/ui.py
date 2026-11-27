@@ -290,9 +290,11 @@ button[data-testid="baseButton-secondary"]:hover {
   border-color: #CBD0C5 !important;
 }
 
-/* Pills / Segmented Controls / Chips */
+/* Pills / Segmented Controls / Chips (Streamlit 1.41 uses stButtonGroup) */
+div[data-testid="stButtonGroup"] button,
 div[data-testid="stSegmentedControl"] button,
-div[data-testid="stPills"] button {
+div[data-testid="stPills"] button,
+div[data-baseweb="button-group"] button {
   border-radius: 999px !important;
   border: 1px solid var(--line) !important;
   background-color: #FFFFFF !important;
@@ -301,29 +303,159 @@ div[data-testid="stPills"] button {
   min-height: 38px !important;
   font-size: 14px !important;
   font-weight: 500 !important;
-  padding: 0 16px !important;
+  padding: 0 18px !important;
   transition: all 0.15s ease !important;
+  box-shadow: none !important;
 }
+div[data-testid="stButtonGroup"] button *,
+div[data-testid="stSegmentedControl"] button *,
+div[data-testid="stPills"] button *,
+div[data-baseweb="button-group"] button * {
+  color: inherit !important;
+  font-weight: inherit !important;
+}
+div[data-testid="stButtonGroup"] button:hover,
 div[data-testid="stSegmentedControl"] button:hover,
-div[data-testid="stPills"] button:hover {
+div[data-testid="stPills"] button:hover,
+div[data-baseweb="button-group"] button:hover {
   border-color: #CBD0C5 !important;
   color: var(--ink) !important;
+  background-color: #F8F9F6 !important;
 }
+div[data-testid="stButtonGroup"] button[aria-checked="true"],
+div[data-testid="stButtonGroup"] button[aria-selected="true"],
+div[data-testid="stSegmentedControl"] button[aria-checked="true"],
 div[data-testid="stSegmentedControl"] button[aria-selected="true"],
-div[data-testid="stPills"] button[aria-selected="true"] {
+div[data-testid="stPills"] button[aria-checked="true"],
+div[data-testid="stPills"] button[aria-selected="true"],
+div[data-baseweb="button-group"] button[aria-checked="true"],
+div[data-baseweb="button-group"] button[aria-selected="true"] {
   background-color: #F1F9DF !important;
   border: 2px solid var(--ink) !important;
   color: var(--ink) !important;
   font-weight: 700 !important;
 }
+div[data-testid="stButtonGroup"] button[aria-checked="true"] *,
+div[data-testid="stButtonGroup"] button[aria-selected="true"] *,
+div[data-testid="stSegmentedControl"] button[aria-checked="true"] *,
+div[data-testid="stSegmentedControl"] button[aria-selected="true"] *,
+div[data-testid="stPills"] button[aria-checked="true"] *,
+div[data-testid="stPills"] button[aria-selected="true"] *,
+div[data-baseweb="button-group"] button[aria-checked="true"] *,
+div[data-baseweb="button-group"] button[aria-selected="true"] * {
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+}
 
 /* Results section switcher pill styling: ink pill with white text when selected */
+.results-nav-wrapper div[data-testid="stButtonGroup"] button[aria-checked="true"],
+.results-nav-wrapper div[data-testid="stButtonGroup"] button[aria-selected="true"],
 .results-nav-wrapper div[data-testid="stSegmentedControl"] button[aria-selected="true"],
 .results-nav-wrapper div[data-testid="stPills"] button[aria-selected="true"] {
   background-color: #0F1B15 !important;
   border: 1px solid #0F1B15 !important;
   color: #FFFFFF !important;
   font-weight: 600 !important;
+}
+.results-nav-wrapper div[data-testid="stButtonGroup"] button[aria-checked="true"] *,
+.results-nav-wrapper div[data-testid="stButtonGroup"] button[aria-selected="true"] *,
+.results-nav-wrapper div[data-testid="stSegmentedControl"] button[aria-selected="true"] *,
+.results-nav-wrapper div[data-testid="stPills"] button[aria-selected="true"] * {
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+
+/* Clean Input Boxes (NumberInput, TextInput, Selectbox) */
+div[data-testid="stWidgetLabel"] label p,
+div[data-testid="stWidgetLabel"] p {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  margin-bottom: 6px !important;
+}
+
+div[data-testid="stNumberInputContainer"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  background: #FFFFFF !important;
+  overflow: hidden !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  box-shadow: 0 1px 2px rgba(15,27,21,0.03) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  margin-top: 4px !important;
+}
+div[data-testid="stNumberInputContainer"]:hover {
+  border-color: #CBD0C5 !important;
+}
+div[data-testid="stNumberInputContainer"]:focus-within,
+div[data-testid="stNumberInputContainer"].focused {
+  border-color: var(--ink) !important;
+  box-shadow: 0 0 0 1px var(--ink) !important;
+}
+div[data-testid="stNumberInputContainer"] input[data-testid="stNumberInputField"],
+div[data-testid="stNumberInputContainer"] input {
+  font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  height: 100% !important;
+  padding: 0 14px !important;
+}
+button[data-testid="stNumberInputStepDown"],
+button[data-testid="stNumberInputStepUp"] {
+  background: #F8F9F6 !important;
+  border-left: 1px solid var(--line) !important;
+  color: var(--muted) !important;
+  height: 100% !important;
+  width: 36px !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+button[data-testid="stNumberInputStepDown"]:hover,
+button[data-testid="stNumberInputStepUp"]:hover {
+  background: #EEF0EA !important;
+  color: var(--ink) !important;
+}
+
+/* BaseWeb Text Inputs and Selects */
+div[data-baseweb="input"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  background-color: #FFFFFF !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  box-shadow: 0 1px 2px rgba(15,27,21,0.03) !important;
+  transition: border-color 0.15s ease !important;
+}
+div[data-baseweb="input"]:hover {
+  border-color: #CBD0C5 !important;
+}
+div[data-baseweb="input"]:focus-within {
+  border-color: var(--ink) !important;
+  box-shadow: 0 0 0 1px var(--ink) !important;
+}
+div[data-baseweb="input"] input {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  color: var(--ink) !important;
+  padding: 0 14px !important;
+}
+
+div[data-baseweb="select"] > div {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  background-color: #FFFFFF !important;
+  min-height: 46px !important;
+  box-shadow: 0 1px 2px rgba(15,27,21,0.03) !important;
+  transition: border-color 0.15s ease !important;
+}
+div[data-baseweb="select"] > div:hover {
+  border-color: #CBD0C5 !important;
+}
+div[data-baseweb="select"] > div:focus-within {
+  border-color: var(--ink) !important;
+  box-shadow: 0 0 0 1px var(--ink) !important;
 }
 
 /* Style Streamlit tabs as clean pill rows (ink pill with white text for active) */
