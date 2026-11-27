@@ -151,9 +151,6 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) {
   max-width: 1200px !important;
   margin: 0 auto !important;
   padding: 22px 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -162,13 +159,11 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) > div[data-testid="column"] {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock"] {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  gap: 0 !important;
 }
 
 .hdr-nav {
@@ -176,6 +171,7 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock
   align-items: center;
   justify-content: center;
   gap: 34px;
+  flex-wrap: nowrap;
 }
 .hdr-nav a {
   font-size: 15px !important;
@@ -184,7 +180,7 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock
   text-decoration: none !important;
   color: #4A554F !important;
   transition: color 0.15s ease;
-  white-space: nowrap;
+  white-space: nowrap !important;
 }
 .hdr-nav a:hover {
   color: #0F1B15 !important;
@@ -200,6 +196,7 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock
 .hdr-lang-wrap {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -217,8 +214,14 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock
   padding: 3px !important;
   min-height: 34px !important;
   height: 34px !important;
+  width: auto !important;
+  min-width: 96px !important;
   box-shadow: none !important;
   cursor: pointer !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 .hdr-lang-wrap button:hover {
   border-color: #CBD0C5 !important;
@@ -230,8 +233,11 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock
   padding: 0 4px !important;
   font-size: 13px !important;
   display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
+  justify-content: center !important;
   gap: 4px !important;
+  white-space: nowrap !important;
 }
 .hdr-lang-wrap button strong {
   background: #0F1B15 !important;
@@ -241,6 +247,8 @@ div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock
   font-weight: 600 !important;
   font-size: 13px !important;
   display: inline-block !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
 }
 
 /* Cards & Containers */
@@ -276,17 +284,34 @@ div[data-testid="stProgress"] > div > div > div {
 .stSlider:has([aria-label*="Repayment"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-label*="Repayment"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-label*="Repayment"]) [data-testid="stSliderThumbValue"],.stSlider:has([aria-label*="अवधि"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-label*="अवधि"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-label*="अवधि"]) [data-testid="stSliderThumbValue"],.stSlider:has([aria-valuetext*="month"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-valuetext*="month"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-valuetext*="month"]) [data-testid="stSliderThumbValue"],.stSlider:has([aria-valuetext*="महीने"]) [data-testid="stSliderTickBarMin"],.stSlider:has([aria-valuetext*="महीने"]) [data-testid="stSliderTickBarMax"],.stSlider:has([aria-valuetext*="महीने"]) [data-testid="stSliderThumbValue"]{display:block!important}
 
 /* Responsive */
-@media (max-width: 900px) {
-  .hdr-container > div[data-testid="stHorizontalBlock"] {
+@media (max-width: 640px) {
+  div[data-testid="stHorizontalBlock"]:has(.hdr-nav) {
     flex-wrap: wrap !important;
-    gap: 14px !important;
+    padding: 16px 20px !important;
+    gap: 12px 0 !important;
   }
-  .hdr-nav {
+  div[data-testid="stHorizontalBlock"]:has(.hdr-nav) > div[data-testid="column"]:nth-child(1) {
+    order: 1 !important;
+    width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+  div[data-testid="stHorizontalBlock"]:has(.hdr-nav) > div[data-testid="column"]:nth-child(3) {
+    order: 2 !important;
+    width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+  div[data-testid="stHorizontalBlock"]:has(.hdr-nav) > div[data-testid="column"]:nth-child(2) {
     order: 3 !important;
     width: 100% !important;
-    gap: 24px !important;
+    flex: 0 0 100% !important;
+    margin-top: 8px !important;
+  }
+  .hdr-nav {
     justify-content: flex-start !important;
+    gap: 20px !important;
     overflow-x: auto !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch;
   }
 }
 </style>"""
@@ -307,14 +332,13 @@ def header(active=""):
         st.session_state.language = "EN"
     cur_lang = st.session_state.language
 
-    st.markdown('<div class="hdr-container">', unsafe_allow_html=True)
-    col_logo, col_nav, col_lang = st.columns([2.5, 6.5, 1.5], vertical_alignment="center")
+    col_logo, col_nav, col_lang = st.columns([2.2, 6.0, 1.6], vertical_alignment="center", gap="small")
 
     with col_logo:
         st.markdown(
-            '<a href="/" target="_self" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #0F1B15;">'
-            '<span style="width: 34px; height: 34px; border-radius: 10px; background: #0F1B15; display: grid; place-items: center; color: #C6F24E; font-family: \'Space Grotesk\', sans-serif; font-size: 20px; font-weight: 700; line-height: 1;">k</span>'
-            '<span class="sg" style="font-size: 20px; font-weight: 700; letter-spacing: -0.02em;">kreditly</span>'
+            '<a href="/" target="_self" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #0F1B15; white-space: nowrap;">'
+            '<span style="width: 34px; height: 34px; border-radius: 10px; background: #0F1B15; display: grid; place-items: center; color: #C6F24E; font-family: \'Space Grotesk\', sans-serif; font-size: 20px; font-weight: 700; line-height: 1; flex-shrink: 0;">k</span>'
+            '<span class="sg" style="font-size: 20px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap;">kreditly</span>'
             '</a>',
             unsafe_allow_html=True,
         )
@@ -338,8 +362,6 @@ def header(active=""):
         if st.button(btn_label, key="toggle_language", on_click=_toggle_language):
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 def chip_selector(label: str, options: list[str], default_value: str, key: str) -> str:
     """Render modern tap-to-answer chips with fallback across Streamlit versions."""
