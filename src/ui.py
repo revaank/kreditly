@@ -665,6 +665,11 @@ div[data-testid="stProgress"] > div > div > div {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+div[data-testid="stVerticalBlockBorderWrapper"]:not(.st-emotion-cache-0){background:#FFFFFF !important;border:1px solid #E2E5DC !important;border-radius:20px !important;padding:24px 28px !important;}
+div[data-testid="stHorizontalBlock"]:has(.hdr-nav){width:100% !important;}
+div[data-testid="stHorizontalBlock"]:has(.hdr-nav) > div{min-width:0 !important;}
+div[data-testid="stHorizontalBlock"]:has(.hdr-nav) *{white-space:nowrap !important;}
 </style>"""
 
 def page_setup():
