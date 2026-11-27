@@ -1,5 +1,7 @@
 body{margin:0}
 a{color:#0F1B15;text-decoration:none}
+[data-testid="stMarkdownContainer"] a, [data-testid="stMarkdownContainer"] a:visited { color: inherit !important; text-decoration: none !important; }
+[data-testid="stMarkdownContainer"] a *{ text-decoration: none !important; }
 .sg{font-family:'Space Grotesk',sans-serif}
 .card{background:#FFFFFF;border:1px solid #E2E5DC;border-radius:20px}
 .muted{color:#4A554F}

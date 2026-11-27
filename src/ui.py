@@ -74,6 +74,28 @@ body {
   border: none !important;
 }
 
+div[data-testid="stVerticalBlockBorderWrapper"] {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+div[data-testid="stVerticalBlockBorderWrapper"]:not([style*="border"]) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+div[data-testid="column"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+div[data-testid="column"] > div {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .block-container {
   position: relative;
   z-index: 1;
@@ -81,15 +103,28 @@ body {
   padding-top: 0 !important;
   padding-left: 32px !important;
   padding-right: 32px !important;
-  padding-bottom: 72px !important;
+  padding-bottom: 24px !important;
 }
 
 div[data-testid="stMarkdownContainer"] > p {
   margin: 0 !important;
 }
 
-#MainMenu, footer {
-  visibility: hidden;
+/* Link overrides */
+[data-testid="stMarkdownContainer"] a, [data-testid="stMarkdownContainer"] a:visited {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+[data-testid="stMarkdownContainer"] a * {
+  text-decoration: none !important;
+}
+
+#MainMenu, footer[data-testid="stFooter"], .stApp > footer {
+  visibility: hidden !important;
+}
+.kd-footer {
+  visibility: visible !important;
+  display: flex !important;
 }
 
 header[data-testid="stHeader"] {
@@ -112,11 +147,30 @@ small, .muted, [data-testid="stCaptionContainer"], [data-testid="stCaptionContai
 }
 
 /* Header */
-.hdr-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 22px 32px;
+div[data-testid="stHorizontalBlock"]:has(.hdr-nav) {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 22px 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
+div[data-testid="stHorizontalBlock"]:has(.hdr-nav) > div[data-testid="column"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.hdr-nav) [data-testid="stVerticalBlock"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  gap: 0 !important;
+}
+
 .hdr-nav {
   display: flex;
   align-items: center;
@@ -124,11 +178,13 @@ small, .muted, [data-testid="stCaptionContainer"], [data-testid="stCaptionContai
   gap: 34px;
 }
 .hdr-nav a {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
   text-decoration: none !important;
   color: #4A554F !important;
-  transition: color 0.15s;
+  transition: color 0.15s ease;
+  white-space: nowrap;
 }
 .hdr-nav a:hover {
   color: #0F1B15 !important;
@@ -141,6 +197,19 @@ small, .muted, [data-testid="stCaptionContainer"], [data-testid="stCaptionContai
 }
 
 /* Header Language pill */
+.hdr-lang-wrap {
+  display: flex;
+  justify-content: flex-end;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.hdr-lang-wrap div[data-testid="stButton"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: auto !important;
+}
 .hdr-lang-wrap button {
   background: #FFFFFF !important;
   border: 1px solid #E2E5DC !important;
@@ -149,8 +218,6 @@ small, .muted, [data-testid="stCaptionContainer"], [data-testid="stCaptionContai
   min-height: 34px !important;
   height: 34px !important;
   box-shadow: none !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
   cursor: pointer !important;
 }
 .hdr-lang-wrap button:hover {
@@ -176,11 +243,11 @@ small, .muted, [data-testid="stCaptionContainer"], [data-testid="stCaptionContai
   display: inline-block !important;
 }
 
-/* Cards & Components */
-.card, [data-testid="stVerticalBlockBorderWrapper"], .feature-card, .step-card, .panel, .result-card, .case-card {
-  background: #FFFFFF;
-  border: 1px solid #E2E5DC;
-  border-radius: 20px;
+/* Cards & Containers */
+div[data-testid="stVerticalBlockBorderWrapper"][style*="border"], .feature-card, .step-card, .panel, .result-card, .case-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E5DC !important;
+  border-radius: 20px !important;
 }
 a.card {
   transition: transform .15s, box-shadow .15s;
@@ -299,7 +366,7 @@ def render_running_emi(loan_amount: float, rate: float, tenure_months: int):
     )
 def footer():
     st.markdown(
-        f'<footer style="border-top: 1px solid #E2E5DC; max-width: 1200px; margin: 48px auto 0; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; font-size: 13px; color: #4A554F; background: transparent !important;">'
+        f'<footer class="kd-footer" style="border-top: 1px solid #E2E5DC; max-width: 1200px; margin: 48px auto 0; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; font-size: 13px; color: #4A554F; background: transparent !important;">'
         f'<div>{t("footer_built_by")}</div>'
         f'<div style="display: flex; gap: 16px;">'
         f'<a href="/Model_Insights" target="_self" style="color: #4A554F; text-decoration: underline; text-underline-offset: 2px;">{t("footer_how_models_work")}</a>'
