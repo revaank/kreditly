@@ -670,6 +670,13 @@ div[data-testid="stVerticalBlockBorderWrapper"]:not(.st-emotion-cache-0){backgro
 div[data-testid="stHorizontalBlock"]:has(.hdr-nav){width:100% !important;}
 div[data-testid="stHorizontalBlock"]:has(.hdr-nav) > div{min-width:0 !important;}
 div[data-testid="stHorizontalBlock"]:has(.hdr-nav) *{white-space:nowrap !important;}
+
+button[data-testid="stBaseButton-pills"], button[data-testid="stBaseButton-pillsActive"]{height:38px !important;min-height:38px !important;padding:0 16px !important;border-radius:999px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;background:#FFFFFF !important;border:1px solid #E2E5DC !important;box-shadow:none !important;color:#0F1B15 !important;}
+button[data-testid="stBaseButton-pills"]:hover{border-color:#B9C0B5 !important;background:#FAFBF7 !important;}
+button[data-testid="stBaseButton-pillsActive"]{background:#F1F9DF !important;border:2px solid #0F1B15 !important;font-weight:600 !important;}
+button[data-testid="stBaseButton-pills"] p, button[data-testid="stBaseButton-pillsActive"] p, button[data-testid="stBaseButton-pills"] [data-testid="stMarkdownContainer"], button[data-testid="stBaseButton-pillsActive"] [data-testid="stMarkdownContainer"]{margin:0 !important;padding:0 !important;line-height:1 !important;font-size:14px !important;color:#0F1B15 !important;text-decoration:none !important;display:flex !important;align-items:center !important;}
+button[data-testid="stBaseButton-pillsActive"] p{font-weight:600 !important;}
+button[data-testid="stBaseButton-primary"], button[data-testid="stBaseButton-primary"] p{color:#0F1B15 !important;}
 </style>"""
 
 def page_setup():
