@@ -326,14 +326,68 @@ div[data-testid="stPills"] button[aria-selected="true"] {
   font-weight: 600 !important;
 }
 
-/* Wizard container and max widths */
-.wizard-outer-wrapper {
-  max-width: 760px;
-  margin: 0 auto 32px;
+/* Style Streamlit tabs as clean pill rows (ink pill with white text for active) */
+div[data-testid="stTabs"] [data-baseweb="tab-list"] {
+  gap: 10px !important;
+  background-color: transparent !important;
+  border-bottom: none !important;
+  padding: 4px 0 16px 0 !important;
+  overflow-x: auto !important;
 }
-.results-outer-wrapper {
+div[data-testid="stTabs"] [data-baseweb="tab"] {
+  border-radius: 999px !important;
+  border: 1px solid var(--line) !important;
+  background-color: #FFFFFF !important;
+  color: var(--muted) !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  padding: 0 18px !important;
+  transition: all 0.15s ease !important;
+  white-space: nowrap !important;
+}
+div[data-testid="stTabs"] [data-baseweb="tab"]:hover {
+  border-color: #CBD0C5 !important;
+  color: var(--ink) !important;
+}
+div[data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] {
+  background-color: #0F1B15 !important;
+  border: 1px solid #0F1B15 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+div[data-testid="stTabs"] [data-baseweb="tab-border"] {
+  display: none !important;
+}
+
+/* Page Intro block */
+.page-intro-block {
   max-width: 1040px;
-  margin: 0 auto 32px;
+  margin: 0 auto 28px;
+}
+.page-intro-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--good);
+  margin-bottom: 6px;
+}
+.page-intro-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.15;
+  margin: 0 0 8px 0;
+}
+.page-intro-subtitle {
+  font-size: 16px;
+  color: #4A554F;
+  line-height: 1.5;
+  margin: 0;
 }
 
 div[data-testid="stVerticalBlock"]:has(> div > [data-testid="stVerticalBlockBorderWrapper"].wizard-card-anchor),
@@ -417,7 +471,99 @@ div:has(> .wizard-card-anchor) {
   margin: 4px 0 6px 0 !important;
 }
 
-/* Next step banner */
+/* Compare offer card top accents */
+.offer-card-a {
+  border-top: 4px solid var(--good) !important;
+}
+.offer-card-b {
+  border-top: 4px solid var(--ink) !important;
+}
+.offer-card-c {
+  border-top: 4px solid var(--warn) !important;
+}
+
+/* Compare clean table */
+.compare-clean-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  margin: 16px 0;
+  background: #FFFFFF;
+}
+.compare-clean-table th,
+.compare-clean-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.compare-clean-table th {
+  background: #F8F9F6;
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+}
+.compare-clean-table th:first-child {
+  text-align: left;
+}
+.compare-clean-table td {
+  text-align: right;
+  font-family: 'Space Grotesk', 'Inter', monospace;
+  color: var(--ink);
+}
+.compare-clean-table td:first-child {
+  text-align: left;
+  font-family: 'Inter', 'Mukta', sans-serif;
+  font-weight: 600;
+  color: var(--muted);
+}
+.compare-clean-table tr:last-child td {
+  border-bottom: none;
+}
+.compare-clean-table .highlight-col {
+  background-color: #F1F9DF !important;
+}
+
+/* Safety question row */
+.safety-q-card {
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+}
+
+/* Numbered step circle (lime) */
+.num-circle-lime {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* CIBIL scale bar */
+.cibil-scale-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 12px 0 8px;
+  width: 100%;
+}
+.cibil-scale-segment {
+  height: 100%;
+}
 .next-step-banner {
   background: #0F1B15 !important;
   color: #FFFFFF !important;
@@ -675,6 +821,18 @@ def render_feedback(key: str):
                 if st.button("👎", key=f"btn_down_{key}"):
                     st.session_state[answered_key] = True
                     st.rerun()
+def page_intro(eyebrow: str, title: str, subtitle: str | None = None):
+    """Render a common page intro block with green eyebrow, 40px Space Grotesk title, and 16px muted subtitle."""
+    sub_html = f'<div class="page-intro-subtitle">{subtitle}</div>' if subtitle else ''
+    st.markdown(
+        f'<div class="page-intro-block">'
+        f'<div class="page-intro-eyebrow">{eyebrow}</div>'
+        f'<h1 class="page-intro-title">{title}</h1>'
+        f'{sub_html}'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
 def section_title(title,subtitle=None):
     st.markdown(f"## {title}")
     if subtitle: st.caption(subtitle)

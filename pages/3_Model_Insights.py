@@ -9,12 +9,13 @@ import streamlit as st
 from src.bank_checker import load_bank_rules
 from src.india_model import FEATURE_LABELS
 from src.translations import EN, _request_language, t
-from src.ui import footer, header, page_setup, section_title
+from src.ui import footer, header, page_intro, page_setup
 
 page_setup()
 header("insights")
-section_title(t("insights_title"))
-st.info(t("insights_header_info"))
+
+st.markdown('<div class="results-outer-wrapper">', unsafe_allow_html=True)
+page_intro("ANALYTICS", t("insights_title"), t("insights_header_info"))
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS_PATH = ROOT / "models" / "metrics.json"
@@ -282,8 +283,11 @@ with tab_datasets:
         "India (L&T)": ["Indian vehicle loans", "233,154", "Missed first EMI", "0.60", "Main repayment card"],
         "Synthetic India (Kaggle, Archit Sharma)": ["Generated", syn_rows, "Approved / rejected", syn_auc, "No"],
     })
-    st.table(comp_df.set_index(""))
+    st.markdown('<div class="compare-clean-table">', unsafe_allow_html=True)
+    st.dataframe(comp_df.set_index(""), use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown(f"#### {t('insights_datasets_why_rejected')}")
     st.write(t("insights_datasets_rejected_body"))
 
+st.markdown('</div>', unsafe_allow_html=True)
 footer()

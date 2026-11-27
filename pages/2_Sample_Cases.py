@@ -11,14 +11,18 @@ from src.finance import loan_summary, foir, format_inr
 from src.counterfactual import apply_change, find_improvements
 from src.profiles import DEFAULT_PROFILE, map_cibil_to_index
 from src.translations import t
-from src.ui import contribution_chart, footer, header, page_setup, render_whatif_result, result_card, section_title
+from src.ui import contribution_chart, footer, header, page_intro, page_setup, render_whatif_result, result_card, section_title
 
 def reset_sample(case_id):
     """Restore that example's original values in its what-if controls."""
     for name in ("income","loan","emi","util","tenure"):
         st.session_state.pop(f"sample_{name}_{case_id}",None)
 
-page_setup(); header("samples"); section_title(t("cases_title")); st.info(t("sample_banner_note"))
+page_setup()
+header("samples")
+
+st.markdown('<div class="results-outer-wrapper">', unsafe_allow_html=True)
+page_intro("EXAMPLES", t("cases_title"), t("sample_banner_note"))
 try:
     cases=json.loads((Path(__file__).resolve().parents[1]/"src"/"sample_cases.json").read_text(encoding="utf-8"))
     if not isinstance(cases,list) or not cases or any(
@@ -27,7 +31,10 @@ try:
     ):
         raise ValueError("empty sample list")
 except (OSError,JSONDecodeError,TypeError,ValueError):
-    st.error(t("sample_error")); footer(); st.stop()
+    st.error(t("sample_error"))
+    st.markdown('</div>', unsafe_allow_html=True)
+    footer()
+    st.stop()
 for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky"]):
     with tab:
         rows=[case for case in cases if case["group"]==group]
@@ -64,10 +71,15 @@ for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky
                     with st.container(border=True):
                         st.markdown(
                             f'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
-                            f'<div class="small-label">{t("sample_only")}</div>'
+                            f'<div class="eyebrow-label">EXAMPLE</div>'
                             f'{band_pill}'
                             f'</div>'
-                            f'<h3 style="margin:4px 0 14px;">{t(case["title_key"])}</h3>',
+                            f'<h3 style="font-family:\'Space Grotesk\',sans-serif;font-size:20px;margin:4px 0 10px;color:var(--ink);">{t(case["title_key"])}</h3>'
+                            f'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">'
+                            f'<span style="background:#F5F6F1;border:1px solid #E2E5DC;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);">{format_inr(round(full_profile.get("annual_income", 780000)/12))} pay</span>'
+                            f'<span style="background:#F5F6F1;border:1px solid #E2E5DC;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);">{format_inr(full_profile.get("loan_amount", 300000))} loan</span>'
+                            f'<span style="background:#F5F6F1;border:1px solid #E2E5DC;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);">{full_profile.get("cibil", "Good")}</span>'
+                            f'</div>',
                             unsafe_allow_html=True,
                         )
                         if st.button(t("btn_try_profile"), key=f"btn_try_{case['id']}", type="primary", use_container_width=True):
@@ -83,21 +95,32 @@ for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky
                                 ("whatif_tenure", int(full_profile.get("tenure_months", 36))),
                             ]:
                                 st.session_state[k] = v
-                            st.switch_page("pages/1_Check_Eligibility.py")
+                            try:
+                                st.switch_page("pages/1_Check_Eligibility.py")
+                            except Exception:
+                                pass
 
-                    with st.expander(t("view_explanation")):
-                        try:
-                            features=build_features(details); result=predict(features)
-                        except Exception:
-                            st.warning(t("model_error")); continue
-                        result_card(result,show_risk_details=False)
-                        try:
-                            contributions=explain(features)
-                        except Exception:
-                            contributions=[]; st.warning(t("explanation_error"))
-                        for reason in explain_reasons(features,contributions): st.markdown(("✅ " if reason["helpful"] else "⚠️ ")+reason["text"])
-                        contribution_chart(contributions,height=260)
-                        if result["label"]!="STRONG":
+                        with st.expander(t("view_explanation")):
+                            try:
+                                features=build_features(details); result=predict(features)
+                            except Exception:
+                                st.warning(t("model_error")); continue
+                            result_card(result,show_risk_details=False)
+                            try:
+                                contributions=explain(features)
+                            except Exception:
+                                contributions=[]; st.warning(t("explanation_error"))
+                            for reason in explain_reasons(features,contributions): st.markdown(("✅ " if reason["helpful"] else "⚠️ ")+reason["text"])
+                            contribution_chart(contributions,height=260)
+                            if result["label"]!="STRONG":
+                                improvements=find_improvements(details)
+                                if improvements:
+                                    st.markdown(f"**{t('improve')}:**")
+                                    for imp in improvements:
+                                        changes=[suggestion_text(change) for change in imp["changes"]]
+                                        pts = round(imp["risk_reduction"]*100)
+                                        txt = t("points_lower", points=pts) if pts != 1 else t("point_lower", points=pts)
+                                        st.markdown(f"- {' + '.join(changes)} ({txt})")
                             section_title(t("improve"))
                             try:
                                 suggestions=find_improvements(details)
@@ -129,4 +152,5 @@ for tab, group in zip(st.tabs([t("strong_tab"),t("risky_tab")]),["strong","risky
                         st.caption(f'{t("monthly_emi")}: {format_inr(monthly)} · {t("salary_emi")}: {salary_share:.1f}%')
                         st.button(t("reset"),key=f"reset_{case['id']}",on_click=reset_sample,args=(case["id"],))
                         st.caption(t("dummy_notice"))
+st.markdown('</div>', unsafe_allow_html=True)
 footer()

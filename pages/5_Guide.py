@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import streamlit as st
 from src.translations import t
-from src.ui import chip_selector, footer, header, page_setup, section_title
+from src.ui import chip_selector, footer, header, page_intro, page_setup
 
 page_setup()
 header("guide")
-section_title(t("guide_title"), t("guide_subtitle"))
+
+st.markdown('<div class="results-outer-wrapper">', unsafe_allow_html=True)
+page_intro("GUIDE", t("guide_title"), t("guide_subtitle"))
 
 tab_cibil, tab_glossary, tab_docs = st.tabs([
     t("guide_tab_cibil"),
@@ -19,6 +21,26 @@ tab_cibil, tab_glossary, tab_docs = st.tabs([
 # TAB A — CIBIL basics
 # ==============================================================================
 with tab_cibil:
+    # Horizontal colour scale (300 -> 900)
+    st.markdown(
+        f'<div style="background:#FFFFFF;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:20px;">'
+        f'<div class="eyebrow-label">CIBIL SCORE RANGE (300 – 900)</div>'
+        f'<div class="cibil-scale-bar">'
+        f'<div class="cibil-scale-segment" style="width:35%;background:#B5523B;"></div>'
+        f'<div class="cibil-scale-segment" style="width:15%;background:#B7791F;"></div>'
+        f'<div class="cibil-scale-segment" style="width:15%;background:#84CC16;"></div>'
+        f'<div class="cibil-scale-segment" style="width:35%;background:#1F7A4D;"></div>'
+        f'</div>'
+        f'<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);flex-wrap:wrap;gap:8px;">'
+        f'<div><span style="color:#B5523B;font-weight:700;">●</span> &lt;650 Low</div>'
+        f'<div><span style="color:#B7791F;font-weight:700;">●</span> 650–699 Average</div>'
+        f'<div><span style="color:#84CC16;font-weight:700;">●</span> 700–749 Good</div>'
+        f'<div><span style="color:#1F7A4D;font-weight:700;">●</span> 750+ Excellent</div>'
+        f'</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
     cibil_sections = [
         ("cibil_what_title", "cibil_what_body", "📊"),
         ("cibil_bands_title", "cibil_bands_body", "🎯"),
@@ -28,10 +50,19 @@ with tab_cibil:
         ("cibil_time_title", "cibil_time_body", "⏱️"),
     ]
 
-    for title_k, body_k, icon in cibil_sections:
-        with st.container(border=True):
-            st.markdown(f"#### {icon} {t(title_k)}")
-            st.markdown(f'<p style="font-size:14px;color:#35443A;line-height:1.6;margin:0;">{t(body_k)}</p>', unsafe_allow_html=True)
+    for start in range(0, len(cibil_sections), 2):
+        col1, col2 = st.columns(2)
+        for col, (title_k, body_k, icon) in zip([col1, col2], cibil_sections[start:start+2]):
+            with col:
+                with st.container(border=True):
+                    st.markdown(
+                        f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+                        f'<span class="num-circle-lime" style="font-size:16px;">{icon}</span>'
+                        f'<span style="font-size:16px;font-weight:700;color:var(--ink);font-family:\'Space Grotesk\',sans-serif;">{t(title_k)}</span>'
+                        f'</div>'
+                        f'<p style="font-size:14px;color:var(--muted);line-height:1.6;margin:0;">{t(body_k)}</p>',
+                        unsafe_allow_html=True,
+                    )
 
 
 # ==============================================================================
@@ -75,8 +106,11 @@ with tab_glossary:
     else:
         for term_text, desc_text in filtered:
             with st.container(border=True):
-                st.markdown(f"**{term_text}**")
-                st.markdown(f'<p style="font-size:14px;color:#4A554F;line-height:1.5;margin:4px 0 0;">{desc_text}</p>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div style="font-size:15px;font-weight:700;color:var(--ink);font-family:\'Space Grotesk\',sans-serif;margin-bottom:4px;">{term_text}</div>'
+                    f'<div style="font-size:14px;color:var(--muted);line-height:1.5;">{desc_text}</div>',
+                    unsafe_allow_html=True,
+                )
 
 
 # ==============================================================================
@@ -125,7 +159,11 @@ with tab_docs:
     total_docs = len(active_keys)
     progress_val = checked_count / total_docs
     st.progress(progress_val)
-    st.caption(f"📋 **{t('docs_ready_count', ready=checked_count, total=total_docs)}**")
+    st.markdown(f'<div style="font-size:14px;font-weight:600;color:var(--ink);margin:8px 0;">📋 {t("docs_ready_count", ready=checked_count, total=total_docs)}</div>', unsafe_allow_html=True)
+    if checked_count == total_docs:
+        st.markdown(f'<div style="background:#E7F4DD;border:1px solid #1F7A4D;border-radius:12px;padding:12px 16px;color:#1F7A4D;font-weight:700;margin-bottom:12px;">🎉 You\'re ready to apply! All essential documents are checked.</div>', unsafe_allow_html=True)
+
     st.info(f"ℹ️ {t('docs_note')}")
 
+st.markdown('</div>', unsafe_allow_html=True)
 footer()
