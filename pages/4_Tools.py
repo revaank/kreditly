@@ -13,12 +13,25 @@ page_setup()
 header("tools")
 section_title(t("tools_title"), t("tools_subtitle"))
 
-tab_compare, tab_prepay, tab_safety, tab_rejection = st.tabs([
-    t("tools_tab_compare"),
-    t("tools_tab_prepay"),
-    t("tools_tab_safety"),
-    t("tools_tab_rejection"),
-])
+tab_param = str(st.query_params.get("tab", "")).lower()
+tab_order = ["compare", "prepay", "safety", "rejected"]
+if tab_param in ["prepay", "safety", "rejected"]:
+    tab_order.remove(tab_param)
+    tab_order.insert(0, tab_param)
+
+tab_labels = {
+    "compare": t("tools_tab_compare"),
+    "prepay": t("tools_tab_prepay"),
+    "safety": t("tools_tab_safety"),
+    "rejected": t("tools_tab_rejection"),
+}
+
+created_tabs = st.tabs([tab_labels[k] for k in tab_order])
+tab_map = dict(zip(tab_order, created_tabs))
+tab_compare = tab_map["compare"]
+tab_prepay = tab_map["prepay"]
+tab_safety = tab_map["safety"]
+tab_rejection = tab_map["rejected"]
 
 # ==============================================================================
 # TAB A — Compare offers

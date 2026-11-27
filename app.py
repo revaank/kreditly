@@ -1,182 +1,594 @@
-"""Kreditly's home page for an educational historical-model demonstration."""
-import json
-from pathlib import Path
+"""Kreditly home page: loan readiness preparation for first-time borrowers in India."""
+from __future__ import annotations
 
+from datetime import datetime
 import streamlit as st
 
-from src.bank_checker import check_all, count_meets, load_bank_rules
-from src.counterfactual import find_improvements
-from src.explainer import suggestion_text
-from src.features import build_features
-from src.finance import format_inr, loan_summary
-from src.predictor import predict
+from src.bank_checker import load_bank_rules
 from src.translations import t
-from src.ui import footer, header, page_setup, section_title
-
-HOME_COPY = {
-    "EN": {
-        "pill": "Free · 2 minutes · No sign-up",
-        "title": "Know where you stand before a bank says no.",
-        "subtext": "Explore a loan-readiness estimate, compare published lender criteria, and see practical next steps. This is educational information, not a credit decision.",
-        "example": "See an example result",
-        "trust1": "Doesn't touch your CIBIL score",
-        "trust2": "Your details stay in this session",
-        "trust3": "Source links for lender rules",
-        "sample": "Example result",
-        "lenders": "Lender criteria matched",
-        "fix": "A practical next step",
-        "sample_fix": "Consider a smaller loan amount to reduce the monthly EMI.",
-        "sample_good_note": "Low credit card limit usage and steady employment support this profile.",
-        "lender_caption": "Published criteria from {count} lenders",
-        "features_title": "A clearer first step",
-        "feature1": "Published lender criteria",
-        "feature1_body": "Compare your details with the rules and source links we have.",
-        "feature2": "Practical next steps",
-        "feature2_body": "Explore different ways to improve affordability before applying.",
-        "feature3": "What-if planner",
-        "feature3_body": "Change loan details and see how the estimate and lender matches respond.",
-        "feature4": "EMI planner",
-        "feature4_body": "Compare estimated monthly payments across repayment periods.",
-    },
-    "हिं": {
-        "pill": "मुफ़्त · 2 मिनट · साइन अप नहीं",
-        "title": "बैंक के मना करने से पहले अपनी स्थिति समझें।",
-        "subtext": "ऋण तैयारी का अनुमान देखें, प्रकाशित ऋणदाता मानदंडों की तुलना करें और व्यावहारिक अगले कदम जानें। यह शैक्षिक जानकारी है, क्रेडिट निर्णय नहीं।",
-        "example": "उदाहरण परिणाम देखें",
-        "trust1": "आपका CIBIL स्कोर प्रभावित नहीं होता",
-        "trust2": "आपकी जानकारी इसी सेशन में रहती है",
-        "trust3": "ऋणदाता नियमों के स्रोत लिंक",
-        "sample": "उदाहरण परिणाम",
-        "lenders": "ऋणदाता मानदंड पूरे",
-        "fix": "एक व्यावहारिक अगला कदम",
-        "sample_fix": "मासिक EMI घटाने के लिए कम ऋण राशि पर विचार करें।",
-        "sample_good_note": "कम कार्ड उपयोग और नियमित रोज़गार इस प्रोफ़ाइल को मज़बूत बनाते हैं।",
-        "lender_caption": "{count} ऋणदाताओं के प्रकाशित मानदंड",
-        "features_title": "एक बेहतर शुरुआत",
-        "feature1": "प्रकाशित ऋणदाता मानदंड",
-        "feature1_body": "अपनी जानकारी की उपलब्ध नियमों और स्रोत लिंक से तुलना करें।",
-        "feature2": "व्यावहारिक अगले कदम",
-        "feature2_body": "आवेदन से पहले भुगतान क्षमता बेहतर करने के अलग-अलग तरीके देखें।",
-        "feature3": "क्या हो अगर प्लानर",
-        "feature3_body": "ऋण विवरण बदलें और अनुमान तथा ऋणदाता मिलान में बदलाव देखें।",
-        "feature4": "EMI प्लानर",
-        "feature4_body": "अलग-अलग भुगतान अवधियों की अनुमानित मासिक किस्त की तुलना करें।",
-    },
-}
-
-
-def home_text(key: str, **values) -> str:
-    language = st.session_state.get("language", "EN")
-    template = HOME_COPY.get(language, HOME_COPY["EN"])[key]
-    if values and isinstance(template, str):
-        try:
-            return template.format(**values)
-        except Exception:
-            return template
-    return template
-
-
-@st.cache_data(show_spinner=False)
-def _sample_preview_data():
-    profile = {
-        "age": 32, "employment": "Salaried", "job_years": 6, "home": "own_loan",
-        "credit_year": 2010, "annual_income": 1200000, "existing_emi": 5000,
-        "card_bill": 10000, "revol_util": 5, "open_acc": 5, "total_acc": 15,
-        "mort_acc": 1, "pub_rec": 0, "bankruptcies": 0, "cibil": "Good · 700–749",
-        "loan_amount": 300000, "tenure_months": 36, "purpose": "debt_consolidation", "rate": 11.0,
-    }
-    features = build_features(profile)
-    estimate = predict(features)
-    bank_results = check_all(profile)
-    summary = loan_summary(profile["loan_amount"], profile["rate"], profile["tenure_months"])
-    improvements = find_improvements(profile, max_suggestions=1)
-    return {
-        "band": estimate.get("readiness_band", "good"),
-        "risk": float(estimate.get("risk", 0.0)),
-        "meets": count_meets(bank_results),
-        "total_lenders": len(bank_results),
-        "emi": summary["emi"],
-        "improvements": improvements,
-    }
-
+from src.ui import footer, header, page_setup
 
 page_setup()
 header("home")
+
+# Custom styles for landing page components
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-.stApp{background:#F5F6F1;color:#0F1B15;font-family:Inter,Arial,sans-serif}.block-container{max-width:980px;padding:1.5rem 1.5rem 3.5rem}.brand{font:700 23px 'Space Grotesk',sans-serif!important;color:#0F1B15!important}.brand-mark{background:#0F1B15!important;color:#C6F24E!important}.topline{background:#E2E5DC!important}[data-testid="stSidebarCollapsedControl"],[data-testid="collapsedControl"]{display:none!important}
-.hero-box{text-align:center;padding:40px 10px 24px;max-width:780px;margin:0 auto}
-.home-title{font-family:'Space Grotesk',sans-serif!important;font-size:clamp(38px,5vw,56px)!important;line-height:1.08!important;letter-spacing:-.045em!important;color:#0F1B15!important;margin:0 0 16px}
-.hero-copy{font:400 18px/1.6 Inter,Arial,sans-serif;color:#4A554F;max-width:640px;margin:0 auto 28px}
-.hero-pill{display:inline-flex;background:#fff;border:1px solid #E2E5DC;border-radius:999px;padding:8px 16px;margin:0 auto 20px;color:#4A554F;font-size:13px;font-weight:600}
-.cta-wrap{max-width:340px;margin:0 auto 14px}
-.sample-link-wrap{text-align:center;margin:8px 0 28px;font-size:13px}
-.sample-link-wrap a{color:#4A554F;text-decoration:underline}
-.trust-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 24px;margin:18px auto 44px;color:#4A554F;font-size:13px;text-align:center}
-.lender-strip{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-block:1px solid #E2E5DC;padding:16px 4px;margin:28px 0 42px;color:#4A554F}
-.lender-strip span{font-size:12px}
-.lender-strip strong{font-size:14px;color:#0F1B15}
-.step-card{background:#fff;border:1px solid #E2E5DC;border-radius:20px;padding:24px;height:100%;box-shadow:0 6px 20px rgba(15,27,21,.03)}
-.step-num{color:#47611C;font-size:12px;font-weight:800;letter-spacing:.08em}
-.step-card h3{font:700 18px 'Space Grotesk',sans-serif;margin:12px 0 6px;color:#0F1B15}
-.step-card p{font-size:14px;line-height:1.55;color:#4A554F;margin:0}
-.stPageLink a,.stButton>button{min-height:52px!important;border-radius:14px!important;font-weight:700!important}
-.stPageLink a[kind="primary"],.stButton>button[kind="primary"],.stButton>button[data-testid="stBaseButton-primary"]{background:#0F1B15!important;border:1px solid #0F1B15!important;color:#ffffff!important;font-size:16px!important;font-weight:700!important;box-shadow:0 4px 14px rgba(15,27,21,.2)!important}
-.stButton>button[kind="primary"]:hover,.stButton>button[data-testid="stBaseButton-primary"]:hover{background:#1f3328!important;border-color:#1f3328!important;color:#ffffff!important}
-.stButton>button[kind="primary"] *,.stButton>button[data-testid="stBaseButton-primary"] *{color:#ffffff!important}
-@media(max-width:720px){.block-container{padding:1rem .9rem 2.5rem}.home-title{font-size:36px!important}.hero-copy{font-size:16px}.trust-row{flex-direction:column;gap:8px;align-items:center}.lender-strip{justify-content:center;gap:10px}.cta-wrap{max-width:100%}div[data-testid="stHorizontalBlock"]{flex-direction:column!important;gap:14px!important}div[data-testid="column"]{width:100%!important;flex:1 1 100%!important}}
+.hero-eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1F7A4D;
+  margin-bottom: 16px;
+}
+.hero-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif !important;
+  font-size: clamp(36px, 4.2vw, 54px) !important;
+  font-weight: 700 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.04em !important;
+  color: var(--ink) !important;
+  margin: 0 0 18px 0;
+}
+.hero-sub {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 520px;
+  margin: 0 0 28px 0;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.hero-example-link {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hero-example-link:hover {
+  color: var(--good);
+}
+.hero-trust {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Preview Card */
+.preview-card {
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 26px 28px;
+  box-shadow: 0 24px 60px -30px rgba(15,27,21,.35);
+}
+.preview-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.preview-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.preview-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: #ECFCCB;
+  color: #365314;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.preview-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.preview-check-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--good);
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.preview-status-text {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.preview-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.preview-panel {
+  background: var(--soft);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--good);
+  line-height: 1.35;
+}
+.preview-foir {
+  margin-bottom: 20px;
+}
+.preview-foir-header {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 7px;
+}
+.preview-foir-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #E9ECE4;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.preview-foir-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--good);
+}
+.preview-foir-caption {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.preview-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.chip-bank {
+  font-size: 12px;
+  font-weight: 600;
+  color: #365314;
+  background: #ECFCCB;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.chip-nbfc {
+  font-size: 12px;
+  font-weight: 600;
+  color: #854D0E;
+  background: #FEF3C7;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.chip-more {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 6px;
+}
+
+/* 4 Tiles */
+.section-title-wrap {
+  margin-top: 64px;
+  margin-bottom: 24px;
+}
+.section-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.tool-tile {
+  border-radius: 20px;
+  padding: 24px;
+  text-decoration: none !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+  transition: all 0.2s ease;
+}
+.tool-tile.standard {
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 16px rgba(15,27,21,0.025);
+}
+.tool-tile.standard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(15,27,21,0.07);
+}
+.tool-tile.dark {
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  box-shadow: 0 6px 20px rgba(15,27,21,0.12);
+}
+.tool-tile.dark:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(15,27,21,0.18);
+}
+.tile-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-bottom: 18px;
+}
+.tile-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+.tool-tile.standard .tile-title { color: var(--ink); }
+.tool-tile.dark .tile-title { color: #FFFFFF; }
+.tile-desc {
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0 0 18px 0;
+  flex-grow: 1;
+}
+.tool-tile.standard .tile-desc { color: var(--muted); }
+.tool-tile.dark .tile-desc { color: #C3CEC6; }
+.tile-action {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tool-tile.standard .tile-action { color: var(--ink); }
+.tool-tile.dark .tile-action { color: var(--accent); }
+@media (max-width: 900px) {
+  .tools-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .tools-grid { grid-template-columns: 1fr; }
+}
+
+/* How It Works Band */
+.how-band {
+  background: rgba(238,240,234,.75);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 56px 36px;
+  margin-top: 64px;
+}
+.how-heading {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 42px 0;
+  text-align: center;
+}
+.steps-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 36px;
+  position: relative;
+}
+.step-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.step-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 2;
+}
+.step-line {
+  position: absolute;
+  top: 26px;
+  left: 52px;
+  right: -36px;
+  height: 2px;
+  background: #D7DCCF;
+  z-index: 1;
+}
+.step-item:last-child .step-line {
+  display: none;
+}
+.step-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 8px 0;
+}
+.step-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .steps-row { grid-template-columns: 1fr; gap: 28px; }
+  .step-line { display: none; }
+}
+
+/* Lenders Section */
+.lenders-card {
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 32px;
+  margin-top: 64px;
+}
+.lenders-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.lenders-title {
+  font-family: 'Space Grotesk', 'Mukta', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.lenders-meta {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.lenders-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px 18px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.lender-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.lender-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.lender-dot.bank { background: #1F7A4D; }
+.lender-dot.nbfc { background: #7A9A12; }
+.lenders-legend {
+  margin-top: 16px;
+  font-size: 12px;
+  display: flex;
+  gap: 16px;
+}
+.leg-bank { color: #1F7A4D; font-weight: 600; }
+.leg-nbfc { color: #7A9A12; font-weight: 600; }
+@media (max-width: 800px) {
+  .lenders-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 500px) {
+  .lenders-grid { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 """, unsafe_allow_html=True)
 
+# ==============================================================================
+# TASK 2.A — Hero Section
+# ==============================================================================
+col_hero_left, col_hero_right = st.columns([1.1, 0.9], gap="large", vertical_alignment="center")
+
+with col_hero_left:
+    st.markdown(f'<div class="hero-eyebrow">{t("eyebrow_home")}</div>', unsafe_allow_html=True)
+    st.markdown(f'<h1 class="hero-title">{t("v2_title")}</h1>', unsafe_allow_html=True)
+    st.markdown(f'<p class="hero-sub">{t("hero_subtext")}</p>', unsafe_allow_html=True)
+
+    c_btn, c_link = st.columns([1.4, 1.0], vertical_alignment="center")
+    with c_btn:
+        with st.container(key="hero_cta"):
+            if st.button(t("hero_cta"), use_container_width=True):
+                st.switch_page("pages/1_Check_Eligibility.py")
+    with c_link:
+        st.markdown(f'<a href="/Sample_Cases" target="_self" class="hero-example-link">{t("hero_example_link")} →</a>', unsafe_allow_html=True)
+
+    st.markdown(f'<div class="hero-trust">{t("hero_trust")}</div>', unsafe_allow_html=True)
+
+with col_hero_right:
+    st.markdown(
+        f'<div class="preview-card">'
+        f'  <div class="preview-top">'
+        f'    <span class="preview-label">{t("preview_your_result")}</span>'
+        f'    <span class="preview-badge">{t("preview_example_tag")}</span>'
+        f'  </div>'
+        f'  <div class="preview-status">'
+        f'    <div class="preview-check-circle">✓</div>'
+        f'    <div class="preview-status-text">{t("preview_good_position")}</div>'
+        f'  </div>'
+        f'  <div class="preview-panels">'
+        f'    <div class="preview-panel">{t("preview_safely_borrow")}</div>'
+        f'    <div class="preview-panel">{t("preview_lenders_matched")}</div>'
+        f'  </div>'
+        f'  <div class="preview-foir">'
+        f'    <div class="preview-foir-header">{t("preview_salary_emi")}</div>'
+        f'    <div class="preview-foir-bar">'
+        f'      <div class="preview-foir-fill" style="width: 23%;"></div>'
+        f'    </div>'
+        f'    <div class="preview-foir-caption">{t("preview_foir_caption")}</div>'
+        f'  </div>'
+        f'  <div class="preview-chips">'
+        f'    <span class="chip-bank">● SBI</span>'
+        f'    <span class="chip-bank">● HDFC</span>'
+        f'    <span class="chip-bank">● ICICI</span>'
+        f'    <span class="chip-nbfc">● IndusInd</span>'
+        f'    <span class="chip-more">{t("preview_more_lenders")}</span>'
+        f'  </div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+# ==============================================================================
+# TASK 2.B — "What you can do here" (4 tiles)
+# ==============================================================================
+icon_target = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F1B15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+icon_scales = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F1B15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>'
+icon_shield = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F1B15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>'
+icon_rotate = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F1B15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>'
+
 st.markdown(
-    f'<div class="hero-box">'
-    f'<div class="hero-pill">{home_text("pill")}</div>'
-    f'<h1 class="home-title">{home_text("title")}</h1>'
-    f'<p class="hero-copy">{home_text("subtext")}</p>'
+    f'<div class="section-title-wrap">'
+    f'  <h2 class="section-title">{t("what_you_can_do")}</h2>'
+    f'</div>'
+    f'<div class="tools-grid">'
+    f'  <a href="/Check_Eligibility" target="_self" class="tool-tile dark">'
+    f'    <div>'
+    f'      <div class="tile-icon-circle">{icon_target}</div>'
+    f'      <h3 class="tile-title">{t("tile1_title")}</h3>'
+    f'      <p class="tile-desc">{t("tile1_desc")}</p>'
+    f'    </div>'
+    f'    <div class="tile-action">{t("tile1_action")}</div>'
+    f'  </a>'
+    f'  <a href="/Tools?tab=compare" target="_self" class="tool-tile standard">'
+    f'    <div>'
+    f'      <div class="tile-icon-circle">{icon_scales}</div>'
+    f'      <h3 class="tile-title">{t("tile2_title")}</h3>'
+    f'      <p class="tile-desc">{t("tile2_desc")}</p>'
+    f'    </div>'
+    f'    <div class="tile-action">{t("tile2_action")}</div>'
+    f'  </a>'
+    f'  <a href="/Tools?tab=safety" target="_self" class="tool-tile standard">'
+    f'    <div>'
+    f'      <div class="tile-icon-circle">{icon_shield}</div>'
+    f'      <h3 class="tile-title">{t("tile3_title")}</h3>'
+    f'      <p class="tile-desc">{t("tile3_desc")}</p>'
+    f'    </div>'
+    f'    <div class="tile-action">{t("tile3_action")}</div>'
+    f'  </a>'
+    f'  <a href="/Tools?tab=rejected" target="_self" class="tool-tile standard">'
+    f'    <div>'
+    f'      <div class="tile-icon-circle">{icon_rotate}</div>'
+    f'      <h3 class="tile-title">{t("tile4_title")}</h3>'
+    f'      <p class="tile-desc">{t("tile4_desc")}</p>'
+    f'    </div>'
+    f'    <div class="tile-action">{t("tile4_action")}</div>'
+    f'  </a>'
     f'</div>',
     unsafe_allow_html=True,
 )
 
-c_left, c_cta, c_right = st.columns([1, 1.4, 1])
-with c_cta:
-    if st.button(t("start_check"), type="primary", use_container_width=True, icon=":material/arrow_forward:"):
-        st.switch_page("pages/1_Check_Eligibility.py")
-
+# ==============================================================================
+# TASK 2.C — "How it works" Band
+# ==============================================================================
 st.markdown(
-    f'<div class="sample-link-wrap"><a href="/Sample_Cases">{home_text("example")} →</a></div>'
-    f'<div class="trust-row"><span>✓ {home_text("trust1")}</span>'
-    f'<span>✓ {home_text("trust2")}</span><span>✓ {home_text("trust3")}</span></div>',
+    f'<div class="how-band">'
+    f'  <h2 class="how-heading">{t("how_title")}</h2>'
+    f'  <div class="steps-row">'
+    f'    <div class="step-item">'
+    f'      <div class="step-circle">1</div>'
+    f'      <div class="step-line"></div>'
+    f'      <h3 class="step-title">{t("step1")}</h3>'
+    f'      <p class="step-desc">{t("step1_body")}</p>'
+    f'    </div>'
+    f'    <div class="step-item">'
+    f'      <div class="step-circle">2</div>'
+    f'      <div class="step-line"></div>'
+    f'      <h3 class="step-title">{t("step2")}</h3>'
+    f'      <p class="step-desc">{t("step2_body")}</p>'
+    f'    </div>'
+    f'    <div class="step-item">'
+    f'      <div class="step-circle">3</div>'
+    f'      <h3 class="step-title">{t("step3")}</h3>'
+    f'      <p class="step-desc">{t("step3_body")}</p>'
+    f'    </div>'
+    f'  </div>'
+    f'</div>',
     unsafe_allow_html=True,
 )
 
-section_title(t("how_title"))
-steps = [
-    ("01", t("step1"), t("step1_body")),
-    ("02", t("step2"), t("step2_body")),
-    ("03", t("step3"), t("step3_body")),
-]
-for col, (number, title, body) in zip(st.columns(3, gap="medium"), steps):
-    with col:
-        st.markdown(
-            f'<article class="step-card"><span class="step-num">{number}</span>'
-            f'<h3>{title}</h3><p>{body}</p></article>',
-            unsafe_allow_html=True,
-        )
-
+# ==============================================================================
+# TASK 2.D — 15 Lenders Section
+# ==============================================================================
 try:
     bank_data = load_bank_rules()
     lenders_list = bank_data.get("lenders", [])
-    lender_tags = "".join(f'<strong>{l.get("short_name", l.get("name"))}</strong>' for l in lenders_list)
-    lender_caption_text = home_text("lender_caption", count=len(lenders_list))
+    raw_date = bank_data.get("last_checked", "2026-11-27")
+    try:
+        dt = datetime.strptime(raw_date, "%Y-%m-%d")
+        formatted_date = dt.strftime("%d %b %Y")
+    except Exception:
+        formatted_date = raw_date
 except Exception:
-    lender_tags = ""
-    lender_caption_text = home_text("lender_caption", count=15)
+    lenders_list = []
+    formatted_date = "27 Nov 2026"
+
+lender_items_html = []
+for lender in lenders_list:
+    short_name = lender.get("short_name", lender.get("name", ""))
+    lender_type = str(lender.get("type", "Bank")).lower()
+    dot_class = "nbfc" if lender_type == "nbfc" else "bank"
+    lender_items_html.append(
+        f'<div class="lender-item">'
+        f'  <span class="lender-dot {dot_class}"></span>'
+        f'  <span>{short_name}</span>'
+        f'</div>'
+    )
+lenders_grid_html = "".join(lender_items_html)
 
 st.markdown(
-    f'<div class="lender-strip"><span>{lender_caption_text}</span>{lender_tags}</div>',
+    f'<div class="lenders-card">'
+    f'  <div class="lenders-head">'
+    f'    <h3 class="lenders-title">{t("lenders_card_title")}</h3>'
+    f'    <span class="lenders-meta">{t("lenders_updated_text", date=formatted_date)}</span>'
+    f'  </div>'
+    f'  <div class="lenders-grid">'
+    f'    {lenders_grid_html}'
+    f'  </div>'
+    f'  <div class="lenders-legend">'
+    f'    <span class="leg-bank">● {t("legend_bank")}</span>'
+    f'    <span class="leg-nbfc">● {t("legend_nbfc")}</span>'
+    f'  </div>'
+    f'</div>',
     unsafe_allow_html=True,
 )
 
-st.info(t("model_warning"), icon="ℹ️")
 footer()

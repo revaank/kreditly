@@ -18,7 +18,7 @@ def reset_sample(case_id):
     for name in ("income","loan","emi","util","tenure"):
         st.session_state.pop(f"sample_{name}_{case_id}",None)
 
-page_setup(); header("samples"); section_title(t("cases_title")); st.info(t("model_warning"))
+page_setup(); header("samples"); section_title(t("cases_title")); st.info(t("sample_banner_note"))
 try:
     cases=json.loads((Path(__file__).resolve().parents[1]/"src"/"sample_cases.json").read_text(encoding="utf-8"))
     if not isinstance(cases,list) or not cases or any(
